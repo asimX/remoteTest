@@ -159,6 +159,7 @@ exports.GV = {
 	rpID: null,
 	sm_id: null,
 	tm_id: null,
+	acl_id: null,
 	
 	// used to index proposals in DB prior to ACS upload
 	//timeId: null,

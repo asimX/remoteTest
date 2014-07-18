@@ -87,7 +87,6 @@ exports.LibraryView = function() {
 	viewMarketing.add(tableMarketing);
 	var lastView = viewMarketing;
 	var MarketingArr = GetPdfNumbers.GetPdfNumbers('Marketing');
-	Ti.API.info(MarketingArr.length);
 	for ( i = 0; i < MarketingArr.length; i++) {
 
 		viewPlaceHolder[i] = Ti.UI.createTableViewRow({
@@ -130,7 +129,7 @@ exports.LibraryView = function() {
 			url: '/Pdf/Marketing/' + MarketingArr[e.index]
 		});
 		//docViewer.url = 'Pdf/Marketing/' + MarketingArr[e.index];
-		Ti.API.info("DOCVIEWER FILE:  "+MarketingArr[e.index]);
+		//Ti.API.info("DOCVIEWER FILE:  "+MarketingArr[e.index]);
 		docViewer.show({
 			animated : true
 		});
@@ -204,13 +203,13 @@ exports.LibraryView = function() {
 
 	tableMXPos.setData(tableMXPosData);
 
-tableMXPos.addEventListener('click',function(e){
+    tableMXPos.addEventListener('click',function(e){
 		
 		docViewer=null;
 		docViewer = Ti.UI.iOS.createDocumentViewer({
 			url: '/Pdf/MXPOS/' + MxposArr[e.index]
 		});
-		Ti.API.info('/Pdf/MXPOS/' + MxposArr[e.index]);
+		//Ti.API.info('/Pdf/MXPOS/' + MxposArr[e.index]);
 			docViewer.show({
 				//url: 'Pdf/MXPOS/' + MxposArr[e.index],
 				animated : true
@@ -615,13 +614,13 @@ tablePriPaper.addEventListener('click',function(e){
 	}
 
 	tableTerminal.setData(tableTerminalData);
-tableTerminal.addEventListener('click',function(e){
+    tableTerminal.addEventListener('click',function(e){
 		
 		docViewer=null;
 		docViewer = Ti.UI.iOS.createDocumentViewer({
 			url: '/Pdf/TerminalSellSheets/' + TerminalArr[e.index]
 		});
-			Ti.API.info(MarketingArr[e.source.myid]);
+			//Ti.API.info(MarketingArr[e.source.myid]);
 			docViewer.show({
 
 				animated : true

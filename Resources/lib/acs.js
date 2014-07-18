@@ -29,13 +29,24 @@ exports.loginUser = function(email, password, callback) {
 			Ti.App.Properties.setString('userRole', user.role);
 			globalVariables.GV.userRole = user.role;
 			Ti.API.info("SESSION ID IS:  " +Cloud.sessionId);
-			Ti.App.Properties.setBool("loggedIn",true);
-			globalVariables.GV.loggedIn=true;
+			globalVariables.GV.cloudSessionSet=true;
+			// Ti.App.Properties.setBool("loggedIn",true);
+			// globalVariables.GV.loggedIn=true;
 			globalVariables.GV.proposalsViewFirstTime=true;
 			globalVariables.GV.sm_id = user.custom_fields.sm_id;
 			Ti.App.Properties.setString("sm_id", globalVariables.GV.sm_id);
 			globalVariables.GV.tm_id = user.custom_fields.tm_id;
 			Ti.App.Properties.setString("tm_id", globalVariables.GV.tm_id);
+			if(globalVariables.GV.userRole=="Admin")
+			{
+				globalVariables.GV.acl_id = null;
+			}
+			else
+			{
+				globalVariables.GV.acl_id = user.custom_fields.acl_id;
+			}
+			Ti.App.Properties.setString("acl_id", globalVariables.GV.acl_id);
+			
 			if(user.custom_fields.neverLoggedIn)
 			{
 				
@@ -117,36 +128,253 @@ exports.loginUser = function(email, password, callback) {
 							pwd: tfNewPwd.value
 						}, function(f){
 							if(f.success){
-								callback(e);
+								aclsmUpdate({
+								    user: user
+								    }, function(f){
+								        callback(f);
+								});
 							}
 							else{
 								alert.alert("Could not change password. You will be asked next time you log in. \n"+JSON.stringify(f));
-								callback(e);
+								callback(f);
 							}
 						});
 					}
 					else{
-						alert("Passwords don't match.");
+						alert("Passwords don't match. Try again.");
 						tfNewPwd.value="";
 						tfNewPwdConf.value="";
 					}
-					
-					
 				});
 			
 				w.open(a);
-				
 			}
 			else{
-				callback(e);
+			    //call acsmUpdateFn
+			    aclsmUpdate({
+                    user: user
+                    }, function(f){
+                        callback(f);
+                });
 			}
 		}
 		else{
-			callback(e);
-		}
-	});
+            callback(e);
+        }
+    });
 
 };
+		
+function aclsmUpdate(params, callback){		
+    var user = params.user;
+    var aclFixed=null;
+	var smtmFixed=null;
+				
+	if(user.custom_fields.aclBugFixed==false||user.custom_fields.aclBugFixed==null)
+	{
+	    db.insertAclBugFix(function(f){
+	        
+	        if(!f.success){
+	            //alert(f.message+"\n Permissions were not patched due to error in Database. Please logout and login in again.");
+	            callback({
+                    success: false,
+                    message: f.message+"\n Permissions were not patched due to error in Database. Please logout and login in again."
+                });
+	        }
+	        else{
+	            aclFixed=true;
+	            Cloud.Users.update({
+                    custom_fields:{
+                        aclBugFixed: true
+                    }
+                }, function(g){
+                    if(g.success)
+                    {
+                        if(user.custom_fields.smtmBugFixed==false||user.custom_fields.smtmBugFixed==null)
+                        {
+                            db.insertSmTmBugFix(function(h){
+                                if(!h.success){
+                                    alert(h.message+"\n Sales Manager Permissions were not patched due to error in Database. Please logout and login in again.");
+                                }
+                                else{
+                                    smtmFixed=true;
+                                    //if(user.custom_fields.smtmBugFixed==null)
+                                    Cloud.Users.update({
+                                        custom_fields:{
+                                            smtmBugFixed: true
+                                        }
+                                    }, function(j){
+                                        if(j.success)
+                                        {
+                                            
+                            		          aclFixed=null;
+                            				  smtmFixed=null;
+                            				  callback({
+                            				      success: true
+                            				  });
+                            				
+                            			}
+                            			else{
+                            			    //alert(j.message+"\n SMTM Patch confirmation was not applied in ACS. Please logout and login in again.");
+                            			    callback({
+                                                success: false,
+                                                message: j.message+"\n SMTM Patch confirmation was not applied in ACS. Please logout and login in again."
+                                            });
+                            			}
+                                    });
+                                }
+                            });
+                        }
+                    }
+                    else{
+                        callback({
+                            success: false,
+                            message: j.message+"\n ACL Patch confirmation was not applied in ACS. Please logout and login in again."
+                        });
+                        //alert(g.message+"\n ACL Patch confirmation was not applied in ACS. Please logout and login in again.");
+                    }
+                });
+	        }
+	    });
+	}
+	else if(user.custom_fields.smtmBugFixed==false||user.custom_fields.smtmBugFixed==null)
+    {
+        db.insertSmTmBugFix(function(f){
+            if(!f.success){
+                //alert(f.message+"\n Sales Manager Permissions were not patched due to error in Database. Please logout and login in again.");
+                callback({
+                    success: false,
+                    message: j.message+"\n Sales Manager Permissions were not patched due to error in Database. Please logout and login in again.."
+                });
+            }
+            else{
+                smtmFixed=true;
+                //if(user.custom_fields.smtmBugFixed==null)
+                Cloud.Users.update({
+                    custom_fields:{
+                        smtmBugFixed: true
+                    }
+                }, function(g){
+                    if(g.success)
+                    { 
+                        smtmFixed=null;
+                        callback({
+                            success: true
+                        });
+                    }
+                    else{
+                        //alert(g.message+"\n SMTM Patch confirmation was not applied in ACS. Please logout and login in again.");
+                        callback({
+                            success: false,
+                            message: g.message+"\n SMTM Patch confirmation was not applied in ACS. Please logout and login in again."
+                        });
+                    }
+                });
+            }
+        });
+    }
+    else{
+        //no update needed.
+        callback({
+            success: true
+        });
+    }
+	    
+};
+	
+// else{
+	// var aclFixed=null;
+    // var smtmFixed=null;
+//     
+    // if(user.custom_fields.aclBugFixed==false||user.custom_fields.aclBugFixed==null)
+    // {
+        // db.insertAclBugFix(function(f){
+//             
+            // if(!f.success){
+                // alert(f.message+"\n Permissions were not patched due to error in Database. Please logout and login in again.");
+            // }
+            // else{
+                // aclFixed=true;
+                // Cloud.Users.update({
+                    // custom_fields:{
+                        // aclBugFixed: true
+                    // }
+                // }, function(g){
+                    // if(g.success)
+                    // {
+                        // if(user.custom_fields.smtmBugFixed==false||user.custom_fields.smtmBugFixed==null)
+                        // {
+                            // db.insertSmTmBugFix(function(h){
+                                // if(!h.success){
+                                    // alert(h.message+"\n Sales Manager Permissions were not patched due to error in Database. Please logout and login in again.");
+                                // }
+                                // else{
+                                    // smtmFixed=true;
+                                    // Cloud.Users.update({
+                                        // custom_fields:{
+                                            // smtmBugFixed: true
+                                        // }
+                                    // }, function(j){
+                                        // if(j.success)
+                                        // {
+                                            // aclFixed=null;
+                                            // smtmFixed=null;
+                                            // callback({
+                                                // success: true
+                                            // });
+                                        // }
+                                        // else{
+                                            // alert(j.message+"\n SMTM Patch confirmation was not applied in ACS. Please logout and login in again.");
+                                        // }
+                                    // });
+                                // }
+                            // });
+                        // }
+                        // else{
+                            // callback(g);
+                        // }
+                    // }
+                    // else{
+                        // alert(g.message+"\n ACL Patch confirmation was not applied in ACS. Please logout and login in again.");
+                    // }
+                // });
+            // }
+        // });
+    // }
+    // else if(user.custom_fields.smtmBugFixed==false||user.custom_fields.smtmBugFixed==null)
+    // {
+        // db.insertSmTmBugFix(function(f){
+            // if(!f.success){
+                // alert(f.message+"\n Sales Manager Permissions were not patched due to error in Database. Please logout and login in again.");
+            // }
+            // else{
+                // smtmFixed=true;
+                // //if(user.custom_fields.smtmBugFixed==null)
+                // Cloud.Users.update({
+                    // custom_fields:{
+                        // smtmBugFixed: true
+                    // }
+                // }, function(g){
+                    // if(g.success)
+                    // {
+                        // callback({
+                            // success: true
+                        // });
+                    // }
+                    // else{
+                        // alert(g.message+"\n SMTM Patch confirmation was not applied in ACS. Please logout and login in again.");
+                        // }
+                    // });
+                // }
+            // });
+        // }
+        // else{
+            // callback(e);
+        // }
+  // }
+
+		
+		
 
 function changePwd(params,callback){
 	Cloud.Users.update({
@@ -176,6 +404,12 @@ exports.logoutUser = function(callback){
 			Ti.App.Properties.setBool("loggedIn", false);
 			globalVariables.GV.loggedIn = false;
 			globalVariables.GV.cloudSessionSet = false;
+			globalVariables.GV.sm_id = null;
+			Ti.App.Properties.setString("sm_id", null);
+			globalVariables.GV.tm_id = null;
+			Ti.App.Properties.setString("tm_id", null);
+			globalVariables.GV.acl_id = null;
+			Ti.App.Properties.setString("acl_id", null);
 			callback();
 		}
 		else{
@@ -191,6 +425,7 @@ exports.queryProposalsByUid = function(params, callback) {
 		classname : 'Proposal',
 		//page : 1,
 		//per_page : 10,
+		limit: 1000,
 		where:{
 			user_id: globalVariables.GV.userId
 		}
@@ -200,13 +435,14 @@ exports.queryProposalsByUid = function(params, callback) {
 			if(params.getUpdates){
 				db.getAllLastDates(function(f){
 					var changedArray = [];
+					var moment=require("/lib/moment");
 					for(var i=0;i<f.results.length;i++){
 						var j=0;
 						var found=false;
 						while(!found && j<e.Proposal.length){
 							if(e.Proposal[j].id==f.results[i].ProposalId){
-								var remoteDate = new Date(e.Proposal[j].LastUpdated);
-								var localDate = new Date(f.results[i].LastUpdated);
+								var remoteDate = moment(e.Proposal[j].updated_at);  ///CHANGE THIS BACK TO LASTUPDATED
+								var localDate = moment(f.results[i].LastUpdated);
 								if(remoteDate>localDate)
 								{
 									changedArray.push(e.Proposal[j]);
@@ -216,6 +452,7 @@ exports.queryProposalsByUid = function(params, callback) {
 							j++;
 						}
 					}
+					moment=null;
 					callback({
 						success: true,
 						results: changedArray
@@ -246,6 +483,7 @@ exports.queryProposalsBySmid = function(params,callback) {
 		classname : 'Proposal',
 		//page : 1,
 		//per_page : 10,
+		limit: 1000,
 		where:{
 			sm_id: globalVariables.GV.userId
 		}
@@ -255,16 +493,17 @@ exports.queryProposalsBySmid = function(params,callback) {
 			if(params.getUpdates){
 				db.getAllLastDates(function(f){
 					var changedArray = [];
+					var moment=require("/lib/moment");
 					for(var i=0;i<f.results.length;i++){
 						var j=0;
 						var found=false;
 						while(!found && j<e.Proposal.length){
 							if(e.Proposal[j].id==f.results[i].ProposalId){
-								var remoteDate = new Date(e.Proposal[j].LastUpdated);
-								var localDate = new Date(f.results[i].LastUpdated);
+								var remoteDate = moment(e.Proposal[j].updated_at);  ///CHANGE THIS BACK TO LASTUPDATED
+                                var localDate = moment(f.results[i].LastUpdated);
 								if(remoteDate>localDate)
 								{
-									changedArray.push(e.Proposal[j].LastUpdated);
+									changedArray.push(e.Proposal[j]);
 								}
 								found=true;
 							}
@@ -301,6 +540,7 @@ exports.queryProposalsByTmid = function(params, callback) {
 		classname : 'Proposal',
 		//page : 1,
 		//per_page : 10,
+		limit: 1000,
 		where:{
 			tm_id: globalVariables.GV.userId
 		}
@@ -310,20 +550,21 @@ exports.queryProposalsByTmid = function(params, callback) {
 			if(params.getUpdates){
 				db.getAllLastDates(function(f){
 					var changedArray = [];
+					var moment=require("/lib/moment");
 					for(var i=0;i<f.results.length;i++){
 						var j=0;
 						var found=false;
 						while(!found && j<e.Proposal.length){
 							if(e.Proposal[j].id==f.results[i].ProposalId){
-								var remoteDate = new Date(e.Proposal[j].LastUpdated);
-								var localDate = new Date(f.results[i].LastUpdated);
+								var remoteDate = moment(e.Proposal[j].updated_at);  ///CHANGE THIS BACK TO LASTUPDATED
+                                var localDate = moment(f.results[i].LastUpdated);
 								if(remoteDate>localDate)
 								{
-									changedArray.push(e.Proposal[j].LastUpdated);
+									changedArray.push(e.Proposal[j]);
 									found=true;
 								}
-								j++;
 							}
+							j++;
 						}
 					}
 					callback({
@@ -378,30 +619,30 @@ exports.queryAllProposals = function(params,callback) {
 		// where:{
 			// user_id: value
 		// }
+		limit: 1000
 	}, function(e) {
 		if (e.success) {
-			// Ti.API.info("queryProposal All Results: " + JSON.stringify(e));
-			//alert.alert('Success:\n' + 'Count: ' + e.Proposal[0].BusinessName);
-			//Ti.API.error('Success:\n' + 'Count: ' + e.Proposal[0].debitTransactions);
 			if(params.getUpdates){
 				db.getAllLastDates(function(f){
 					var changedArray = [];
+					var moment=require("/lib/moment");
 					for(var i=0;i<f.results.length;i++){
 						var j=0;
 						var found=false;
 						while(!found && j<e.Proposal.length){
 							if(e.Proposal[j].id==f.results[i].ProposalId){
-								var remoteDate = new Date(e.Proposal[j].LastUpdated);
-								var localDate = new Date(f.results[i].LastUpdated);
+								var remoteDate = moment(e.Proposal[j].updated_at);
+                                var localDate = moment(f.results[i].LastUpdated);
 								if(remoteDate>localDate)
 								{
-									changedArray.push(e.Proposal[j].LastUpdated);
+									changedArray.push(e.Proposal[j]);
 								}
 								found=true;
 							}
 							j++;
 						}
 					}
+					
 					callback({
 						success: true,
 						results: changedArray
@@ -429,6 +670,7 @@ exports.downloadRemoteProposals = function(params, callback){
 	if(globalVariables.GV.userRole=="Admin"){
 		Cloud.Objects.query({
 			classname : 'Proposal',
+			limit: 1000,
 			where: {
 				id: {"$nin":params.localProposals}
 			}
@@ -453,6 +695,7 @@ exports.downloadRemoteProposals = function(params, callback){
 	else if(globalVariables.GV.userRole == "Sales Manager"){
 		Cloud.Objects.query({
 			classname : 'Proposal',
+			limit: 1000,
 			where: {
 				sm_id: globalVariables.GV.userId,
 				id: {"$nin":params.localProposals}
@@ -477,6 +720,7 @@ exports.downloadRemoteProposals = function(params, callback){
 	else if (globalVariables.GV.userRole == "Territory Manager"){
 		Cloud.Objects.query({
 			classname : 'Proposal',
+			limit: 1000,
 			where: {
 				tm_id: globalVariables.GV.userId,
 				id: {"$nin":params.localProposals}
@@ -501,6 +745,7 @@ exports.downloadRemoteProposals = function(params, callback){
 	else{
 		Cloud.Objects.query({
 		classname : 'Proposal',
+		limit: 1000,
 		where: {
 			user_id: globalVariables.GV.userId,
 			id: {"$nin":params.localProposals}
@@ -522,6 +767,34 @@ exports.downloadRemoteProposals = function(params, callback){
 			}
 		});
 	}	
+};
+
+exports.getDeletedIds = function(params, callback){
+    Cloud.Objects.query({
+        classname : 'Proposal',
+        limit: 1000,
+        where: {
+            id: {"$in":params.localProposals}
+        }
+        },function(e){
+            if(e.success){
+                //Ti.API.info(JSON.stringify(e));
+                var propIds = [];
+                for(var i=0;i<e.Proposal.length;i++)
+                {
+                    propIds.push(e.Proposal[i].id);
+                }
+                callback({
+                    success: propIds,
+                    results:e.Proposal
+                }); 
+            }else {
+                callback({
+                        success: false,
+                        results: e
+                });
+            }
+    });
 };
 
 exports.createProposal = function(params,callback) {	
@@ -546,6 +819,7 @@ exports.createProposal = function(params,callback) {
 		Cloud.Objects.create({
 			//session_id: globalVariables.GV.sessionId,
 			classname : 'Proposal',
+			acl_id: row.acl_id,
 			fields : {
 				BusinessName : row.BusinessName,
 				StreetAddress : row.StreetAddress,
@@ -556,54 +830,54 @@ exports.createProposal = function(params,callback) {
 				Phone : row.Phone,
 				BusinessType: row.BusinessType,
 				ProcessingMonths : row.ProcessingMonths,
-				debitVol : row.debitVol,
-				aeVol : row.aeVol,
-				dsVol : row.dsVol,
-				mcVol : row.mcVol,
-				visaVol : row.visaVol,
+				debitVol : parseFloat(row.debitVol).toFixed(2),
+                aeVol : parseFloat(row.aeVol).toFixed(2),
+                dsVol : parseFloat(row.dsVol).toFixed(2),
+                mcVol : parseFloat(row.mcVol).toFixed(2),
+                visaVol : parseFloat(row.visaVol).toFixed(2),
 				debitTransactions : row.debitTransactions,
 				aeTransactions : row.aeTransactions,
 				dsTransactions : row.dsTransactions,
 				mcTransactions : row.mcTransactions,
 				visaTransactions : row.visaTransactions,
-				debitAverageTicket : row.debitAverageTicket,
-				aeAverageTicket : row.aeAverageTicket,
-				dsAverageTicket : row.dsAverageTicket,
-				mcAverageTicket : row.mcAverageTicket,
-				visaAverageTicket : row.visaAverageTicket,
-				TotalCurrentFees : row.TotalCurrentFees,
-				CurrentEffectiveRate : row.CurrentEffectiveRate,
-				debitInterchangeFees : row.debitInterchangeFees,
-				aeInterchangeFees : row.aeInterchangeFees,
-				dsInterchangeFees : row.dsInterchangeFees,
-				mcInterchangeFees : row.mcInterchangeFees,
-				visaInterchangeFees : row.visaInterchangeFees,
-				debitProcessingFees : row.debitProcessingFees,
-				aeProcessingFees : row.aeProcessingFees,
-				dsProcessingFees : row.dsProcessingFees,
-				mcProcessingFees : row.mcProcessingFees,
-				visaProcessingFees : row.visaProcessingFees,
-				debitCardFees : row.debitCardFees,
-				aeCardFees : row.aeCardFees,
-				dsCardFees : row.dsCardFees,
-				mcCardFees : row.mcCardFees,
-				visaCardFees : row.visaCardFees,
-				TotalNewFees : row.TotalNewFees,
-				NewEffectiveRate : row.NewEffectiveRate,
-				MonthlySavings : row.MonthlySavings,
-				Year1Savings : row.Year1Savings,
-				Year2Savings : row.Year2Savings,
-				Year3Savings : row.Year3Savings,
-				Year4Savings : row.Year4Savings,
-				ProcessingFee : row.ProcessingFee,
-				AuthFee : row.AuthFee,
-				PinDebitProcessingFee : row.PinDebitProcessingFee,
-				PinDebitAuthFee : row.PinDebitAuthFee,
-				MonthlyServiceFee : row.MonthlyServiceFee,
-				IndustryComplinceFee : row.IndustryComplinceFee,
-				TerminalFee : row.TerminalFee,
-				MXGatewayFee : row.MXGatewayFee,
-				DebitAccessFee : row.DebitAccessFee,
+				debitAverageTicket : parseFloat(row.debitAverageTicket).toFixed(2),
+                aeAverageTicket : parseFloat(row.aeAverageTicket).toFixed(2),
+                dsAverageTicket : parseFloat(row.dsAverageTicket).toFixed(2),
+                mcAverageTicket : parseFloat(row.mcAverageTicket).toFixed(2),
+                visaAverageTicket : parseFloat(row.visaAverageTicket).toFixed(2),
+                TotalCurrentFees : parseFloat(row.TotalCurrentFees).toFixed(2),
+                CurrentEffectiveRate : parseFloat(row.CurrentEffectiveRate).toFixed(2),
+                debitInterchangeFees : parseFloat(row.debitInterchangeFees).toFixed(2),
+                aeInterchangeFees : parseFloat(row.aeInterchangeFees).toFixed(2),
+                dsInterchangeFees : parseFloat(row.dsInterchangeFees).toFixed(2),
+                mcInterchangeFees : parseFloat(row.mcInterchangeFees).toFixed(2),
+                visaInterchangeFees : parseFloat(row.visaInterchangeFees).toFixed(2),
+                debitProcessingFees : parseFloat(row.debitProcessingFees).toFixed(2),
+                aeProcessingFees : parseFloat(row.aeProcessingFees).toFixed(2),
+                dsProcessingFees : parseFloat(row.dsProcessingFees).toFixed(2),
+                mcProcessingFees : parseFloat(row.mcProcessingFees).toFixed(2),
+                visaProcessingFees : parseFloat(row.visaProcessingFees).toFixed(2),
+                debitCardFees : parseFloat(row.debitCardFees).toFixed(2),
+                aeCardFees : parseFloat(row.aeCardFees).toFixed(2),
+                dsCardFees : parseFloat(row.dsCardFees).toFixed(2),
+                mcCardFees : parseFloat(row.mcCardFees).toFixed(2),
+                visaCardFees : parseFloat(row.visaCardFees).toFixed(2),
+                TotalNewFees : parseFloat(row.TotalNewFees).toFixed(2),
+                NewEffectiveRate : parseFloat(row.NewEffectiveRate).toFixed(2),
+                MonthlySavings : parseFloat(row.MonthlySavings).toFixed(2),
+                Year1Savings : parseFloat(row.Year1Savings).toFixed(2),
+                Year2Savings : parseFloat(row.Year2Savings).toFixed(2),
+                Year3Savings : parseFloat(row.Year3Savings).toFixed(2),
+                Year4Savings : parseFloat(row.Year4Savings).toFixed(2),
+                ProcessingFee : parseFloat(row.ProcessingFee).toFixed(2),
+                AuthFee : parseFloat(row.AuthFee).toFixed(2),
+                PinDebitProcessingFee : parseFloat(row.PinDebitProcessingFee).toFixed(2),
+                PinDebitAuthFee : parseFloat(row.PinDebitAuthFee).toFixed(2),
+                MonthlyServiceFee : parseFloat(row.MonthlyServiceFee).toFixed(2),
+                IndustryComplinceFee : parseFloat(row.IndustryComplinceFee).toFixed(2),
+                TerminalFee : parseFloat(row.TerminalFee).toFixed(2),
+                MXGatewayFee : parseFloat(row.MXGatewayFee).toFixed(2),
+                DebitAccessFee : parseFloat(row.DebitAccessFee).toFixed(2),
 				//timeId: row.timeId,
 				Notes: row.NotesText,
 				LastUpdated: row.LastUpdated,
@@ -617,15 +891,17 @@ exports.createProposal = function(params,callback) {
 		}, function(e) {
 			if (e.success) {
 				//globalVariables.GV.ProposalId = e.Proposal.id;
-				alert.alert("Success", "Created Successfully");
+				//alert.alert("Success", "Created Successfully");
 				Ti.API.info("PROPOSAL CUSTOM OBJECT:  \n" + JSON.stringify(e));				
 				callback({success: true, 
 					proposalId: e.Proposal[0].id,
 					//timeId: e.Proposal[0].timeId
 				});
 			} else {
-				callback({success: false});
-				alert.alert('Error: \n', JSON.stringify(e));
+				callback({success: false,
+				          message: 'Error creating proposal: \n' + JSON.stringify(e)
+				});
+				//alert.alert('Error creating proposal: \n', JSON.stringify(e));
 			}
 		});
 	}
@@ -633,6 +909,7 @@ exports.createProposal = function(params,callback) {
 		Cloud.Objects.create({
 			//session_id: globalVariables.GV.sessionId,
 			classname : 'Proposal',
+			acl_id: globalVariables.GV.acl_id,
 			fields : {
 				BusinessName : globalVariables.GV.BusinessName,
 				StreetAddress : globalVariables.GV.StreetAddress,
@@ -643,54 +920,54 @@ exports.createProposal = function(params,callback) {
 				Phone : globalVariables.GV.Phone,
 				BusinessType: globalVariables.GV.BusinessType,
 				ProcessingMonths : globalVariables.GV.ProcessingMonths,
-				debitVol : globalVariables.GV.debitVol,
-				aeVol : globalVariables.GV.aeVol,
-				dsVol : globalVariables.GV.dsVol,
-				mcVol : globalVariables.GV.mcVol,
-				visaVol : globalVariables.GV.visaVol,
+				debitVol : parseFloat(globalVariables.GV.debitVol).toFixed(2),
+                aeVol : parseFloat(globalVariables.GV.aeVol).toFixed(2),
+                dsVol : parseFloat(globalVariables.GV.dsVol).toFixed(2),
+                mcVol : parseFloat(globalVariables.GV.mcVol).toFixed(2),
+                visaVol : parseFloat(globalVariables.GV.visaVol).toFixed(2),
 				debitTransactions : globalVariables.GV.debitTransactions,
 				aeTransactions : globalVariables.GV.aeTransactions,
 				dsTransactions : globalVariables.GV.dsTransactions,
 				mcTransactions : globalVariables.GV.mcTransactions,
 				visaTransactions : globalVariables.GV.visaTransactions,
-				debitAverageTicket : globalVariables.GV.debitAverageTicket,
-				aeAverageTicket : globalVariables.GV.aeAverageTicket,
-				dsAverageTicket : globalVariables.GV.dsAverageTicket,
-				mcAverageTicket : globalVariables.GV.mcAverageTicket,
-				visaAverageTicket : globalVariables.GV.visaAverageTicket,
-				TotalCurrentFees : globalVariables.GV.TotalCurrentFees,
-				CurrentEffectiveRate : globalVariables.GV.CurrentEffectiveRate,
-				debitInterchangeFees : globalVariables.GV.debitInterchangeFee,
-				aeInterchangeFees : globalVariables.GV.aeInterchangeFees,
-				dsInterchangeFees : globalVariables.GV.dsInterchangeFees,
-				mcInterchangeFees : globalVariables.GV.mcInterchangeFees,
-				visaInterchangeFees : globalVariables.GV.visaInterchangeFees,
-				debitProcessingFees : globalVariables.GV.debitProcessingFees,
-				aeProcessingFees : globalVariables.GV.aeProcessingFees,
-				dsProcessingFees : globalVariables.GV.dsProcessingFees,
-				mcProcessingFees : globalVariables.GV.mcProcessingFees,
-				visaProcessingFees : globalVariables.GV.visaProcessingFees,
-				debitCardFees : globalVariables.GV.debitCardFees,
-				aeCardFees : globalVariables.GV.aeCardFees,
-				dsCardFees : globalVariables.GV.dsCardFees,
-				mcCardFees : globalVariables.GV.mcCardFees,
-				visaCardFees : globalVariables.GV.visaCardFees,
-				TotalNewFees : globalVariables.GV.TotalNewFees,
-				NewEffectiveRate : globalVariables.GV.NewEffectiveRate,
-				MonthlySavings : globalVariables.GV.MonthlySavings,
-				Year1Savings : globalVariables.GV.Year1Savings,
-				Year2Savings : globalVariables.GV.Year2Savings,
-				Year3Savings : globalVariables.GV.Year3Savings,
-				Year4Savings : globalVariables.GV.Year4Savings,
-				ProcessingFee : globalVariables.GV.ProcessingFee,
-				AuthFee : globalVariables.GV.AuthFee,
-				PinDebitProcessingFee : globalVariables.GV.PinDebitProcessingFee,
-				PinDebitAuthFee : globalVariables.GV.PinDebitAuthFee,
-				MonthlyServiceFee : globalVariables.GV.MonthlyServiceFee,
-				IndustryComplinceFee : globalVariables.GV.IndustryComplinceFee,
-				TerminalFee : globalVariables.GV.TerminalFee,
-				MXGatewayFee : globalVariables.GV.MXGatewayFee,
-				DebitAccessFee : globalVariables.GV.DebitAccessFee,
+				debitAverageTicket : parseFloat(globalVariables.GV.debitAverageTicket).toFixed(2),
+                aeAverageTicket : parseFloat(globalVariables.GV.aeAverageTicket).toFixed(2),
+                dsAverageTicket : parseFloat(globalVariables.GV.dsAverageTicket).toFixed(2),
+                mcAverageTicket : parseFloat(globalVariables.GV.mcAverageTicket).toFixed(2),
+                visaAverageTicket : parseFloat(globalVariables.GV.visaAverageTicket).toFixed(2),
+                TotalCurrentFees : parseFloat(globalVariables.GV.TotalCurrentFees).toFixed(2),
+                CurrentEffectiveRate : parseFloat(globalVariables.GV.CurrentEffectiveRate).toFixed(2),
+                debitInterchangeFees : parseFloat(globalVariables.GV.debitInterchangeFees).toFixed(2),
+                aeInterchangeFees : parseFloat(globalVariables.GV.aeInterchangeFees).toFixed(2),
+                dsInterchangeFees : parseFloat(globalVariables.GV.dsInterchangeFees).toFixed(2),
+                mcInterchangeFees : parseFloat(globalVariables.GV.mcInterchangeFees).toFixed(2),
+                visaInterchangeFees : parseFloat(globalVariables.GV.visaInterchangeFees).toFixed(2),
+                debitProcessingFees : parseFloat(globalVariables.GV.debitProcessingFees).toFixed(2),
+                aeProcessingFees : parseFloat(globalVariables.GV.aeProcessingFees).toFixed(2),
+                dsProcessingFees : parseFloat(globalVariables.GV.dsProcessingFees).toFixed(2),
+                mcProcessingFees : parseFloat(globalVariables.GV.mcProcessingFees).toFixed(2),
+                visaProcessingFees : parseFloat(globalVariables.GV.visaProcessingFees).toFixed(2),
+                debitCardFees : parseFloat(globalVariables.GV.debitCardFees).toFixed(2),
+                aeCardFees : parseFloat(globalVariables.GV.aeCardFees).toFixed(2),
+                dsCardFees : parseFloat(globalVariables.GV.dsCardFees).toFixed(2),
+                mcCardFees : parseFloat(globalVariables.GV.mcCardFees).toFixed(2),
+                visaCardFees : parseFloat(globalVariables.GV.visaCardFees).toFixed(2),
+                TotalNewFees : parseFloat(globalVariables.GV.TotalNewFees).toFixed(2),
+                NewEffectiveRate : parseFloat(globalVariables.GV.NewEffectiveRate).toFixed(2),
+                MonthlySavings : parseFloat(globalVariables.GV.MonthlySavings).toFixed(2),
+                Year1Savings : parseFloat(globalVariables.GV.Year1Savings).toFixed(2),
+                Year2Savings : parseFloat(globalVariables.GV.Year2Savings).toFixed(2),
+                Year3Savings : parseFloat(globalVariables.GV.Year3Savings).toFixed(2),
+                Year4Savings : parseFloat(globalVariables.GV.Year4Savings).toFixed(2),
+                ProcessingFee : parseFloat(globalVariables.GV.ProcessingFee).toFixed(2),
+                AuthFee : parseFloat(globalVariables.GV.AuthFee).toFixed(2),
+                PinDebitProcessingFee : parseFloat(globalVariables.GV.PinDebitProcessingFee).toFixed(2),
+                PinDebitAuthFee : parseFloat(globalVariables.GV.PinDebitAuthFee).toFixed(2),
+                MonthlyServiceFee : parseFloat(globalVariables.GV.MonthlyServiceFee).toFixed(2),
+                IndustryComplinceFee : parseFloat(globalVariables.GV.IndustryComplinceFee).toFixed(2),
+                TerminalFee : parseFloat(globalVariables.GV.TerminalFee).toFixed(2),
+                MXGatewayFee : parseFloat(globalVariables.GV.MXGatewayFee).toFixed(2),
+                DebitAccessFee : parseFloat(globalVariables.GV.DebitAccessFee).toFixed(2),
 				//timeId: globalVariables.GV.timeId,
 				Notes: globalVariables.GV.NotesText,
 				LastUpdated: globalVariables.GV.LastUpdated,
@@ -725,6 +1002,7 @@ exports.updateProposal = function (params,callback){
 			//session_id: globalVariables.GV.sessionId,
 			classname : 'Proposal',
 			id: row.ProposalId,
+			acl_id: row.acl_id,
 			fields : {
 				BusinessName : row.BusinessName,
 				StreetAddress : row.StreetAddress,
@@ -735,66 +1013,68 @@ exports.updateProposal = function (params,callback){
 				Phone : row.Phone,
 				BusinessType: row.BusinessType,
 				ProcessingMonths : row.ProcessingMonths,
-				debitVol : row.debitVol,
-				aeVol : row.aeVol,
-				dsVol : row.dsVol,
-				mcVol : row.mcVol,
-				visaVol : row.visaVol,
+				debitVol : parseFloat(row.debitVol).toFixed(2),
+				aeVol : parseFloat(row.aeVol).toFixed(2),
+				dsVol : parseFloat(row.dsVol).toFixed(2),
+				mcVol : parseFloat(row.mcVol).toFixed(2),
+				visaVol : parseFloat(row.visaVol).toFixed(2),
 				debitTransactions : row.debitTransactions,
 				aeTransactions : row.aeTransactions,
 				dsTransactions : row.dsTransactions,
 				mcTransactions : row.mcTransactions,
 				visaTransactions : row.visaTransactions,
-				debitAverageTicket : row.debitAverageTicket,
-				aeAverageTicket : row.aeAverageTicket,
-				dsAverageTicket : row.dsAverageTicket,
-				mcAverageTicket : row.mcAverageTicket,
-				visaAverageTicket : row.visaAverageTicket,
-				TotalCurrentFees : row.TotalCurrentFees,
-				CurrentEffectiveRate : row.CurrentEffectiveRate,
-				debitInterchangeFees : row.debitInterchangeFees,
-				aeInterchangeFees : row.aeInterchangeFees,
-				dsInterchangeFees : row.dsInterchangeFees,
-				mcInterchangeFees : row.mcInterchangeFees,
-				visaInterchangeFees : row.visaInterchangeFees,
-				debitProcessingFees : row.debitProcessingFees,
-				aeProcessingFees : row.aeProcessingFees,
-				dsProcessingFees : row.dsProcessingFees,
-				mcProcessingFees : row.mcProcessingFees,
-				visaProcessingFees : row.visaProcessingFees,
-				debitCardFees : row.debitCardFees,
-				aeCardFees : row.aeCardFees,
-				dsCardFees : row.dsCardFees,
-				mcCardFees : row.mcCardFees,
-				visaCardFees : row.visaCardFees,
-				TotalNewFees : row.TotalNewFees,
-				NewEffectiveRate : row.NewEffectiveRate,
-				MonthlySavings : row.MonthlySavings,
-				Year1Savings : row.Year1Savings,
-				Year2Savings : row.Year2Savings,
-				Year3Savings : row.Year3Savings,
-				Year4Savings : row.Year4Savings,
-				ProcessingFee : row.ProcessingFee,
-				AuthFee : row.AuthFee,
-				PinDebitProcessingFee : row.PinDebitProcessingFee,
-				PinDebitAuthFee : row.PinDebitAuthFee,
-				MonthlyServiceFee : row.MonthlyServiceFee,
-				IndustryComplinceFee : row.IndustryComplinceFee,
-				TerminalFee : row.TerminalFee,
-				MXGatewayFee : row.MXGatewayFee,
-				DebitAccessFee : row.DebitAccessFee,
+				debitAverageTicket : parseFloat(row.debitAverageTicket).toFixed(2),
+				aeAverageTicket : parseFloat(row.aeAverageTicket).toFixed(2),
+				dsAverageTicket : parseFloat(row.dsAverageTicket).toFixed(2),
+				mcAverageTicket : parseFloat(row.mcAverageTicket).toFixed(2),
+				visaAverageTicket : parseFloat(row.visaAverageTicket).toFixed(2),
+				TotalCurrentFees : parseFloat(row.TotalCurrentFees).toFixed(2),
+				CurrentEffectiveRate : parseFloat(row.CurrentEffectiveRate).toFixed(2),
+				debitInterchangeFees : parseFloat(row.debitInterchangeFees).toFixed(2),
+				aeInterchangeFees : parseFloat(row.aeInterchangeFees).toFixed(2),
+				dsInterchangeFees : parseFloat(row.dsInterchangeFees).toFixed(2),
+				mcInterchangeFees : parseFloat(row.mcInterchangeFees).toFixed(2),
+				visaInterchangeFees : parseFloat(row.visaInterchangeFees).toFixed(2),
+				debitProcessingFees : parseFloat(row.debitProcessingFees).toFixed(2),
+				aeProcessingFees : parseFloat(row.aeProcessingFees).toFixed(2),
+				dsProcessingFees : parseFloat(row.dsProcessingFees).toFixed(2),
+				mcProcessingFees : parseFloat(row.mcProcessingFees).toFixed(2),
+				visaProcessingFees : parseFloat(row.visaProcessingFees).toFixed(2),
+				debitCardFees : parseFloat(row.debitCardFees).toFixed(2),
+				aeCardFees : parseFloat(row.aeCardFees).toFixed(2),
+				dsCardFees : parseFloat(row.dsCardFees).toFixed(2),
+				mcCardFees : parseFloat(row.mcCardFees).toFixed(2),
+				visaCardFees : parseFloat(row.visaCardFees).toFixed(2),
+				TotalNewFees : parseFloat(row.TotalNewFees).toFixed(2),
+				NewEffectiveRate : parseFloat(row.NewEffectiveRate).toFixed(2),
+				MonthlySavings : parseFloat(row.MonthlySavings).toFixed(2),
+				Year1Savings : parseFloat(row.Year1Savings).toFixed(2),
+				Year2Savings : parseFloat(row.Year2Savings).toFixed(2),
+				Year3Savings : parseFloat(row.Year3Savings).toFixed(2),
+				Year4Savings : parseFloat(row.Year4Savings).toFixed(2),
+				ProcessingFee : parseFloat(row.ProcessingFee).toFixed(2),
+				AuthFee : parseFloat(row.AuthFee).toFixed(2),
+				PinDebitProcessingFee : parseFloat(row.PinDebitProcessingFee).toFixed(2),
+				PinDebitAuthFee : parseFloat(row.PinDebitAuthFee).toFixed(2),
+				MonthlyServiceFee : parseFloat(row.MonthlyServiceFee).toFixed(2),
+				IndustryComplinceFee : parseFloat(row.IndustryComplinceFee).toFixed(2),
+				TerminalFee : parseFloat(row.TerminalFee).toFixed(2),
+				MXGatewayFee : parseFloat(row.MXGatewayFee).toFixed(2),
+				DebitAccessFee : parseFloat(row.DebitAccessFee).toFixed(2),
 				//timeId: row.timeId,
 				Notes: row.NotesText,
 				LastUpdated: row.LastUpdated,
 				DateCreated: row.Date,
 				ProposalStatus: row.ProposalStatus,
-				rpID: row.rpID
+				rpID: row.rpID,
+				sm_id: row.sm_id,
+				tm_id: row.tm_id
 			}
-
+,
 		}, function(e) {
 			if (e.success) {
 				globalVariables.GV.ProposalId = e.Proposal[0].id;
-				alert.alert("Success", "Updated Successfully");
+				//alert.alert("Success", "Updated Successfully");
 				callback({success: true,
 					proposalId: e.Proposal[0].id
 					//timeId: e.Proposal[0].timeId
@@ -810,6 +1090,7 @@ exports.updateProposal = function (params,callback){
 			//session_id: globalVariables.GV.sessionId,
 				classname : 'Proposal',
 				id: globalVariables.GV.ProposalId,
+				acl_id: globalVariables.GV.acl_id,
 				fields : {
 					BusinessName : globalVariables.GV.BusinessName,
 					StreetAddress : globalVariables.GV.StreetAddress,
@@ -820,60 +1101,62 @@ exports.updateProposal = function (params,callback){
 					Phone : globalVariables.GV.Phone,
 					BusinessType: globalVariables.GV.BusinessType,
 					ProcessingMonths : globalVariables.GV.ProcessingMonths,
-					debitVol : globalVariables.GV.debitVol,
-					aeVol : globalVariables.GV.aeVol,
-					dsVol : globalVariables.GV.dsVol,
-					mcVol : globalVariables.GV.mcVol,
-					visaVol : globalVariables.GV.visaVol,
+					debitVol : parseFloat(globalVariables.GV.debitVol).toFixed(2),
+					aeVol : parseFloat(globalVariables.GV.aeVol).toFixed(2),
+					dsVol : parseFloat(globalVariables.GV.dsVol).toFixed(2),
+					mcVol : parseFloat(globalVariables.GV.mcVol).toFixed(2),
+					visaVol : parseFloat(globalVariables.GV.visaVol).toFixed(2),
 					debitTransactions : globalVariables.GV.debitTransactions,
 					aeTransactions : globalVariables.GV.aeTransactions,
 					dsTransactions : globalVariables.GV.dsTransactions,
 					mcTransactions : globalVariables.GV.mcTransactions,
 					visaTransactions : globalVariables.GV.visaTransactions,
-					debitAverageTicket : globalVariables.GV.debitAverageTicket,
-					aeAverageTicket : globalVariables.GV.aeAverageTicket,
-					dsAverageTicket : globalVariables.GV.dsAverageTicket,
-					mcAverageTicket : globalVariables.GV.mcAverageTicket,
-					visaAverageTicket : globalVariables.GV.visaAverageTicket,
-					TotalCurrentFees : globalVariables.GV.TotalCurrentFees,
-					CurrentEffectiveRate : globalVariables.GV.CurrentEffectiveRate,
-					debitInterchangeFees : globalVariables.GV.debitInterchangeFees,
-					aeInterchangeFees : globalVariables.GV.aeInterchangeFees,
-					dsInterchangeFees : globalVariables.GV.dsInterchangeFees,
-					mcInterchangeFees : globalVariables.GV.mcInterchangeFees,
-					visaInterchangeFees : globalVariables.GV.visaInterchangeFees,
-					debitProcessingFees : globalVariables.GV.debitProcessingFees,
-					aeProcessingFees : globalVariables.GV.aeProcessingFees,
-					dsProcessingFees : globalVariables.GV.dsProcessingFees,
-					mcProcessingFees : globalVariables.GV.mcProcessingFees,
-					visaProcessingFees : globalVariables.GV.visaProcessingFees,
-					debitCardFees : globalVariables.GV.debitCardFees,
-					aeCardFees : globalVariables.GV.aeCardFees,
-					dsCardFees : globalVariables.GV.dsCardFees,
-					mcCardFees : globalVariables.GV.mcCardFees,
-					visaCardFees : globalVariables.GV.visaCardFees,
-					TotalNewFees : globalVariables.GV.TotalNewFees,
-					NewEffectiveRate : globalVariables.GV.NewEffectiveRate,
-					MonthlySavings : globalVariables.GV.MonthlySavings,
-					Year1Savings : globalVariables.GV.Year1Savings,
-					Year2Savings : globalVariables.GV.Year2Savings,
-					Year3Savings : globalVariables.GV.Year3Savings,
-					Year4Savings : globalVariables.GV.Year4Savings,
-					ProcessingFee : globalVariables.GV.ProcessingFee,
-					AuthFee : globalVariables.GV.AuthFee,
-					PinDebitProcessingFee : globalVariables.GV.PinDebitProcessingFee,
-					PinDebitAuthFee : globalVariables.GV.PinDebitAuthFee,
-					MonthlyServiceFee : globalVariables.GV.MonthlyServiceFee,
-					IndustryComplinceFee : globalVariables.GV.IndustryComplinceFee,
-					TerminalFee : globalVariables.GV.TerminalFee,
-					MXGatewayFee : globalVariables.GV.MXGatewayFee,
-					DebitAccessFee : globalVariables.GV.DebitAccessFee,
-					timeId: globalVariables.GV.timeId,
+					debitAverageTicket : parseFloat(globalVariables.GV.debitAverageTicket).toFixed(2),
+					aeAverageTicket : parseFloat(globalVariables.GV.aeAverageTicket).toFixed(2),
+					dsAverageTicket : parseFloat(globalVariables.GV.dsAverageTicket).toFixed(2),
+					mcAverageTicket : parseFloat(globalVariables.GV.mcAverageTicket).toFixed(2),
+					visaAverageTicket : parseFloat(globalVariables.GV.visaAverageTicket).toFixed(2),
+					TotalCurrentFees : parseFloat(globalVariables.GV.TotalCurrentFees).toFixed(2),
+					CurrentEffectiveRate : parseFloat(globalVariables.GV.CurrentEffectiveRate).toFixed(2),
+					debitInterchangeFees : parseFloat(globalVariables.GV.debitInterchangeFees).toFixed(2),
+					aeInterchangeFees : parseFloat(globalVariables.GV.aeInterchangeFees).toFixed(2),
+					dsInterchangeFees : parseFloat(globalVariables.GV.dsInterchangeFees).toFixed(2),
+					mcInterchangeFees : parseFloat(globalVariables.GV.mcInterchangeFees).toFixed(2),
+					visaInterchangeFees : parseFloat(globalVariables.GV.visaInterchangeFees).toFixed(2),
+					debitProcessingFees : parseFloat(globalVariables.GV.debitProcessingFees).toFixed(2),
+					aeProcessingFees : parseFloat(globalVariables.GV.aeProcessingFees).toFixed(2),
+					dsProcessingFees : parseFloat(globalVariables.GV.dsProcessingFees).toFixed(2),
+					mcProcessingFees : parseFloat(globalVariables.GV.mcProcessingFees).toFixed(2),
+					visaProcessingFees : parseFloat(globalVariables.GV.visaProcessingFees).toFixed(2),
+					debitCardFees : parseFloat(globalVariables.GV.debitCardFees).toFixed(2),
+					aeCardFees : parseFloat(globalVariables.GV.aeCardFees).toFixed(2),
+					dsCardFees : parseFloat(globalVariables.GV.dsCardFees).toFixed(2),
+					mcCardFees : parseFloat(globalVariables.GV.mcCardFees).toFixed(2),
+					visaCardFees : parseFloat(globalVariables.GV.visaCardFees).toFixed(2),
+					TotalNewFees : parseFloat(globalVariables.GV.TotalNewFees).toFixed(2),
+					NewEffectiveRate : parseFloat(globalVariables.GV.NewEffectiveRate).toFixed(2),
+					MonthlySavings : parseFloat(globalVariables.GV.MonthlySavings).toFixed(2),
+					Year1Savings : parseFloat(globalVariables.GV.Year1Savings).toFixed(2),
+					Year2Savings : parseFloat(globalVariables.GV.Year2Savings).toFixed(2),
+					Year3Savings : parseFloat(globalVariables.GV.Year3Savings).toFixed(2),
+					Year4Savings : parseFloat(globalVariables.GV.Year4Savings).toFixed(2),
+					ProcessingFee : parseFloat(globalVariables.GV.ProcessingFee).toFixed(2),
+					AuthFee : parseFloat(globalVariables.GV.AuthFee).toFixed(2),
+					PinDebitProcessingFee : parseFloat(globalVariables.GV.PinDebitProcessingFee).toFixed(2),
+					PinDebitAuthFee : parseFloat(globalVariables.GV.PinDebitAuthFee).toFixed(2),
+					MonthlyServiceFee : parseFloat(globalVariables.GV.MonthlyServiceFee).toFixed(2),
+					IndustryComplinceFee : parseFloat(globalVariables.GV.IndustryComplinceFee).toFixed(2),
+					TerminalFee : parseFloat(globalVariables.GV.TerminalFee).toFixed(2),
+					MXGatewayFee : parseFloat(globalVariables.GV.MXGatewayFee).toFixed(2),
+					DebitAccessFee : parseFloat(globalVariables.GV.DebitAccessFee).toFixed(2),
+					//timeId: globalVariables.GV.timeId,
 					Notes: globalVariables.GV.NotesText,
 					LastUpdated: globalVariables.GV.LastUpdated,
 					DateCreated: globalVariables.GV.DateCreated,
-					ProposalStatus: globalVariables.GV.DateCreated,
-					rpID: globalVariables.GV.rpID
+					ProposalStatus: globalVariables.GV.ProposalStatus,
+					rpID: globalVariables.GV.rpID,
+					sm_id: globalVariables.GV.sm_id,
+					tm_id: globalVariables.GV.tm_id,
 			}
 
 		}, function(e) {
@@ -891,151 +1174,6 @@ exports.updateProposal = function (params,callback){
 		});
 		}
 };
-// exports.BusinessType = function() {
-	// var visa_rate;
-	// var mc_rate;
-	// var ds_rate;
-	// var amex_rate;
-	// var debit_rate;
-// 
-	// if (globalVariables.GV.BusinessTypeName == 'Retail Low') {
-// 
-		// visa_rate = globalVariables.GV.RetailLowVsa;
-		// mc_rate = globalVariables.GV.RetailLowMcard;
-		// ds_rate = globalVariables.GV.RetailLowDis;
-		// //amex_rate=globalVariables.GV.retailL
-		// debit_rate = globalVariables.GV.RetailLowDb;
-	// } else if (globalVariables.GV.BusinessTypeName == 'Retail High') {
-		// visa_rate = globalVariables.GV.RetailHighVsa;
-		// mc_rate = globalVariables.GV.RetailHighMcard;
-		// ds_rate = globalVariables.GV.RetailHighDis;
-		// //amex_rate=globalVariables.GV.RetailHigh;
-		// debit_rate = globalVariables.GV.RetailHighDb;
-// 
-	// } else if (globalVariables.GV.BusinessTypeName == 'Restaurant Low') {
-		// visa_rate = globalVariables.GV.RestaurantLowVsa;
-		// mc_rate = globalVariables.GV.RestaurantLowMcard;
-		// ds_rate = globalVariables.GV.RestaurantLowDis;
-		// //amex_rate=globalVariables.GV.
-		// debit_rate = globalVariables.GV.RestaurantLowDb;
-// 
-	// } else if (globalVariables.GV.BusinessTypeName == 'Restaurant High') {
-		// visa_rate = globalVariables.GV.RestaurantHighVsa;
-		// mc_rate = globalVariables.GV.RestaurantHighMcard;
-		// ds_rate = globalVariables.GV.RestaurantHighDis;
-		// //amex_rate=globalVariables.GV.
-		// debit_rate = globalVariables.GV.RestaurantHighDb;
-// 
-	// } else if (globalVariables.GV.BusinessTypeName == 'Small Ticket') {
-		// visa_rate = globalVariables.GV.SmallTicketVsa;
-		// mc_rate = globalVariables.GV.SmallTicketMcard;
-		// ds_rate = globalVariables.GV.SmallTicketDis;
-		// //amex_rate=globalVariables.GV.
-		// debit_rate = globalVariables.GV.SmallTicketDb;
-// 
-	// } else if (globalVariables.GV.BusinessTypeName == 'MOTO') {
-		// visa_rate = globalVariables.GV.MOTOVsa;
-		// mc_rate = globalVariables.GV.MOTOMcard;
-		// ds_rate = globalVariables.GV.MOTODis;
-		// //amex_rate=globalVariables.GV.
-		// debit_rate = globalVariables.GV.MOTODb;
-// 
-	// } else if (globalVariables.GV.BusinessTypeName == 'Internet') {
-		// visa_rate = globalVariables.GV.InternetVsa;
-		// mc_rate = globalVariables.GV.InternetMcard;
-		// ds_rate = globalVariables.GV.InternetDis;
-		// //amex_rate=globalVariables.GV.
-		// debit_rate = globalVariables.GV.InternetDb;
-// 
-	// } else if (globalVariables.GV.BusinessTypeName == 'Business To Business') {
-		// visa_rate = globalVariables.GV.BusinessToBusinessVsa;
-		// mc_rate = globalVariables.GV.BusinessToBusinessMcard;
-		// ds_rate = globalVariables.GV.BusinessToBusinessDis;
-		// //amex_rate=globalVariables.GV.
-		// debit_rate = globalVariables.GV.BusinessToBusinessDb;
-// 
-	// } else if (globalVariables.GV.BusinessTypeName == 'SuperMarket') {
-		// visa_rate = globalVariables.GV.SuperMarket;
-		// mc_rate = globalVariables.GV.SupermarketMcard;
-		// ds_rate = globalVariables.GV.SupermarketDis;
-		// //amex_rate=globalVariables.GV.
-		// debit_rate = globalVariables.GV.SupermarketDb;
-// 
-	// } else if (globalVariables.GV.BusinessTypeName == 'Hotel/lodging') {
-		// visa_rate = globalVariables.GV.HotelLodgingVsa;
-		// mc_rate = globalVariables.GV.HotelLodgingMcard;
-		// ds_rate = globalVariables.GV.HotelLodgingDis;
-		// //amex_rate=globalVariables.GV.
-		// debit_rate = globalVariables.GV.HotelLodgingDb;
-// 
-	// } else {
-		// visa_rate = globalVariables.GV.UtilitiesVsa;
-		// mc_rate = globalVariables.GV.UtilitiesMcard;
-		// ds_rate = globalVariables.GV.UtilitiesDis;
-		// //amex_rate=globalVariables.GV.
-		// debit_rate = globalVariables.GV.UtilitiesDb;
-// 
-	// }
-	// Cloud.Users.login({
-		// login : Ti.App.Properties.getString('Email'),
-		// password : Ti.App.Properties.getString('Password'),
-	// }, function(e) {
-		// if (e.success) {
-// 
-			// Cloud.Objects.create({
-				// classname : 'BusinessType',
-				// fields : {
-					// BusinessTypeName : globalVariables.GV.BusinessTypeName,
-					// visa_rate : visa_rate,
-					// mc_rate : mc_rate,
-					// ds_rate : ds_rate,
-					// amex_rate : 2,
-					// debit_rate : debit_rate,
-// 
-				// }
-			// }, function(e) {
-				// if (e.success) {
-					// alert.alert("Success", "Created Successfully");
-				// } else {
-					// alert.alert('Error: ', 'Object Not Created Successfully');
-				// }
-			// });
-// 
-		// } else {
-			// alert('Login Error:' + ((e.error && e.message) || JSON.stringify(e)));
-		// }
-	// });
-// 
-// };
-
-// exports.createNotes = function(NotesText) {
-	// Cloud.Users.login({
-		// login : Ti.App.Properties.getString('Email'),
-		// password : Ti.App.Properties.getString('Password'),
-	// }, function(e) {
-		// if (e.success) {
-// 
-			// Cloud.Objects.create({
-				// classname : 'Notes',
-				// fields : {
-					// Notes : NotesText,
-// 
-				// }
-// 
-			// }, function(e) {
-				// if (e.success) {
-					// alert.alert("Success", "Created Successfully");
-				// } else {
-					// alert.alert('Error: ', 'Object Not Created Successfully');
-				// }
-			// });
-// 
-		// } else {
-			// alert.alert('Login Error:', ((e.error && e.message) || JSON.stringify(e)));
-		// }
-	// });
-// 
-// };
 
 exports.getFiles = function(callback) {
 	Cloud.Files.query({
@@ -1056,6 +1194,7 @@ exports.isLoggedIn = function(callback) {
 	if(globalVariables.GV.sessionId) {
     	Cloud.sessionId = globalVariables.GV.sessionId;
     	globalVariables.GV.cloudSessionSet=true;
+    	//Ti.App.Properties.
         var me = Cloud.Users.showMe(function(e) {
         	if(e.success){
         		var user = e.users[0];
@@ -1094,3 +1233,28 @@ exports.getRates= function(callback){
 		}
 	});
 };
+
+// Array.prototype.equals = function (array, strict) {
+    // if (!array)
+        // return false;
+// 
+    // if (arguments.length == 1)
+        // strict = true;
+// 
+    // if (this.length != array.length)
+        // return false;
+// 
+    // for (var i = 0; i < this.length; i++) {
+        // if (this[i] instanceof Array && array[i] instanceof Array) {
+            // if (!this[i].equals(array[i], strict))
+                // return false;
+        // }
+        // else if (strict && this[i] != array[i]) {
+            // return false;
+        // }
+        // else if (!strict) {
+            // return this.sort().equals(array.sort(), true);
+        // }
+    // }
+    // return true;
+// };

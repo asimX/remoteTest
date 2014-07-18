@@ -253,7 +253,7 @@ function HomeScreen(params) {
 										Ti.App.fireEvent("reloadProposals");
 									}
 									else{
-										alert("Error downloading updated proposals from back end. Try again later by pressing the sync button on the bottom right \n"+e.results);
+										alert("Error downloading updated proposals from back end. Try again later by pressing the sync button on the bottom right \n"+f.results);
 									}
 								});
 							}
@@ -289,6 +289,8 @@ function HomeScreen(params) {
 		height : Ti.UI.FILL,
 		//zIndex: 1
 	});
+	
+	selfW.add(self);
 	
 	var NoteView = true;
 	var DollarView = true;
@@ -379,7 +381,7 @@ function HomeScreen(params) {
 	});
 
 	self.add(scrollableView);
-	selfW.add(self);
+	//selfW.add(self);
 	/////////////////////////////////
 	
 	selfW.add(LibraryView);

@@ -103,20 +103,20 @@ function LoginScreen() {
 			{
 				loading._hide();
 				loading._show({
-					fullScreen: true,
+					fullScreen: false,
 					message: "Loading Home Screen"
 				});
 				loadHome(function(){
 					Ti.App.fireEvent('closeLoginWindow');
 					loading._hide();
-					loading=null;
+					//loading=null;
 					sync.syncDialog();
 				});
 			}
 			else
 			{
 				loading._hide();
-				alert.alert('Invalid', e.message);
+				alert.alert('ERROR', e.message);
 			}
 		});//loading);
 		
@@ -139,7 +139,10 @@ function LoginScreen() {
 						db.FillBusinessType(g.results);
 						globalVariables.GV.SetRates(g.results);
 					}
+					
 					callback();
+					
+					
 				});
 			});
 			

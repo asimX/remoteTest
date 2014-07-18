@@ -260,7 +260,7 @@ function syncWithACS(callback){
 							else{
 								callback({success: true,
 										  downloaded: true
-										});
+								});
 							}
 						}
 						else{
@@ -291,7 +291,7 @@ function syncWithACS(callback){
 										if(g.success){
 											callback({success:true,
 												      downloaded: false
-										});
+										    });
 										}
 									});
 								}
@@ -331,7 +331,7 @@ function syncChanges(callback){
 			// if(f.results.length==0){
 				if(globalVariables.GV.userRole=="Account Executive")
 				{
-					acs.queryProposalsByUid({getUpdates: true},function(e){
+					acs.queryProposalsByUid({getUpdates: true, localProps: f.results},function(e){
 						//Ti.API.info("e.results.username: " + e.results[0].user.first_name);
 						Ti.API.info('FOUND ONLINE PROPOSALS BY UID');
 						if(e.success){
@@ -380,7 +380,7 @@ function syncChanges(callback){
 							else{
 								callback({success: true,
 										  downloaded: false
-										});
+								});
 							}
 						}
 						else{
@@ -446,53 +446,11 @@ function syncChanges(callback){
 									success: false,
 									results: "Error:  \n"+JSON.stringify(e.results)
 							});
-							//alert("Error:  \n"+JSON.stringify(e.results));
 						}
 					});
 				}
 			});
-			// else{
-				// // if(globalVariables.GV.userRole!="Admin")
-				// // {
-					// var propIds = [];
-					// for(var i=0;i<f.results.length;i++)
-					// {
-						// propIds.push(f.results[i].ProposalId);
-					// }
-					// acs.downloadRemoteProposals({
-						// localProposals: propIds
-						// },function(e){
-							// propIds=null;
-							// if(e.success){
-								// if(e.results.length>0){
-									// db.insertProposal(e.results, function(g){
-										// if(g.success){
-											// callback({success:true,
-												      // downloaded: true
-										// });
-										// }
-									// });
-								// }
-								// else{
-									// callback({
-										// success:true,
-										// downloaded: false
-									// });
-								// }
-							// }
-							// else{
-								// callback({
-									// success: false,
-									// results: "Error:  \n"+JSON.stringify(e.results)
-								// });
-								// //alert("Error:  \n"+JSON.stringify(e.results));
-							// }
-// 							
-					// });
-				// //}
-// // 				
-			// // }
-		// // });
+			
 			
 	}
 	else{
@@ -501,6 +459,135 @@ function syncChanges(callback){
 			results: "Device is offline."
 		});
 	}
+}
+
+function checkForDeleted(callback){
+    if(Ti.Network.online){
+        db.getAllProposalIds(function(f){
+            var propIds = [];
+            for(var i=0;i<f.results.length;i++)
+            {
+                propIds.push(f.results[i].ProposalId);
+            }
+            
+            acs.getDeletedIds({
+                localProposals: propIds
+            },function(e){
+                if(e.success){
+                    if(e.results.length>0){
+                        var propsToDelete = [];
+                        for(var i=0;i<e.results.length;i++)
+                        {
+                            propsToDelete.push(e.results[i].id);
+                        }
+                        var toDelete = arr_diff(propsToDelete,propIds);
+                        Ti.API.info("TO DELETE:  "+toDelete);
+                        if(toDelete.length>0){  
+                            db.deleteProposals({ids: toDelete}, function(g){
+                                if(g.success){
+                                    callback({
+                                        success:true
+                                    });
+                                }
+                                else{
+                                    callback({
+                                        success:false,
+                                        msg: "Error Deleting results locally."
+                                    });
+                                }
+                            });
+                        }
+                        else{
+                            callback({
+                                success:true
+                            });   
+                        }
+                             
+                    }
+                    else{
+                        callback({
+                            success: true
+                        });
+                    }
+                }
+                else{
+                    callback({
+                        success: false,
+                        msg: "Error checking for proposals deleted in the back office."
+                    });
+                }     
+            });
+        });
+    }
+    else{
+        callback({
+            success: false,
+            results: "Device is offline."
+        });
+    }
+};
+
+Ti.App.addEventListener('proposalSync', function(e){
+	
+	var loadingWin = Ti.UI.createWindow({
+		backgroundColor: "transparent"
+	});
+	
+	loadingWin.open();
+	loading._show({
+			message : 'SYNCING'
+	});
+	loadingWin.add(loading);
+	syncWithACS(function(g){
+		Ti.API.info("****************COMPLETE SYNC WITH ACS*************************");
+		loadingWin.remove(loading);
+		loading._show({
+			message : 'LOOKING FOR CHANGES'
+		});
+		loadingWin.add(loading);
+		syncChanges(function(h){
+			Ti.API.info("****************COMPLETE SYNC CHANGES*************************");
+			loadingWin.remove(loading);
+			loading._show({
+				message : 'UPLOADING PROPOSALS TO BACK OFFICE'
+			});
+			loadingWin.add(loading);
+			db.queryLocalProposals(function(f){
+				Ti.API.info("****************COMPLETE DB LOCAL QUERY*************************");
+				if(f.results.length>0){
+					syncProposalsToACS({dataArray: f.results},function(j){
+						Ti.API.info("****************COMPLETE SYNC TO ACS*************************");
+						loading._hide();
+						loadingWin.close();
+						checkForDeleted(function(k){
+						    Ti.App.fireEvent('reloadProposals');
+						});
+						
+					});
+				}
+				else{
+					loading._hide();
+					loadingWin.close();
+					Ti.App.fireEvent('reloadProposals');
+				}
+			});
+					
+		});
+	});
+	
+});
+
+function arr_diff(a1, a2)
+{
+  var a=[], diff=[];
+  for(var i=0;i<a1.length;i++)
+    a[a1[i]]=true;
+  for(var i=0;i<a2.length;i++)
+    if(a[a2[i]]) delete a[a2[i]];
+    else a[a2[i]]=true;
+  for(var k in a)
+    diff.push(k);
+  return diff;
 }
 
 // function syncReferralPartners()

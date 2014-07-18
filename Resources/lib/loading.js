@@ -50,10 +50,10 @@ exports.loading = function() {
 		} else {
 			this.children[1].message = params.message;
 		}
-		if(params.fullScreen){
+		if(params.fullscreen){
 			container.width=Ti.UI.FILL;
 			container.height = Ti.UI.FILL;
-			container.children[0].opacity=1;
+			container.children[0].opacity=.5;
 		}
 		if (params.timeout) {
 			this._myTimeout = setTimeout(function() {
@@ -73,7 +73,15 @@ exports.loading = function() {
 		this._isShowing = true;
 		this.show();
 	};
-
+    
+    container._message=function(_input){
+        if (isAndroid()) {
+            this.message = _input;
+        } else {
+            this.children[1].message = _input;
+        }
+    };
+    
 	container._hide = function() {
 		if (this._myTimeout !== undefined) {
 			clearTimeout(this._myTimeout);

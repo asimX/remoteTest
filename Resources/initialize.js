@@ -1,12 +1,11 @@
 var globalVariables = require('globalVariables');
 var db = require("db/db");
 var sync = require("lib/sync");
-
+var acs = require("lib/acs");
+var Cloud = require('ti.cloud');
 
 
 exports.init = function(startApp){
-	
-	db.init();
 	
 	//initialize global variables
 	globalVariables.GV.sessionId = Ti.App.Properties.getString('sessionId',null);
@@ -15,10 +14,13 @@ exports.init = function(startApp){
 	globalVariables.GV.userId = Ti.App.Properties.getString('userId', null);
 	globalVariables.GV.userRole = Ti.App.Properties.getString('userRole', null);
 	globalVariables.GV.loggedIn = Ti.App.Properties.getBool('loggedIn',false);
+	globalVariables.GV.sm_id = Ti.App.Properties.getString("sm_id");
+	globalVariables.GV.tm_id = Ti.App.Properties.getString("tm_id");
 	globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
 	globalVariables.GV.proposalsViewFirstTime = true;
+	globalVariables.GV.acl_id = Ti.App.Properties.getString("acl_id");
 	
-		
+	db.init();
 	
 	//initialize app event listeners
 	Ti.App.addEventListener("closeHomeWindow", function(e){
@@ -29,7 +31,7 @@ exports.init = function(startApp){
 	
 	Ti.App.addEventListener("closeLoginWindow", function(e){
 		globalVariables.GV.loginScreen.close();
-		globalVariables.GV.loginScreen=null;
+		//globalVariables.GV.loginScreen=null;
 	});
 	
 	Ti.App.addEventListener("resumed", function(e){
@@ -42,19 +44,22 @@ exports.init = function(startApp){
 		globalVariables.GV.userId = Ti.App.Properties.getString('userId', null);
 		globalVariables.GV.userRole = Ti.App.Properties.getString('userRole', null);
 		globalVariables.GV.loggedIn = Ti.App.Properties.getBool('loggedIn',false);
+		globalVariables.GV.sm_id = Ti.App.Properties.getString("sm_id");
+		globalVariables.GV.tm_id = Ti.App.Properties.getString("tm_id");
 		globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
 		globalVariables.GV.proposalsViewFirstTime = true;
+		globalVariables.GV.acl_id = Ti.App.Properties.getString("acl_id");
 		
 		//load charge rates
 		db.LoadBusinessTypes(function(e){
 			db.LoadReferralPartners(function(f){
 				//globalVariables.GV.proposalsViewFirstTime=true;
-				if(globalVariables.GV.loggedIn)
+				if(globalVariables.GV.sessionId!=null)
 				{
 					if(Ti.Network.online)
 					{
-						acs.isLoggedIn(function(f){
-							if(f.loggedIn){
+						acs.isLoggedIn(function(g){
+							if(g.loggedIn){
 								sync.syncDialog();
 							}
 							else{
@@ -123,7 +128,25 @@ exports.init = function(startApp){
 	//load charge rates
 	db.LoadBusinessTypes(function(e){
 		db.LoadReferralPartners(function(f){
-			startApp();
+			if(globalVariables.GV.sessionId!=null)
+            {
+                if(Ti.Network.online)
+                {
+                    acs.isLoggedIn(function(g){
+                        if(g.loggedIn){
+                            startApp({loggedIn: true});
+                        }
+                        else{
+                            startApp({loggedIn: false});
+                        }
+                    });
+                }
+                    
+            }
+            else{
+                startApp({loggedIn: false});
+            }
+			
 		});
 	});
 	

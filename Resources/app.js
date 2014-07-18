@@ -5,10 +5,10 @@ var LoginScreen = require("/ui/LoginScreen");
 var AppInit = require('initialize');
 var HomeScreen = require("/ui/HomeScreen");
 
-AppInit.init(function(){
+AppInit.init(function(e){
 	Ti.API.info("SESSION ID IS:  " +globalVariables.GV.sessionId);
 	
-	if(globalVariables.GV.loggedIn)
+	if(e.loggedIn)
 	{	
 		globalVariables.GV.homeScreen = new HomeScreen({});
 		globalVariables.GV.navGroup = Titanium.UI.iOS.createNavigationWindow({
@@ -18,6 +18,7 @@ AppInit.init(function(){
 	}
 	else 
 	{
+		
 		globalVariables.GV.loginScreen = new LoginScreen();
 		globalVariables.GV.loginScreen.open();
 		Ti.App.fireEvent("closeHomeWindow");

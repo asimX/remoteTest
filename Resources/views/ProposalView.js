@@ -2,6 +2,9 @@ var db = require('db/db');
 var PDF = require('bencoding.pdf');
 var acs = require('lib/acs');
 var globalVariables = require('globalVariables');
+var utility = require('lib/utilities');
+var loading = require('lib/loading').loading();
+
 exports.Proposal = function() {
 	
 	var self = Ti.UI.createView({
@@ -11,7 +14,7 @@ exports.Proposal = function() {
 		top : '2%'
 	});
 
-	Ti.API.info("module is => " + PDF);
+	self.add(loading);
 
 	var converters = PDF.createConverters();
 	
@@ -587,50 +590,61 @@ exports.Proposal = function() {
 	self.add(imgCal);
 	imgCal.addEventListener('click', function(e) {
 
-		labMonthlySavings2.setText(Math.abs(globalVariables.GV.TotalCurrentFees - globalVariables.GV.TotalNewFees));
+		globalVariables.GV.MonthlySavings = Math.abs(globalVariables.GV.TotalCurrentFees - globalVariables.GV.TotalNewFees);
+		
+		globalVariables.GV.Year1Savings = parseFloat(globalVariables.GV.MonthlySavings*12).toFixed(2);
+		globalVariables.GV.Year2Savings = parseFloat(globalVariables.GV.MonthlySavings*24).toFixed(2);
+		globalVariables.GV.Year3Savings = parseFloat(globalVariables.GV.MonthlySavings*36).toFixed(2);
+		globalVariables.GV.Year4Savings = parseFloat(globalVariables.GV.MonthlySavings*48).toFixed(2);
+		
+		//labMonthlySavings2.setText();
 
-		labYear1Savingsii.setText(labMonthlySavings2.getText() * 12);
+		labYear1Savingsii.setText(utility.formatCurrency(globalVariables.GV.Year1Savings,"$"));
 		//Ti.API.info(lab.getText());
-		var result = parseFloat(labYear1Savingsii.getText()).toFixed(2);
+		//var result = parseFloat(labYear1Savingsii.getText()).toFixed(2);
 		//result = '$ ' + result.toFixed(2);
-		labYear1Savingsii.setText('$ ' + result);
+		//labYear1Savingsii.setText('$ ' + result);
 
-		labYear2Savingsii.setText(labMonthlySavings2.getText() * 24);
+		labYear2Savingsii.setText(utility.formatCurrency(globalVariables.GV.Year2Savings, "$"));
 
-		var resultYear2Savingsii = parseFloat(labYear2Savingsii.getText()).toFixed(2);
+		//var resultYear2Savingsii = parseFloat(labYear2Savingsii.getText()).toFixed(2);
 		//resultYear2Savingsii = '$ ' + resultYear2Savingsii.toFixed(2);
-		labYear2Savingsii.setText('$ ' + resultYear2Savingsii);
+		//labYear2Savingsii.setText('$ ' + resultYear2Savingsii);
 
-		Ti.API.info(labYear2Savingsii);
-		labYear3Savingsii.setText(labMonthlySavings2.getText() * 36);
+		//Ti.API.info(labYear2Savingsii);
+		labYear3Savingsii.setText(utility.formatCurrency(globalVariables.GV.Year3Savings,"$"));
 
-		var resultYear3Savingsii = parseFloat(labYear3Savingsii.getText()).toFixed(2);
+		//var resultYear3Savingsii = parseFloat(labYear3Savingsii.getText()).toFixed(2);
 		//resultYear3Savingsii = '$ ' + resultYear3Savingsii.toFixed(2);
-		labYear3Savingsii.setText('$ ' + resultYear3Savingsii);
+		//labYear3Savingsii.setText('$ ' + resultYear3Savingsii);
 
-		labYear4Savingsii.setText(labMonthlySavings2.getText() * 48);
+		labYear4Savingsii.setText(utility.formatCurrency(globalVariables.GV.Year4Savings, "$"));
 
-		var resultYear4Savingsii = parseFloat(labYear4Savingsii.getText()).toFixed(2);
+		//var resultYear4Savingsii = parseFloat(labYear4Savingsii.getText()).toFixed(2);
 		//resultYear4Savingsii = '$ ' + resultYear4Savingsii.toFixed(2);
-		labYear4Savingsii.setText('$ ' + resultYear4Savingsii);
+		//labYear4Savingsii.setText('$ ' + resultYear4Savingsii);
 
-		var resultMonthlySavings2 = parseFloat(labMonthlySavings2.getText()).toFixed(2);
+		//var resultMonthlySavings2 = parseFloat(labMonthlySavings2.getText()).toFixed(2);
 		//resultMonthlySavings2 = '$ ' + resultMonthlySavings2.toFixed(2);
-		labMonthlySavings2.setText('$ ' + resultMonthlySavings2);
+		labMonthlySavings2.setText(utility.formatCurrency(globalVariables.GV.MonthlySavings,"$"));
 		//////////////
 		//acs.();
 
-		globalVariables.GV.MonthlySavings = resultMonthlySavings2;
-		globalVariables.GV.Year1Savings = result;
-		globalVariables.GV.Year2Savings = resultYear2Savingsii;
-		globalVariables.GV.Year3Savings = resultYear3Savingsii;
-		globalVariables.GV.Year4Savings = resultYear4Savingsii;
+		//globalVariables.GV.MonthlySavings = parseFloat(monthlySavings).toFixed(2);
+		//globalVariables.GV.Year1Savings = parseFloat(yr1savings).toFixed(2);
+		//globalVariables.GV.Year2Savings = parseFloat(yr2savings).toFixed(2);
+		//globalVariables.GV.Year3Savings = parseFloat(yr3savings).toFixed(2);
+		//globalVariables.GV.Year4Savings = parseFloat(yr4savings).toFixed(2);
 
-		labCurrentEffectiveRate2.setText(globalVariables.GV.CurrentEffectiveRate+' %');
-		labTotalCurrentFees2.setText('$ '+globalVariables.GV.TotalCurrentFees);
+		var curEffRate = parseFloat(globalVariables.GV.CurrentEffectiveRate).toFixed(2);
+		labCurrentEffectiveRate2.setText(curEffRate+' %');
+		//var currFees = parseFloat(globalVariables.GV.TotalCurrentFees).toFixed(2);
+		labTotalCurrentFees2.setText(utility.formatCurrency(globalVariables.GV.TotalCurrentFees,"$"));
 			
-		labProposedFees2.setText('$ '+globalVariables.GV.TotalNewFees);
-		labProposedEffectiveRate2.setText(globalVariables.GV.NewEffectiveRate+' %');
+		//var propFees = parseFloat().toFixed(2);
+		labProposedFees2.setText(utility.formatCurrency(globalVariables.GV.TotalNewFees,"$"));
+		var propEffRate = parseFloat(globalVariables.GV.NewEffectiveRate).toFixed(2);
+		labProposedEffectiveRate2.setText(propEffRate+' %');
 		
 		if(globalVariables.GV.requestedUpdate)
 		{
@@ -645,9 +659,12 @@ exports.Proposal = function() {
       				Ti.API.info('The cancel button was clicked');
     			}
     			else{  
-  
+                    loading._show({
+                        message: "Updating Proposal",
+                        fullscreen: true
+                    });
 					db.updateLocalProposal(function(f){
-						alert("database record updated with PropID: "+f.proposalId);
+						loading._message("database record updated with PropID: "+f.proposalId);
 						var thisPropId = f.proposalId;
 						//self.add(goButton);
 						//Ti.API.info("SESSION ID IS:  " +globalVariables.GV.sessionId);
@@ -656,13 +673,14 @@ exports.Proposal = function() {
 							if(!globalVariables.GV.cloudSessionSet){
 								acs.isLoggedIn(function(e){
 									if(e.loggedIn){
+									    loading._message("Uploading to back office");
 										acs.updateProposal(null, function(g){
 											if(g.success){
 												//updated IsUpdated Column in DB
 												db.setUpdateOff({proposalId: thisPropId}, function(h){
 													if(h.success){
 														db.setUploadedOn({proposalId: thisPropId}, function(i){
-															alert("Proposal Synced with cloud");
+															
 															Ti.App.fireEvent('reloadProposals');
 															globalVariables.GV.ResetValues();
 															Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
@@ -671,6 +689,8 @@ exports.Proposal = function() {
 															Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
 															Ti.App.fireEvent('fillProposedPricing',{initialize:true});
 															Ti.App.fireEvent('fillNotes',{initialize:true});
+															loading._hide();
+                                                            alert("Proposal Synced with cloud");
 														});
 													}
 												});
@@ -680,14 +700,13 @@ exports.Proposal = function() {
 								});
 							}
 							else{
-								
 								acs.updateProposal(null, function(g){
 									if(g.success){
 										//updated IsUpdated Column in DB
 										db.setUpdateOff({proposalId: thisPropId}, function(h){
 											if(h.success){
 												db.setUploadedOn({proposalId: thisPropId}, function(h){
-													alert("Proposal Synced with cloud");
+													
 													Ti.App.fireEvent('reloadProposals');
 													globalVariables.GV.ResetValues();
 													Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
@@ -696,12 +715,14 @@ exports.Proposal = function() {
 													Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
 													Ti.App.fireEvent('fillProposedPricing',{initialize:true});
 													Ti.App.fireEvent('fillNotes',{initialize:true});
+													loading._hide();
+                                                    alert("Proposal Synced with cloud");
 												});
 											}
 										});
 									}
 									else{
-										db.setUploadedOff({proposalId: thisPropId}, function(e){
+										db.setUploadedOff({proposalId: thisPropId}, function(e){			
 											Ti.App.fireEvent('reloadProposals');
 											globalVariables.GV.ResetValues();
 											Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
@@ -710,6 +731,8 @@ exports.Proposal = function() {
 											Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
 											Ti.App.fireEvent('fillProposedPricing',{initialize:true});
 											Ti.App.fireEvent('fillNotes',{initialize:true});
+											loading._hide();
+                                            alert("Saved Locally only. Sync to upload later.");
 										});
 									}
 								});
@@ -717,6 +740,7 @@ exports.Proposal = function() {
 						}
 						else{
 							db.setUploadedOff({proposalId: thisPropId}, function(e){
+								
 								Ti.App.fireEvent('reloadProposals');
 								globalVariables.GV.ResetValues();
 								Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
@@ -725,6 +749,7 @@ exports.Proposal = function() {
 								Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
 								Ti.App.fireEvent('fillProposedPricing',{initialize:true});
 								Ti.App.fireEvent('fillNotes',{initialize:true});
+								loading._hide();
 								alert("Device is offline. Sync with cloud after connecting to WiFi Network");
 							});
 						}
@@ -735,38 +760,88 @@ exports.Proposal = function() {
   			dialog.show();
 		}
 		else{	
+			loading._show({
+                message: "Creating Proposal",
+                fullscreen: true
+            });
 			globalVariables.GV.ProposalStatus="Appointment";
 			globalVariables.GV.rpID='00';
 			db.FillProposal(function(){
-				alert("proposal saved locally with timeId");
+				//alert("proposal saved locally with timeId");
+				loading._message("Uploading Proposal to cloud.");
 				//self.add(goButton);
 				//Ti.API.info("SESSION ID IS:  " +globalVariables.GV.sessionId);
 				if(Ti.Network.online)
 				{
-					acs.createProposal(null,function(f){
-						if(f.success)
-						{
-							alert("Proposal Synced with cloud");
-							db.InsertProposalID(f, function(g){
-								if(g.success)
-								{
-									Ti.App.fireEvent('reloadProposals');
-									globalVariables.GV.ResetValues();
-									Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
-									Ti.App.fireEvent('fillCSInfo',{initialize:true});
-									Ti.App.fireEvent('fillIaInfo',{initialize:true});
-									Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
-									Ti.App.fireEvent('fillProposedPricing',{initialize:true});
-									Ti.App.fireEvent('fillNotes',{initialize:true});
-									alert("proposal ID updated in local db");
-								}
-								else{
-									alert("Error saving Proposal locally.  \n"+JSON.stringify(g.results));
-								}
-								
-							});
-						}
-					});
+					if(!globalVariables.GV.cloudSessionSet){
+                        acs.isLoggedIn(function(e){
+                            if(e.loggedIn){
+            					acs.createProposal(null,function(f){
+            						if(f.success)
+            						{
+            							
+            							db.InsertProposalID(f, function(g){
+            								if(g.success)
+            								{
+            								    
+            									Ti.App.fireEvent('reloadProposals');
+            									globalVariables.GV.ResetValues();
+            									Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
+            									Ti.App.fireEvent('fillCSInfo',{initialize:true});
+            									Ti.App.fireEvent('fillIaInfo',{initialize:true});
+            									Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
+            									Ti.App.fireEvent('fillProposedPricing',{initialize:true});
+            									Ti.App.fireEvent('fillNotes',{initialize:true});
+            									loading._hide();
+            									alert("Proposal Synced with cloud");
+            								}
+            								else{
+            								    loading._hide();
+            									alert("Error saving Proposal locally.  \n"+JSON.stringify(g.results));
+            								}
+            								
+            							});
+            						}
+            						else{
+            						    alert("Synced Locally but not to back office due to bad network connection. Try syncing again later.\n Error:  \n"+f.message);
+            						}
+            					});
+            				}
+            			});
+				    }
+				    else{
+				        
+				        acs.createProposal(null,function(f){
+                            if(f.success)
+                            {
+                                
+                                db.InsertProposalID(f, function(g){
+                                    if(g.success)
+                                    {
+                                        
+                                        Ti.App.fireEvent('reloadProposals');
+                                        globalVariables.GV.ResetValues();
+                                        Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
+                                        Ti.App.fireEvent('fillCSInfo',{initialize:true});
+                                        Ti.App.fireEvent('fillIaInfo',{initialize:true});
+                                        Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
+                                        Ti.App.fireEvent('fillProposedPricing',{initialize:true});
+                                        Ti.App.fireEvent('fillNotes',{initialize:true});
+                                        loading._hide();
+                                        alert("Proposal Synced with cloud");
+                                    }
+                                    else{
+                                        loading._hide();
+                                        alert("Error saving Proposal locally.  \n"+JSON.stringify(g.results));
+                                    }
+                                    
+                                });
+                            }
+                            else{
+                                alert("Synced Locally but not to back office due to bad network connection. Try syncing again later.\n Error:  \n"+f.message);
+                            }
+                        });
+				    }
 				}
 				else{
 					Ti.App.fireEvent('reloadProposals');
@@ -777,7 +852,8 @@ exports.Proposal = function() {
 					Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
 					Ti.App.fireEvent('fillProposedPricing',{initialize:true});
 					Ti.App.fireEvent('fillNotes',{initialize:true});
-					alert("Device is offline. Sync with cloud after connecting to WiFi Network");
+					loading._hide();
+                    alert("Device is offline. Sync with cloud after connecting to WiFi Network");
 				}	
 			});
 		}
@@ -793,83 +869,7 @@ exports.Proposal = function() {
 	});
 	
 	self.add(goButton);
-	// var calcBtn = Ti.UI.createButton({
-		// title : 'Calculate Savings',
-		// top: '90%',
-		// right: '25%',
-		// color : '#0082b4',
-		// height : "40dp",
-		// font: {
-			// fontSize: "30"
-		// }
-// 		
-	// });
-// 	
-	// calcBtn.addEventListener("click", function(e){
-// 		
-		// // labTotalCurrentFees2.setText('$ '+ parseFloat(globalVariables.GV.TotalCurrentFees).toFixed(2));
-		// // labCurrentEffectiveRate2.setText(parseFloat(globalVariables.GV.CurrentEffectiveRate).toFixed(2)+' %');
-		// // labProposedFees2.setText('$ ' + parseFloat(globalVariables.GV.TotalNewFees).toFixed(2));
-		// // labProposedEffectiveRate2.setText(parseFloat(globalVariables.GV.NewEffectiveRate).toFixed(2) + ' %');
-// // 		
-		// // labMonthlySavings2.setText('$ '+ parseFloat(globalVariables.GV.MonthlySavings).toFixed(2));
-// // 	
-		// // labYear1Savingsii.setText('$ ' + parseFloat(globalVariables.GV.Year1Savings).toFixed(2));
-		// // labYear2Savingsii.setText('$ ' + parseFloat(globalVariables.GV.Year2Savings).toFixed(2));
-		// // labYear3Savingsii.setText('$ ' + parseFloat(globalVariables.GV.Year3Savings).toFixed(2));
-		// // labYear4Savingsii.setText('$ ' + parseFloat(globalVariables.GV.Year4Savings).toFixed(2));
-// 		
-		// labMonthlySavings2.setText(Math.abs(globalVariables.GV.TotalCurrentFees - globalVariables.GV.TotalNewFees));
-// 
-		// labYear1Savingsii.setText(labMonthlySavings2.getText() * 12);
-		// //Ti.API.info(lab.getText());
-		// var result = parseFloat(labYear1Savingsii.getText()).toFixed(2);
-		// //result = '$ ' + result.toFixed(2);
-		// labYear1Savingsii.setText('$ ' + result);
-// 
-		// labYear2Savingsii.setText(labMonthlySavings2.getText() * 24);
-// 
-		// var resultYear2Savingsii = parseFloat(labYear2Savingsii.getText()).toFixed(2);
-		// //resultYear2Savingsii = '$ ' + resultYear2Savingsii.toFixed(2);
-		// labYear2Savingsii.setText('$ ' + resultYear2Savingsii);
-// 
-		// Ti.API.info(labYear2Savingsii);
-		// labYear3Savingsii.setText(labMonthlySavings2.getText() * 36);
-// 
-		// var resultYear3Savingsii = parseFloat(labYear3Savingsii.getText()).toFixed(2);
-		// //resultYear3Savingsii = '$ ' + resultYear3Savingsii.toFixed(2);
-		// labYear3Savingsii.setText('$ ' + resultYear3Savingsii);
-// 
-		// labYear4Savingsii.setText(labMonthlySavings2.getText() * 48);
-// 
-		// var resultYear4Savingsii = parseFloat(labYear4Savingsii.getText()).toFixed(2);
-		// //resultYear4Savingsii = '$ ' + resultYear4Savingsii.toFixed(2);
-		// labYear4Savingsii.setText('$ ' + resultYear4Savingsii);
-// 
-		// var resultMonthlySavings2 = parseFloat(labMonthlySavings2.getText()).toFixed(2);
-		// //resultMonthlySavings2 = '$ ' + resultMonthlySavings2.toFixed(2);
-		// labMonthlySavings2.setText('$ ' + resultMonthlySavings2);
-		// //////////////
-		// //acs.();
-// 
-		// globalVariables.GV.MonthlySavings = resultMonthlySavings2;
-		// globalVariables.GV.Year1Savings = result;
-		// globalVariables.GV.Year2Savings = resultYear2Savingsii;
-		// globalVariables.GV.Year3Savings = resultYear3Savingsii;
-		// globalVariables.GV.Year4Savings = resultYear4Savingsii;
-// 
-		// labCurrentEffectiveRate2.setText(globalVariables.GV.CurrentEffectiveRate+' %');
-		// labTotalCurrentFees2.setText('$ '+globalVariables.GV.TotalCurrentFees);
-// 			
-		// labProposedFees2.setText('$ '+globalVariables.GV.TotalNewFees);
-		// labProposedEffectiveRate2.setText(globalVariables.GV.NewEffectiveRate+' %');
-// 		
-		// labProposal.setText('Proposal For ' + globalVariables.GV.BusinessName);
-		// labPreparedBy.setText('Prepared By :   ' + globalVariables.GV.repName);
-	// });
-// 	
-	// self.add(calcBtn);
-	
+		
 	goButton.addEventListener('click', function(e) {
 
 		//REMOVE BUTTONS
@@ -980,68 +980,31 @@ exports.Proposal = function() {
 	Ti.App.addEventListener('fillSavingsInfo', function(e){
 		if(!e.initialize){
 			
-			labMonthlySavings2.setText(Math.abs(globalVariables.GV.TotalCurrentFees - globalVariables.GV.TotalNewFees));
-
-			labYear1Savingsii.setText(labMonthlySavings2.getText() * 12);
-			//Ti.API.info(lab.getText());
-			var result = parseFloat(labYear1Savingsii.getText()).toFixed(2);
-			//result = '$ ' + result.toFixed(2);
-			labYear1Savingsii.setText('$ ' + result);
-	
-			labYear2Savingsii.setText(labMonthlySavings2.getText() * 24);
-	
-			var resultYear2Savingsii = parseFloat(labYear2Savingsii.getText()).toFixed(2);
-			//resultYear2Savingsii = '$ ' + resultYear2Savingsii.toFixed(2);
-			labYear2Savingsii.setText('$ ' + resultYear2Savingsii);
-	
-			Ti.API.info(labYear2Savingsii);
-			labYear3Savingsii.setText(labMonthlySavings2.getText() * 36);
-	
-			var resultYear3Savingsii = parseFloat(labYear3Savingsii.getText()).toFixed(2);
-			//resultYear3Savingsii = '$ ' + resultYear3Savingsii.toFixed(2);
-			labYear3Savingsii.setText('$ ' + resultYear3Savingsii);
-	
-			labYear4Savingsii.setText(labMonthlySavings2.getText() * 48);
-	
-			var resultYear4Savingsii = parseFloat(labYear4Savingsii.getText()).toFixed(2);
-			//resultYear4Savingsii = '$ ' + resultYear4Savingsii.toFixed(2);
-			labYear4Savingsii.setText('$ ' + resultYear4Savingsii);
-	
-			var resultMonthlySavings2 = parseFloat(labMonthlySavings2.getText()).toFixed(2);
-			//resultMonthlySavings2 = '$ ' + resultMonthlySavings2.toFixed(2);
-			labMonthlySavings2.setText('$ ' + resultMonthlySavings2);
-			//////////////
-			//acs.();
-	
-			globalVariables.GV.MonthlySavings = resultMonthlySavings2;
-			globalVariables.GV.Year1Savings = result;
-			globalVariables.GV.Year2Savings = resultYear2Savingsii;
-			globalVariables.GV.Year3Savings = resultYear3Savingsii;
-			globalVariables.GV.Year4Savings = resultYear4Savingsii;
-	
-			labCurrentEffectiveRate2.setText(globalVariables.GV.CurrentEffectiveRate+' %');
-			labTotalCurrentFees2.setText('$ '+globalVariables.GV.TotalCurrentFees);
-				
-			labProposedFees2.setText('$ '+globalVariables.GV.TotalNewFees);
-			labProposedEffectiveRate2.setText(globalVariables.GV.NewEffectiveRate+' %');
-			// labTotalCurrentFees2.setText('$ '+ parseFloat(globalVariables.GV.TotalCurrentFees).toFixed(2));
-			// labCurrentEffectiveRate2.setText(parseFloat(globalVariables.GV.CurrentEffectiveRate).toFixed(2)+' %');
-			// labProposedFees2.setText('$ ' + parseFloat(globalVariables.GV.TotalNewFees).toFixed(2));
-			// labProposedEffectiveRate2.setText(parseFloat(globalVariables.GV.NewEffectiveRate).toFixed(2) + ' %');
-	// 		
-			// labMonthlySavings2.setText('$ '+ parseFloat(globalVariables.GV.MonthlySavings).toFixed(2));
-	// 	
-			// labYear1Savingsii.setText('$ ' + parseFloat(globalVariables.GV.Year1Savings).toFixed(2));
-			// labYear2Savingsii.setText('$ ' + parseFloat(globalVariables.GV.Year2Savings).toFixed(2));
-			// labYear3Savingsii.setText('$ ' + parseFloat(globalVariables.GV.Year3Savings).toFixed(2));
-			// labYear4Savingsii.setText('$ ' + parseFloat(globalVariables.GV.Year4Savings).toFixed(2));
-	// 		
-			labProposal.setText('Proposal For ' + globalVariables.GV.BusinessName);
-			labPreparedBy.setText('Prepared By:\n' + globalVariables.GV.repName);
-			if(globalVariables.GV.requestedUpdate && e.alert){
-				
-				alert("SAVINGS UPDATED");
-			}
+            labYear1Savingsii.setText(utility.formatCurrency(globalVariables.GV.Year1Savings,"$"));
+           
+            labYear2Savingsii.setText(utility.formatCurrency(globalVariables.GV.Year2Savings, "$"));
+    
+            labYear3Savingsii.setText(utility.formatCurrency(globalVariables.GV.Year3Savings,"$"));
+    
+            labYear4Savingsii.setText(utility.formatCurrency(globalVariables.GV.Year4Savings, "$"));
+    
+            labMonthlySavings2.setText(utility.formatCurrency(globalVariables.GV.MonthlySavings,"$"));
+    
+            var curEffRate = parseFloat(globalVariables.GV.CurrentEffectiveRate).toFixed(2);
+            labCurrentEffectiveRate2.setText(curEffRate+' %');
+     
+            labTotalCurrentFees2.setText(utility.formatCurrency(globalVariables.GV.TotalCurrentFees,"$"));
+                
+            labProposedFees2.setText(utility.formatCurrency(globalVariables.GV.TotalNewFees,"$"));
+            var propEffRate = parseFloat(globalVariables.GV.NewEffectiveRate).toFixed(2);
+            labProposedEffectiveRate2.setText(propEffRate+' %');
+    			
+    		labProposal.setText('Proposal For ' + globalVariables.GV.BusinessName);
+    		labPreparedBy.setText('Prepared By:\n' + globalVariables.GV.repName);
+    		if(globalVariables.GV.requestedUpdate && e.alert){
+    			
+    			alert("SAVINGS UPDATED");
+    		}
 		}
 		else{
 			labTotalCurrentFees2.setText("");

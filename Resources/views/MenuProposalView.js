@@ -38,6 +38,13 @@ exports.MenuProposalView = function() {
 	
 	self.add(syncBtn);
 	
+	syncBtn.addEventListener('click', function(e){
+		// loading._show({
+			// message: "SYNCING PROPOSALS"
+		// });
+		Ti.App.fireEvent('proposalSync');//,{ai: loading});
+	});
+	
 	var myArray = [];
 	
 	var headerView = Titanium.UI.createView({
@@ -273,6 +280,12 @@ exports.MenuProposalView = function() {
 					name: "status"
 				});
 				
+				//check to fix bug with status being date
+				if(myArray[i].ProposalStatus==null || myArray[i].ProposalStatus!="Appointment" || myArray[i].ProposalStatus!="Presented" || myArray[i].ProposalStatus!="Signed"){
+					myArray[i].ProposalStatus="Appointment";
+					myArray[i].IsUpdated=1;
+				}
+				
 				var labStatus = Ti.UI.createLabel({
 					color : '#222',
 					font : {
@@ -321,6 +334,9 @@ exports.MenuProposalView = function() {
 				
 				if(myArray[i].rpID==null){
 					labRPName.text='None';
+				}
+				else if(!(myArray[i].valueOf() in globalVariables.GV.ReferralPartners)){
+				    labRPName.text='None';
 				}
 				else{
 					labRPName.text=globalVariables.GV.ReferralPartners[(myArray[i].rpID).valueOf()].title;
@@ -681,6 +697,7 @@ exports.MenuProposalView = function() {
 			globalVariables.GV.DateCreated = myArray[e.index].DateCreated;
 			globalVariables.GV.tfInterFeeChange=false;
 			globalVariables.GV.currentLocalId = myArray[e.index].localPropID;
+			globalVariables.GV.acl_id = myArray[e.index].acl_id;
 			//globalVariables.GV.sm_id = myArray[e.index].sm_id;
 			
 			Ti.API.info(JSON.stringify(myArray[e.index]));
