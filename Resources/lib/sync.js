@@ -284,23 +284,72 @@ function syncWithACS(callback){
 					acs.downloadRemoteProposals({
 						localProposals: propIds
 						},function(e){
-							propIds=null;
+							//propIds=null;
 							if(e.success){
 								if(e.results.length>0){
-									db.insertProposal(e.results, function(g){
-										if(g.success){
-											callback({success:true,
-												      downloaded: false
-										    });
-										}
-									});
-								}
+								    if(globalVariables.GV.userRole=="Admin"){
+								        
+								    
+    								    var arrayToInsert=[];
+    								    for(var i=0;i<e.results.length;i++)
+    								    {
+    								        var j=0;
+    								        var matchFound=false;
+    								        while(j<propIds.length && !matchFound)
+    								        {
+    								            if(e.results[i].id==propIds[j])
+    								            {
+    								                matchFound=true;
+    								                Ti.API.info("MATCH FOUND: "+e.results[i].id+" = "+propIds[j]+" , "+e.results[i].BusinessName);
+    								            }
+    								            
+    								            j++;
+    								                
+    								        }
+    								        
+    								        if(!matchFound){
+    								            arrayToInsert.push(e.results[i]);
+    								            Ti.API.info("MATCH NOT FOUND: PUSHING   "+e.results[i].id+" , "+e.results[i].BusinessName);
+    								        }
+    								    }
+    								    j = matchFound = propIds= null;
+    									if(arrayToInsert.length>0)
+    									{
+    									    db.insertProposal(arrayToInsert, function(g){
+    										  if(g.success){
+    										      callback({
+    										          success:true,
+    												  downloaded: false
+    										      });
+    										  }
+    									   });
+    									}
+    									else{
+                                            callback({
+                                                success:true,
+                                                downloaded: false
+                                            });
+                                        }
+									
+								    }
+								    else{
+								        db.insertProposal(e.results, function(g){
+                                              if(g.success){
+                                                  callback({
+                                                      success:true,
+                                                      downloaded: false
+                                                  });
+                                              }
+                                           });
+                                    }
+                                }
 								else{
 									callback({
 										success:true,
 										downloaded: false
 									});
 								}
+							
 							}
 							else{
 								callback({

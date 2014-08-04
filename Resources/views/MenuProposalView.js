@@ -78,7 +78,7 @@ exports.MenuProposalView = function() {
 		},
 		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 		text : 'BUSINESS NAME',
-		left : 25,
+		left : 20,
 		//top : '22dp',
 		//backgroundColor: "blue",
 		//left: "35%",
@@ -86,8 +86,8 @@ exports.MenuProposalView = function() {
 		//		height : 30,
 	});
 	var bnameContainer = Ti.UI.createView({
-		width: "40%",
-		backgroundColor: "transparent"
+		width: "50%",
+		backgroundColor: "#ffffff"
 	});
 	bnameContainer.add(labBname);
 	headerView.add(bnameContainer);
@@ -112,8 +112,8 @@ exports.MenuProposalView = function() {
 	});
 	
 	var statusContainer = Ti.UI.createView({
-		width: "25%",
-		backgroundColor: "transparent"
+		width: "15%",
+		backgroundColor: "#ffffff"
 	});
 	
 	statusContainer.add(labStatus);
@@ -137,7 +137,7 @@ exports.MenuProposalView = function() {
 	
 	var rpContainer = Ti.UI.createView({
 		width: "34.9%",
-		backgroundColor: "tranpsarent"
+		backgroundColor: "#ffffff"
 	});
 	
 	rpContainer.add(labRP);
@@ -228,7 +228,7 @@ exports.MenuProposalView = function() {
 					backgroundColor: "transparent",
 					//layout: "vertical",
 					height: Ti.UI.FILL,
-					width: "40%",
+					width: "45%",
 					left: 0
 				});
 			
@@ -240,7 +240,7 @@ exports.MenuProposalView = function() {
 						//		fontWeight : 'bold'
 					},
 					text : new Date(myArray[i].LastUpdated).toLocaleString(),
-					left : 15,
+					left : 5,
 					top: 5,
 					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 					width : Ti.UI.SIZE,
@@ -254,11 +254,11 @@ exports.MenuProposalView = function() {
 					color : '#222',
 					font : {
 						fontFamily : 'Arial',
-						fontSize : 22,
+						fontSize : 18,
 						//fontWeight : 'normal'
 					},
 					text : myArray[i].BusinessName,
-					left : 25,
+					left : 10,
 					//top : 12,
 					verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER,
 					width : Ti.UI.SIZE,
@@ -276,7 +276,7 @@ exports.MenuProposalView = function() {
 				var statusClickArea = Ti.UI.createView({
 					width: "25%",
 					height: Ti.UI.FILL,
-					left: "40%",
+					left: "45%",
 					name: "status"
 				});
 				
@@ -290,7 +290,7 @@ exports.MenuProposalView = function() {
 					color : '#222',
 					font : {
 						fontFamily : 'Arial',
-						fontSize : 22,
+						fontSize : 18,
 						//fontWeight : 'normal'
 					},
 					text : myArray[i].ProposalStatus,
@@ -318,7 +318,7 @@ exports.MenuProposalView = function() {
 					color : '#222',
 					font : {
 						fontFamily : 'Arial',
-						fontSize : 22,
+						fontSize : 18,
 						//fontWeight : 'normal'
 					},
 					text : '',

@@ -667,13 +667,14 @@ exports.queryAllProposals = function(params,callback) {
 
 exports.downloadRemoteProposals = function(params, callback){
 	var conditions=null;
+	Ti.API.info("LOCAL PROPOSALS:  "+params.localProposals);
 	if(globalVariables.GV.userRole=="Admin"){
 		Cloud.Objects.query({
 			classname : 'Proposal',
 			limit: 1000,
-			where: {
-				id: {"$nin":params.localProposals}
-			}
+			// where: {
+				// id: {'$nin':params.localProposals}
+			// }
 		}, function(e){
 				Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
 				if (e.success) {
@@ -869,9 +870,9 @@ exports.createProposal = function(params,callback) {
                 Year2Savings : parseFloat(row.Year2Savings).toFixed(2),
                 Year3Savings : parseFloat(row.Year3Savings).toFixed(2),
                 Year4Savings : parseFloat(row.Year4Savings).toFixed(2),
-                ProcessingFee : parseFloat(row.ProcessingFee).toFixed(2),
+                ProcessingFee : parseFloat(row.ProcessingFee),
                 AuthFee : parseFloat(row.AuthFee).toFixed(2),
-                PinDebitProcessingFee : parseFloat(row.PinDebitProcessingFee).toFixed(2),
+                PinDebitProcessingFee : parseFloat(row.PinDebitProcessingFee),
                 PinDebitAuthFee : parseFloat(row.PinDebitAuthFee).toFixed(2),
                 MonthlyServiceFee : parseFloat(row.MonthlyServiceFee).toFixed(2),
                 IndustryComplinceFee : parseFloat(row.IndustryComplinceFee).toFixed(2),
@@ -959,9 +960,9 @@ exports.createProposal = function(params,callback) {
                 Year2Savings : parseFloat(globalVariables.GV.Year2Savings).toFixed(2),
                 Year3Savings : parseFloat(globalVariables.GV.Year3Savings).toFixed(2),
                 Year4Savings : parseFloat(globalVariables.GV.Year4Savings).toFixed(2),
-                ProcessingFee : parseFloat(globalVariables.GV.ProcessingFee).toFixed(2),
+                ProcessingFee : parseFloat(globalVariables.GV.ProcessingFee),
                 AuthFee : parseFloat(globalVariables.GV.AuthFee).toFixed(2),
-                PinDebitProcessingFee : parseFloat(globalVariables.GV.PinDebitProcessingFee).toFixed(2),
+                PinDebitProcessingFee : parseFloat(globalVariables.GV.PinDebitProcessingFee),
                 PinDebitAuthFee : parseFloat(globalVariables.GV.PinDebitAuthFee).toFixed(2),
                 MonthlyServiceFee : parseFloat(globalVariables.GV.MonthlyServiceFee).toFixed(2),
                 IndustryComplinceFee : parseFloat(globalVariables.GV.IndustryComplinceFee).toFixed(2),
@@ -1052,9 +1053,9 @@ exports.updateProposal = function (params,callback){
 				Year2Savings : parseFloat(row.Year2Savings).toFixed(2),
 				Year3Savings : parseFloat(row.Year3Savings).toFixed(2),
 				Year4Savings : parseFloat(row.Year4Savings).toFixed(2),
-				ProcessingFee : parseFloat(row.ProcessingFee).toFixed(2),
+				ProcessingFee : parseFloat(row.ProcessingFee),
 				AuthFee : parseFloat(row.AuthFee).toFixed(2),
-				PinDebitProcessingFee : parseFloat(row.PinDebitProcessingFee).toFixed(2),
+				PinDebitProcessingFee : parseFloat(row.PinDebitProcessingFee),
 				PinDebitAuthFee : parseFloat(row.PinDebitAuthFee).toFixed(2),
 				MonthlyServiceFee : parseFloat(row.MonthlyServiceFee).toFixed(2),
 				IndustryComplinceFee : parseFloat(row.IndustryComplinceFee).toFixed(2),

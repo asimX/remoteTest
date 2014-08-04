@@ -5,6 +5,7 @@ var LoginScreen = require("/ui/LoginScreen");
 var AppInit = require('initialize');
 var HomeScreen = require("/ui/HomeScreen");
 
+
 AppInit.init(function(e){
 	Ti.API.info("SESSION ID IS:  " +globalVariables.GV.sessionId);
 	

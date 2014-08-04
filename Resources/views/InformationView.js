@@ -11,19 +11,7 @@ exports.Information = function() {
 		top : '2%',
 				//layout:'vertical'
 	});
-	// self.addEventListener('click', function(e) {
-// 
-// tfBname.value = globalVariables.GV.BusinessName;
-// tfSaddress.value = globalVariables.GV.StreetAddress;
-// tfState.value = globalVariables.GV.State;
-// tfZip.value = globalVariables.GV.Zip;
-// tfCity.value = globalVariables.GV.City;
-// tfContact.value = globalVariables.GV.Contact;
-// tfPhone.value = globalVariables.GV.Phone;
-// tfBtype.value = globalVariables.GV.BusinessTypeName;
-// tfPmonth.value = globalVariables.GV.ProcessingMonths;
-// 
-// });
+	
 	var topMargin = '35dp';
 
 	var scrollView = Ti.UI.createScrollView({
@@ -100,7 +88,8 @@ exports.Information = function() {
 		//top : '10dp',
 		right : '20dp',
 		width : '60.4%',
-		height : '45dp'
+		height : '45dp',
+		maxLength: 47
 	});
 	//scrollView.add(tfBname);
 	comboView1.add(tfBname);

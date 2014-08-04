@@ -50,7 +50,7 @@ function HomeScreen(params) {
 	var slideOutScrollableFull = Titanium.UI.createAnimation({
 		top : 704,
 		duration: 300,
-		//bottom: -704
+		bottom: -704
 	});
 	var slideOutScrollAblePar = Titanium.UI.createAnimation({
 		top : 200,
