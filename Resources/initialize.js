@@ -18,13 +18,15 @@ exports.init = function(startApp){
 	globalVariables.GV.tm_id = Ti.App.Properties.getString("tm_id");
 	globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
 	globalVariables.GV.proposalsViewFirstTime = true;
+	globalVariables.GV.libraryViewFirstTime = true;
 	globalVariables.GV.acl_id = Ti.App.Properties.getString("acl_id");
+	globalVariables.GV.lastFileSyncDate = Ti.App.Properties.getString("lastFileSyncDate");
+	globalVariables.GV.lastProposalSyncDate = Ti.App.Properties.getString("lastProposalSyncDate");
 	
 	db.init();
 	
 	//initialize app event listeners
 	Ti.App.addEventListener("closeHomeWindow", function(e){
-		//globalVariables.GV.navGroup.closeWindow(globalVariables.GV.homeScreen);
 		globalVariables.GV.homeScreen=null;
 		globalVariables.GV.navGroup=null;
 	});
@@ -48,18 +50,25 @@ exports.init = function(startApp){
 		globalVariables.GV.tm_id = Ti.App.Properties.getString("tm_id");
 		globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
 		globalVariables.GV.proposalsViewFirstTime = true;
+		globalVariables.GV.libraryViewFirstTime=true;
 		globalVariables.GV.acl_id = Ti.App.Properties.getString("acl_id");
+		globalVariables.GV.lastFileSyncDate = Ti.App.Properties.getString("lastFileSyncDate");
+		globalVariables.GV.lastProposalSyncDate = Ti.App.Properties.getString("lastProposalSyncDate");
 		
 		//load charge rates
 		db.LoadBusinessTypes(function(e){
 			db.LoadReferralPartners(function(f){
-				//globalVariables.GV.proposalsViewFirstTime=true;
 				if(globalVariables.GV.sessionId!=null)
 				{
 					if(Ti.Network.online)
 					{
 						acs.isLoggedIn(function(g){
 							if(g.loggedIn){
+								// acs.updateTmid(function(h){
+									// if(h.success){
+										// alert("Roxie's proposals Updated");
+									// }
+								// });
 								sync.syncDialog();
 							}
 							else{
@@ -79,8 +88,15 @@ exports.init = function(startApp){
 	});
 	
 	Ti.App.addEventListener("pause", function(e){
-		globalVariables.GV.proposalsViewFirstTime=true;
+		pausedEvent();
 	});
+	
+	Ti.App.addEventListener("paused", function(e){
+		pausedEvent();
+	});
+	
+	function pausedEvent(){
+	}
 	
 	Ti.Network.addEventListener("change", function(e){
 		if(!Ti.Network.NETWORK_NONE && Ti.Network.online)
@@ -93,38 +109,6 @@ exports.init = function(startApp){
 		}
 	});
 	
-	// if(Ti.Network.online)
-	// {
-		// acs.isLoggedIn(function(e){
-			// if(e.loggedIn)
-			// {
-				// globalVariables.GV.loggedIn = true;
-				// Ti.App.Properties.setBool("loggedIn", true);
-				// acs.getPartners(function(f){
-					// if(f.success){
-						// db.FillReferralPartners(f.results);
-					// }
-					// acs.getRates(function(g){
-						// db.FillBusinessType(g.results);
-					// });
-				// });
-				// //////DOWNLOAD REFERRAL PARTNERS AND CHARGE RATES AND SAVE TO DB THEN START APP
-			// }
-			// else{
-				// globalVariables.GV.loggedIn = false;
-				// Ti.App.Properties.setBool("loggedIn", false);
-				// //////USE REFERRAL PARTNERS AND CHARGE RATES FROM DB AND THEN START APP.
-// 				
-// 				
-				// // alert("You are logged out. Please Login again to continue");
-				// // globalVariables.GV.loginScreen = new LoginScreen();
-				// // globalVariables.GV.loginScreen.open();
-				// // globalVariables.GV.navGroup.close();
-				// // Ti.App.fireEvent("closeHomeWindow");
-			// }
-// 			
-		// });
-	// }
 	//load charge rates
 	db.LoadBusinessTypes(function(e){
 		db.LoadReferralPartners(function(f){

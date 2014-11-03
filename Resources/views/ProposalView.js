@@ -779,7 +779,6 @@ exports.Proposal = function() {
             					acs.createProposal(null,function(f){
             						if(f.success)
             						{
-            							
             							db.InsertProposalID(f, function(g){
             								if(g.success)
             								{

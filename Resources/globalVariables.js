@@ -174,6 +174,8 @@ exports.GV = {
 	lastName : null,
 	userRole : null,
 	repName: null,
+	
+	firstTimeLogin: null,	//used to determine whether library must be downloaded after first time login when there is 0 items in DB for new user. Using this to avoid extra processing call to DB.
 
 	///////App Navigation
 	navGroup : null,
@@ -183,10 +185,14 @@ exports.GV = {
 	
 	/////// APP STATE VARIABLES
 	proposalsViewFirstTime:false,
+	libraryViewFirstTime:false,
 	LastUpdated : null,
 	DateCreated: null,
 	cloudSessionSet: false,
 	currentLocalId: null,
+	localFileIds: null,      // this array is loaded into memory when the library comes to view and release when the library view is hidden or closed.
+	lastFileSyncDate: null,
+	lastProposalSyncDate: null,
 	//AppResumed:false,
 	
 	/////// LOADING SCREENS

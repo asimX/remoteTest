@@ -1,13 +1,7 @@
 var acs = require("lib/acs");
 var globalVariables = require("globalVariables");
-var loading = require('lib/loading').loading();
+//var loading = require('lib/loading').loading();
 var db = require("db/db");
-
-//var dataArray = [];
-// 
-// function proposalsUploader(i){
-	// if(i<length)
-// };
 
 function syncProposalsToACS(params,callback){
 	var loadingWin = Ti.UI.createWindow({
@@ -121,7 +115,7 @@ function syncDialog(){
 					var dialog = Ti.UI.createAlertDialog({
     					cancel: 1,
     					buttonNames: ['YES', 'NO'],
-    					message: 'Some proposals have not been uploaded to the back office. Would you like to sync now?',
+    					message: 'Some proposals have not been synced to the back office. Would you like to sync now?',
     					title: 'SYNC'
   					});
   					dialog.addEventListener('click', function(g){
@@ -162,6 +156,8 @@ function syncWithACS(callback){
 								db.insertProposal(e.results, function(g){
 									Ti.API.info('INSERT PROPOSALS DONE');
 									if(g.success){
+										globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
+										Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
 										callback({success:true,
 												  downloaded: true
 										});
@@ -193,6 +189,8 @@ function syncWithACS(callback){
 							if(e.results.length>0){
 								db.insertProposal(e.results, function(g){
 									if(g.success){
+										globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
+										Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
 										callback({success:true,
 												  downloaded: true
 										});
@@ -222,6 +220,8 @@ function syncWithACS(callback){
 							if(e.results.length>0){
 								db.insertProposal(e.results, function(g){
 									if(g.success){
+										globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
+										Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
 										callback({success:true,
 												  downloaded: true
 										});
@@ -251,6 +251,8 @@ function syncWithACS(callback){
 							if(e.results.length>0){
 								db.insertProposal(e.results, function(g){
 									if(g.success){
+										globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
+										Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
 										callback({success:true,
 												  downloaded: true
 										});
@@ -287,7 +289,7 @@ function syncWithACS(callback){
 							//propIds=null;
 							if(e.success){
 								if(e.results.length>0){
-								    if(globalVariables.GV.userRole=="Admin"){
+								    //if(globalVariables.GV.userRole=="Admin"){
 								        
 								    
     								    var arrayToInsert=[];
@@ -331,17 +333,17 @@ function syncWithACS(callback){
                                             });
                                         }
 									
-								    }
-								    else{
-								        db.insertProposal(e.results, function(g){
-                                              if(g.success){
-                                                  callback({
-                                                      success:true,
-                                                      downloaded: false
-                                                  });
-                                              }
-                                           });
-                                    }
+								    //}
+								    // else{
+								        // db.insertProposal(e.results, function(g){
+                                              // if(g.success){
+                                                  // callback({
+                                                      // success:true,
+                                                      // downloaded: false
+                                                  // });
+                                              // }
+                                           // });
+                                    // }
                                 }
 								else{
 									callback({
@@ -639,9 +641,64 @@ function arr_diff(a1, a2)
   return diff;
 }
 
+function syncLibrary(callback){
+	var success, msg = null;
+	db.getFileIDs(function(f){
+		if(Ti.Network.online){
+			acs.getFiles(function(h){
+				if(h.success){
+					if(h.results.length>0){
+						db.fillLibrary(h.results, function(m){
+							if(m.success){
+								Ti.App.fireEvent('reloadLibrary');
+								globalVariables.GV.lastFileSyncDate=(new Date).toISOString();
+								Ti.App.Properties.setString("lastFileSyncDate", globalVariables.GV.lastFileSyncDate);
+								//Ti.App.fireEvent("loadLibrary");
+								callback({
+									success:m.success
+								});
+								
+							}
+							else{
+								callback({
+									success: false,
+									msg: m.msg
+								});
+								
+							}	
+						});
+					}
+					else{
+						globalVariables.GV.lastFileSyncDate=(new Date).toISOString();
+						Ti.App.Properties.setString("lastFileSyncDate", globalVariables.GV.lastFileSyncDate);
+						callback({
+							success: true
+						});
+					}
+				}
+				else{
+					callback({
+						success: false,
+						msg: "There was a problem downloading updated files. Try again by clicking Sync"
+					});
+					
+				}
+			});	
+		}
+		else{
+			callback({
+				success: false,
+				msg: "You are not connected to the internet. Please connect and try again."
+			});
+			
+		}
+	});
+}
+
 // function syncReferralPartners()
 
 exports.syncWithACS = syncWithACS;
 exports.syncDialog = syncDialog;
 exports.syncProposalsToACS = syncProposalsToACS;
 exports.syncChanges = syncChanges;
+exports.syncLibrary = syncLibrary;

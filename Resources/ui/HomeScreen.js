@@ -2,6 +2,7 @@ var globalVariables = require('globalVariables');
 var acs = require('lib/acs');
 var loading = require('lib/loading').loading();
 var sync = require('lib/sync');
+var db = require('db/db');
 
 function HomeScreen(params) {
 	
@@ -79,10 +80,6 @@ function HomeScreen(params) {
 		top : 0,
 	});
 	
-	//selfW.add(ViewMenu);
-	// selfW.add(LibraryView);
-	// selfW.add(MenuProposalView);
-	
 	var imgInterchage = Ti.UI.createImageView({
 		left : '12%',
 		image : '/images/iconInterchange.png',
@@ -100,6 +97,7 @@ function HomeScreen(params) {
 		if (sliderPosition == 5) {
 			sliderPosition = 0;
 			
+			globalVariables.GV.localFileIds=null;
 			LibraryView.animate(SlideOutLibraryFull);
 			
 			self.animate(slideInScrollableNormal, function(){
@@ -158,15 +156,45 @@ function HomeScreen(params) {
 		{
 			sliderPosition = 3;
 			MenuProposalView.animate(slideOutPropsalFull);
-			LibraryView.animate(SlideInLibraryNormal);
-			selfW.title="Library";
+			LibraryView.animate(SlideInLibraryNormal, function(){
+				selfW.title="Library";
+				if(globalVariables.GV.libraryViewFirstTime==true)
+				{
+					loading._show({
+						message:"Updating Library"
+					});
+					sync.syncLibrary(function(e){
+						loading.hide();
+						globalVariables.GV.libraryViewFirstTime=false;
+						if(!e.success){
+							alert(e.msg);
+						}
+					});
+				}
+				
+			});
 		}
 		else{
 			sliderPosition=3;
 			self.animate(slideOutScrollableFull);
 			LibraryView.animate(SlideInLibraryNormal, function(){
 				selfW.title="Library";
+				if(globalVariables.GV.libraryViewFirstTime==true)
+				{
+					loading._show({
+						message:"Updating Library"
+					});
+					sync.syncLibrary(function(e){
+						loading.hide();
+						globalVariables.GV.libraryViewFirstTime=false;
+						
+						if(!e.success){
+							alert(e.msg);
+						}
+					});
+				}
 			});
+			
 		}
 	});
 
@@ -190,6 +218,7 @@ function HomeScreen(params) {
 	imgProposal.addEventListener('click', function(e) {
 		if (sliderPosition == 5) {
 			sliderPosition = 6; // proposals showing
+			globalVariables.GV.localFileIds=null;
 			LibraryView.animate(SlideOutLibraryFull);
 			MenuProposalView.animate(slideInPropsalNormal, function(){
 				selfW.title="Proposals";

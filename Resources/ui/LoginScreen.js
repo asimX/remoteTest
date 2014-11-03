@@ -139,10 +139,6 @@ function LoginScreen() {
 						db.FillBusinessType(g.results);
 						globalVariables.GV.SetRates(g.results);
 					}
-					
-					callback();
-					
-					
 				});
 			});
 			

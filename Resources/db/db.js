@@ -8,6 +8,8 @@ exports.init = function(){
 	db.execute('CREATE TABLE IF NOT EXISTS Proposal(localPropID INTEGER PRIMARY KEY, proposalId TEXT, repName TEXT, userId TEXT, BusinessName TEXT,StreetAddress TEXT,State TEXT,City TEXT,Zip TEXT,Contact TEXT,Phone TEXT, BusinessType TEXT, ProcessingMonths TEXT,debitVol REAL,aeVol REAL,dsVol REAL ,mcVol REAL ,visaVol REAL,debitTransactions REAL ,aeTransactions REAL ,dsTransactions REAL ,mcTransactions REAL ,visaTransactions REAL, debitAverageTicket REAL ,aeAverageTicket REAL ,dsAverageTicket REAL ,mcAverageTicket REAL ,visaAverageTicket REAL,TotalCurrentFees REAL,CurrentEffectiveRate REAL,debitInterchangeFees REAL , aeInterchangeFees REAL,dsInterchangeFees REAL ,mcInterchangeFees REAL,visaInterchangeFees REAL,debitProcessingFees REAL ,aeProcessingFees REAL,dsProcessingFees REAL,mcProcessingFees REAL,visaProcessingFees REAL,debitCardFees REAL ,aeCardFees REAL ,dsCardFees REAL ,mcCardFees REAL ,visaCardFees REAL ,TotalNewFees REAL,NewEffectiveRate REAL,MonthlySavings REAL,Year1Savings REAL,Year2Savings REAL,Year3Savings REAL,Year4Savings REAL,ProcessingFee REAL,AuthFee REAL,PinDebitProcessingFee REAL,PinDebitAuthFee REAL,MonthlyServiceFee REAL,IndustryComplinceFee REAL,TerminalFee REAL,MXGatewayFee REAL,DebitAccessFee REAL,DateCreated TEXT, Notes TEXT, IsUpdated INTEGER, LastUpdated TEXT, IsUploaded INTEGER, ProposalStatus TEXT, rpID TEXT, sm_id TEXT, tm_id TEXT);');
 	db.execute('CREATE TABLE IF NOT EXISTS BusinessType (BusinessTypeName TEXT,visa_rate REAL,mc_rate REAL,ds_rate REAL,amex_rate REAL,debit_rate REAL)');
 	db.execute('CREATE TABLE IF NOT EXISTS ReferralPartner (rp_id TEXT, BusinessName TEXT, StreetAddress TEXT, State TEXT, City TEXT, Zip TEXT, Contact TEXT)');
+	db.execute('CREATE TABLE IF NOT EXISTS Library (file_id TEXT, file_name TEXT, folder TEXT, url TEXT, local_path TEXT, updated_at TEXT)');
+	
 	
 	// pps table additions
 	addColumn('pps','Proposal','acl_id', 'TEXT');
@@ -102,6 +104,34 @@ exports.FillProposal = function(callback) {
 		alert("Error saving new proposal locally");
 		Ti.API.error("Error Inserting new Proposal to local db" + JSON.stringify(err));
 	}
+};
+
+exports.fillLibrary = function(dataArray, callback){
+	
+		try{
+			for(var i=0;i<dataArray.length;i++){
+				var db = Ti.Database.open('pps');
+				//db.execute
+				if(globalVariables.GV.localFileIds.indexOf(dataArray[i].id) > -1){
+					db.execute('UPDATE Library SET file_name=?,folder=?, url=?, local_path=?, updated_at=? where file_id=?',dataArray[i].name, dataArray[i].folder, dataArray[i].url, dataArray[i].filepath, dataArray[i].updated_at, dataArray[i].id);
+					db.close();
+				}
+				else{
+					db.execute('INSERT INTO Library (file_id, file_name, folder, url, local_path, updated_at)VALUES(?,?,?,?,?,?)',dataArray[i].id, dataArray[i].name, dataArray[i].folder, dataArray[i].url, dataArray[i].filepath, dataArray[i].updated_at);
+					db.close();
+				}
+			}
+			callback({success: true});
+		}
+		catch(err){
+			//Ti.API.error("Error downloading document "+dataArray[i].name);
+			alert("Error downloading library document "+dataArray[i].name+". Try to sync again later.");
+			callback({
+				success: false,
+				msg: err
+			});
+		}
+	//callback();	
 };
 
 exports.insertProposal = function(dataArray, callback){
@@ -313,11 +343,44 @@ exports.getAllProposalIds = function(callback){
 		};
 		db.close();
 		sqlStatement=null;
+		if(dataArray.length==0)
+			globalVariables.GV.lastProposalSyncDate=0;
 	}
 	catch (err){
 		Ti.API.error("Query Proposals Error: \n" + JSON.stringify(err));
 	}
 	callback({results:dataArray});
+};
+
+exports.getFileIDs = function(callback){
+	//var returnArray = [];
+	globalVariables.GV.localFileIds=[];
+	try{
+		var db = Ti.Database.open('pps');
+		var SPTable = db.execute("Select * from Library");
+		//var i=0;
+		while(SPTable.isValidRow()){
+			globalVariables.GV.localFileIds.push(
+				SPTable.fieldByName('file_id')
+			);
+			//i++;
+			SPTable.next();
+		}
+		db.close();
+		if(globalVariables.GV.localFileIds.length==0){
+			globalVariables.GV.lastFileSyncDate = 0;
+		}
+		callback({
+			success: true
+		});
+	}
+	catch (err){
+		//Ti.API.error("Error getting local file ids");
+		callback({
+			success: false,
+			message: err
+		});
+	}
 };
 
 exports.FillBusinessType = function(dataArray) {
@@ -948,4 +1011,52 @@ exports.deleteProposals = function(params, callback){
         });
         
     }
+};
+
+exports.getLibraryFolders = function(callback){
+	try{
+		var db = Ti.Database.open('pps');
+		var folders = [];
+		var SPTable = db.execute("SELECT DISTINCT folder from library");
+		while (SPTable.isValidRow()) {	
+			folders.push({
+				title: SPTable.fieldByName('folder'),
+			});
+			SPTable.next();
+		};
+		db.close();
+		
+		callback({
+			success: true,
+			folders: folders
+		});
+	}
+	catch(err){
+		callback({
+			success: false,
+			msg: "Error loading Folders from local database."
+		});
+	}
+};
+
+exports.getFolderFiles = function(folderName){
+	try{
+		var db = Ti.Database.open('pps');
+		var sqlStatement = 'SELECT * from library where folder="' + folderName.title+'"';
+		var SPTable = db.execute(sqlStatement);
+		var returnData = [];
+		//(file_id TEXT, file_name TEXT, folder TEXT, url TEXT, local_path TEXT, updated_at TEXT)');
+		while(SPTable.isValidRow()){
+			returnData.push({
+				name: SPTable.fieldByName('file_name'),
+				localPath: SPTable.fieldByName('local_path'),
+			});
+			SPTable.next();
+		}
+		db.close();
+		return returnData;
+	}
+	catch(err){
+		return err;
+	}
 };

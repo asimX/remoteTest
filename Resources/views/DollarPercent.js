@@ -11,20 +11,6 @@ exports.DollarPercent = function(win) {
 		zIndex : 2,
 		visible: false
 	});
-	// self.addEventListener('click', function() {
-		// tfProcessingFee.value = globalVariables.GV.ProcessingFee;
-		// tfAuthFee.value = globalVariables.GV.AuthFee;
-		// tfPinDebitProcessingFee.value = globalVariables.GV.PinDebitProcessingFee;
-		// tfPinDebitAuthFee.value = globalVariables.GV.PinDebitAuthFee;
-		// tfMonthlyServiceFee.value = globalVariables.GV.MonthlyServiceFee;
-		// tfIdustryComplinceFee.value = globalVariables.GV.IndustryComplinceFee;
-		// tfTerminalFee.value = globalVariables.GV.TerminalFee;
-		// tfMXGatewayFee.value = globalVariables.GV.MXGatewayFee;
-		// tfDebitAccessFee.value = globalVariables.GV.DebitAccessFee;
-// 
-	// });
-	/////////////////////////////////////////////////////////////////
-	//scroll view
 
 	var scrollView = Ti.UI.createScrollView({
 		contentWidth : 'auto',
