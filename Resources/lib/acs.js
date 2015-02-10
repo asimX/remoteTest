@@ -903,8 +903,8 @@ exports.createProposal = function(params,callback) {
                 DebitAccessFee : parseFloat(row.DebitAccessFee),
 				//timeId: row.timeId,
 				Notes: row.NotesText,
-				LastUpdated: row.LastUpdated,
-				DateCreated: row.DateCreated,
+				//LastUpdated: row.LastUpdated,
+				DateCreated: new Date(row.DateCreated).toISOString(),
 				ProposalStatus: row.ProposalStatus,
 				rpID: row.rpID,
 				sm_id: smid,
@@ -993,8 +993,8 @@ exports.createProposal = function(params,callback) {
                 DebitAccessFee : parseFloat(globalVariables.GV.DebitAccessFee),
 				//timeId: globalVariables.GV.timeId,
 				Notes: globalVariables.GV.NotesText,
-				LastUpdated: globalVariables.GV.LastUpdated,
-				DateCreated: globalVariables.GV.DateCreated,
+				//LastUpdated: globalVariables.GV.LastUpdated,
+				DateCreated: new Date(globalVariables.GV.DateCreated).toISOString(),
 				ProposalStatus: globalVariables.GV.ProposalStatus,
 				rpID: globalVariables.GV.rpID,
 				sm_id: smid,
@@ -1086,7 +1086,7 @@ exports.updateProposal = function (params,callback){
 				DebitAccessFee : parseFloat(row.DebitAccessFee),
 				//timeId: row.timeId,
 				Notes: row.NotesText,
-				LastUpdated: row.LastUpdated,
+				//LastUpdated: row.LastUpdated,
 				DateCreated: row.Date,
 				ProposalStatus: row.ProposalStatus,
 				rpID: row.rpID,
@@ -1174,7 +1174,7 @@ exports.updateProposal = function (params,callback){
 					DebitAccessFee : parseFloat(globalVariables.GV.DebitAccessFee),
 					//timeId: globalVariables.GV.timeId,
 					Notes: globalVariables.GV.NotesText,
-					LastUpdated: globalVariables.GV.LastUpdated,
+					//LastUpdated: globalVariables.GV.LastUpdated,
 					DateCreated: globalVariables.GV.DateCreated,
 					ProposalStatus: globalVariables.GV.ProposalStatus,
 					rpID: globalVariables.GV.rpID,
@@ -1462,4 +1462,24 @@ exports.updateTmid = function(callback){
 			uploader(0);
 		}
 	});
+};
+
+/////test user reassign
+
+exports.updateOwner = function(){
+    Cloud.Objects.update({
+        id: globalVariables.GV.ProposalId,
+        classname: "Proposal",
+        fields:{
+            user_id: "5356aa251316e90da8105fcc"
+        }
+        
+    }, function(e){
+        if(e.success){
+            alert('USER ID UPDATED GO CHECK');
+        }
+        else{
+            Ti.API.error("THERE WAS A PROBLEM:    " + JSON.stringify(e));
+        }
+    });
 };

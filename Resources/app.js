@@ -9,7 +9,7 @@ var HomeScreen = require("/ui/HomeScreen");
 AppInit.init(function(e){
 	Ti.API.info("SESSION ID IS:  " +globalVariables.GV.sessionId);
 	
-	if(e.loggedIn)
+	if(e.loggedIn && globalVariables.GV.userRole!="")
 	{	
 		globalVariables.GV.homeScreen = new HomeScreen({});
 		globalVariables.GV.navGroup = Titanium.UI.iOS.createNavigationWindow({

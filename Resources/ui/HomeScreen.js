@@ -228,10 +228,10 @@ function HomeScreen(params) {
 						message:"Downloading Proposals from backend"
 					});
 					globalVariables.GV.proposalsViewFirstTime=false;
-					sync.syncWithACS(function(e){
-						if(e.success){
+					sync.syncWithACS(function(g){
+						if(g.success){
 							loading._hide();
-							if(!e.downloaded)
+							if(!g.downloaded)
 							{
 								loading._show({
 									message: "Looking for changes"
@@ -268,10 +268,10 @@ function HomeScreen(params) {
 						message:"Downloading Proposals from backend"
 					});
 					globalVariables.GV.proposalsViewFirstTime=false;
-					sync.syncWithACS(function(e){
-						if(e.success){
+					sync.syncWithACS(function(g){
+						if(g.success){
 							loading._hide();
-							if(!e.downloaded)  //this is only true when db is empty, so here if it's not empty we're looking for changes to current proposals
+							if(!g.downloaded)  //this is only true when db is empty, so here if it's not empty we're looking for changes to current proposals
 							{
 								loading._show({
 									message: "Looking for changes"

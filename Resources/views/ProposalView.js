@@ -859,6 +859,20 @@ exports.Proposal = function() {
 
 	});
 
+    var testBtn = Ti.UI.createButton({
+        title : 'Test user Reassign',
+        top : '1%',
+        color : '#0082b4',
+        right : 40,
+        height : 70
+    });
+    
+    self.add(testBtn);
+    
+    testBtn.addEventListener("click", function(e){
+        acs.updateOwner();
+    });
+	
 	var goButton = Ti.UI.createButton({
 		title : 'Create PDF',
 		top : '4%',
@@ -870,7 +884,7 @@ exports.Proposal = function() {
 	self.add(goButton);
 		
 	goButton.addEventListener('click', function(e) {
-
+             
 		//REMOVE BUTTONS
 		self.remove(goButton);
 		self.remove(imgCal);

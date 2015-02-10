@@ -1,6 +1,6 @@
 var acs = require("lib/acs");
 var globalVariables = require("globalVariables");
-//var loading = require('lib/loading').loading();
+var loading = require('lib/loading').loading();
 var db = require("db/db");
 
 function syncProposalsToACS(params,callback){
@@ -585,9 +585,9 @@ Ti.App.addEventListener('proposalSync', function(e){
 	});
 	
 	loadingWin.open();
-	loading._show({
-			message : 'SYNCING'
-	});
+	// loading._show({
+			// message : 'SYNCING'
+	// });
 	loadingWin.add(loading);
 	syncWithACS(function(g){
 		Ti.API.info("****************COMPLETE SYNC WITH ACS*************************");

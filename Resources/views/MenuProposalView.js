@@ -281,7 +281,7 @@ exports.MenuProposalView = function() {
 				});
 				
 				//check to fix bug with status being date
-				if(myArray[i].ProposalStatus==null || myArray[i].ProposalStatus!="Appointment" || myArray[i].ProposalStatus!="Presented" || myArray[i].ProposalStatus!="Signed"){
+				if(myArray[i].ProposalStatus==null){// || myArray[i].ProposalStatus!="Appointment" || myArray[i].ProposalStatus!="Presented" || myArray[i].ProposalStatus!="Signed"){
 					myArray[i].ProposalStatus="Appointment";
 					myArray[i].IsUpdated=1;
 				}
@@ -409,11 +409,12 @@ exports.MenuProposalView = function() {
 				rownum: e.index,
 				separatorInsets:{
 					left: 0
-				}		
+				}
+						
 			});
 	
 			statusTV.addEventListener("click", function(f){
-				Ti.API.info("from popover click:   "+JSON.stringify(f));
+				var updatedProposal = null;
 				db.updateStatus({
 					status: f.row.title,
 					proposalId: myArray[f.row.rownum].ProposalId
@@ -422,6 +423,8 @@ exports.MenuProposalView = function() {
 					loading._show({
 						message: "Updating Status in back office."
 					});
+					myArray[f.row.rownum].ProposalStatus=f.row.title;
+					
 					if(Ti.Network.online)
 					{
 						if(!globalVariables.GV.cloudSessionSet){
@@ -450,8 +453,8 @@ exports.MenuProposalView = function() {
 							});
 						}
 						else{
-							acs.updateProposal({row: myArray[f.row.rownum]},function(e){
-								if(e.success===false)	
+							acs.updateProposal({row: myArray[f.row.rownum]},function(h){
+								if(h.success===false)	
 								{
 									loading._hide();
 									alert('Problem Updating on backend. Try again later');
