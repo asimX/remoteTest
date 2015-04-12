@@ -89,7 +89,7 @@ exports.Information = function() {
 		right : '20dp',
 		width : '60.4%',
 		height : '45dp',
-		maxLength: 47
+		//maxLength: 47
 	});
 	//scrollView.add(tfBname);
 	comboView1.add(tfBname);

@@ -19,7 +19,7 @@ function syncProposalsToACS(params,callback){
 	
 	function uploader(i){
 		if(i<dataArray.length){
-			if(dataArray[i].ProposalId=="0"){
+			if((dataArray[i].ProposalId=="0"||dataArray[i].IsUploaded==0)){//&&!dataArray[i].IsUpdated){
 				acs.createProposal({row: dataArray[i]}, function(e){
 					if(e.success==false)	
 					{
@@ -41,12 +41,12 @@ function syncProposalsToACS(params,callback){
 					}
 				});
 			}
-			else if (dataArray[i].ProposalId!="0" && dataArray[i].IsUploaded==0)
+			else if (dataArray[i].ProposalId!="0" && dataArray[i].IsUpdated==1&&!dataArray[i].IsUploaded)
 			{
 				acs.updateProposal({row: dataArray[i]},function(e){
 					if(e.success===false)	
 					{
-						alert('Problem Updating on backend. Try again later');
+						alert('Problem Updating on backend case 2. Try again later');
 						success=false;
 						uploader(dataArray.length);
 					}
@@ -58,41 +58,49 @@ function syncProposalsToACS(params,callback){
 						}, function(f){
 							if(f.success)
 							{
-								uploader(i+1);
-							}
-						});	
+								db.setUpdateOff({
+                                    proposalId: e.proposalId
+                                        }, function(g){
+                                    if(g.success)
+                                    {
+                                        uploader(i+1);
+                                    }
+                                });
+                            }
+						});
+						
 					}
 				});
 			}
-			else
-			{
-				acs.updateProposal({row: dataArray[i]},function(e){
-					if(e.success===false)	
-					{
-						alert('Problem Updating on backend. Try again later');
-						success=false;
-						uploader(dataArray.length);
-					}
-					else
-					{
-						Ti.API.info(e.proposalId+" , "+ e.proposalId);
-						db.setUpdateOff({
-							proposalId: e.proposalId
-						}, function(f){
-							if(f.success)
-							{
-								db.setUploadedOn({proposalId: e.proposalId}, function(g){
-									if(g.success)
-									{
-										uploader(i+1);
-									}
-								});		
-							}
-						});	
-					}
-				});
-				
-			}
+			// else
+			// {
+				// acs.updateProposal({row: dataArray[i]},function(e){
+					// if(e.success===false)	
+					// {
+						// alert('Problem Updating on backend case 3. Try again later');
+						// success=false;
+						// uploader(dataArray.length);
+					// }
+					// else
+					// {
+						// Ti.API.info(e.proposalId+" , "+ e.proposalId);
+						// db.setUpdateOff({
+							// proposalId: e.proposalId
+						// }, function(f){
+							// if(f.success)
+							// {
+								// db.setUploadedOn({proposalId: e.proposalId}, function(g){
+									// if(g.success)
+									// {
+										// uploader(i+1);
+									// }
+								// });		
+							// }
+						// });	
+					// }
+				// });
+// 				
+			// }
 		}
 		else{
 			loading._hide();
@@ -141,6 +149,10 @@ function syncDialog(){
 	}
 };
 
+////*********************************************
+////This function queries proposals created on the web or by others and imports them to local db
+////
+////********************************************
 function syncWithACS(callback){
 	if(Ti.Network.online){
 		db.getAllProposalIds(function(f){
@@ -183,7 +195,16 @@ function syncWithACS(callback){
 				else if(globalVariables.GV.userRole=="Admin")
 				{
 					acs.queryAllProposals({},function(e){
-						//Ti.API.info("e.results.usernames: " + e.results);
+						
+						// currentIndex = e.currentIndex;
+						// total = e.total;
+						// while(currentIndex<total){
+						      // acs.queryAllProposals({
+						          // skip: e.currentIndex
+						      // },function(d){
+						          // currentIndex=d.currentIndex;
+						      // });
+						// }
 						if(e.success)
 						{
 							if(e.results.length>0){
@@ -515,59 +536,69 @@ function syncChanges(callback){
 function checkForDeleted(callback){
     if(Ti.Network.online){
         db.getAllProposalIds(function(f){
-            var propIds = [];
-            for(var i=0;i<f.results.length;i++)
+            if(f.results.length>0)
             {
-                propIds.push(f.results[i].ProposalId);
-            }
-            
-            acs.getDeletedIds({
-                localProposals: propIds
-            },function(e){
-                if(e.success){
-                    if(e.results.length>0){
-                        var propsToDelete = [];
-                        for(var i=0;i<e.results.length;i++)
-                        {
-                            propsToDelete.push(e.results[i].id);
-                        }
-                        var toDelete = arr_diff(propsToDelete,propIds);
-                        Ti.API.info("TO DELETE:  "+toDelete);
-                        if(toDelete.length>0){  
-                            db.deleteProposals({ids: toDelete}, function(g){
-                                if(g.success){
-                                    callback({
-                                        success:true
-                                    });
-                                }
-                                else{
-                                    callback({
-                                        success:false,
-                                        msg: "Error Deleting results locally."
-                                    });
-                                }
-                            });
+                // var propIds = [];
+                // for(var i=0;i<f.results.length;i++)
+                // {
+                    // var x = f.results[i].ProposalId;
+                    // x = x.toString();
+                    // propIds.push(x);//f.results[i].ProposalId.toString());
+                // }
+//                 
+                acs.getDeletedIds({
+                    //localProposals: propIds
+                },function(e){
+                    if(e.success){
+                        if(e.results.length>0){
+                            var propsToDelete = [];
+                            for(var i=0;i<e.results.length;i++)
+                            {
+                                propsToDelete.push(e.results[i].id);
+                            }
+                            //var toDelete = arr_diff(propsToDelete,propIds);
+                            Ti.API.info("TO DELETE:  "+propsToDelete);
+                            if(propsToDelete.length>0){  
+                                db.deleteProposals({ids: propsToDelete}, function(g){
+                                    if(g.success){
+                                        callback({
+                                            success:true
+                                        });
+                                    }
+                                    else{
+                                        callback({
+                                            success:false,
+                                            msg: "Error Deleting results locally."
+                                        });
+                                    }
+                                });
+                            }
+                            else{
+                                callback({
+                                    success:true
+                                });   
+                            }
+                                 
                         }
                         else{
                             callback({
-                                success:true
-                            });   
+                                success: true
+                            });
                         }
-                             
                     }
                     else{
                         callback({
-                            success: true
+                            success: false,
+                            msg: "Error checking for proposals deleted in the back office."
                         });
-                    }
-                }
-                else{
-                    callback({
-                        success: false,
-                        msg: "Error checking for proposals deleted in the back office."
-                    });
-                }     
-            });
+                    }     
+                });
+            }
+            else{
+                callback({
+                    success: true
+                });
+            }
         });
     }
     else{
@@ -578,7 +609,14 @@ function checkForDeleted(callback){
     }
 };
 
-Ti.App.addEventListener('proposalSync', function(e){
+Ti.App.addEventListener('proposalSync', function(){
+    proposalSync(function(f){
+        alert("SYNC COMPLETED");
+        // collect analytics stuff from here later.
+    });
+});
+
+function proposalSync(callback){
 	
 	var loadingWin = Ti.UI.createWindow({
 		backgroundColor: "transparent"
@@ -589,44 +627,55 @@ Ti.App.addEventListener('proposalSync', function(e){
 			// message : 'SYNCING'
 	// });
 	loadingWin.add(loading);
-	syncWithACS(function(g){
-		Ti.API.info("****************COMPLETE SYNC WITH ACS*************************");
-		loadingWin.remove(loading);
-		loading._show({
-			message : 'LOOKING FOR CHANGES'
-		});
-		loadingWin.add(loading);
-		syncChanges(function(h){
-			Ti.API.info("****************COMPLETE SYNC CHANGES*************************");
-			loadingWin.remove(loading);
-			loading._show({
-				message : 'UPLOADING PROPOSALS TO BACK OFFICE'
-			});
-			loadingWin.add(loading);
-			db.queryLocalProposals(function(f){
-				Ti.API.info("****************COMPLETE DB LOCAL QUERY*************************");
-				if(f.results.length>0){
-					syncProposalsToACS({dataArray: f.results},function(j){
-						Ti.API.info("****************COMPLETE SYNC TO ACS*************************");
-						loading._hide();
-						loadingWin.close();
-						checkForDeleted(function(k){
-						    Ti.App.fireEvent('reloadProposals');
-						});
-						
-					});
-				}
-				else{
-					loading._hide();
-					loadingWin.close();
-					Ti.App.fireEvent('reloadProposals');
-				}
-			});
-					
-		});
+	loading._show({
+	    message: "LOOKING FOR CHANGES"
 	});
-	
-});
+	checkForDeleted(function(k){
+	    Ti.API.info("******************COMPLETED CHECKING FOR DELETED PROPOSALS******************");
+    	syncWithACS(function(g){
+    		Ti.API.info("****************COMPLETE SYNC WITH ACS*************************");
+    		loadingWin.remove(loading);
+    		loading._show({
+    			message : 'LOOKING FOR CHANGES'
+    		});
+    		loadingWin.add(loading);
+    		syncChanges(function(h){
+    			Ti.API.info("****************COMPLETE SYNC CHANGES*************************");
+    			loadingWin.remove(loading);
+    			loading._show({
+    				message : 'UPLOADING PROPOSALS TO BACK OFFICE'
+    			});
+    			loadingWin.add(loading);
+    			//checkForDeleted(function(k){
+                    
+    			    db.queryLocalProposals(function(f){
+        				Ti.API.info("****************COMPLETE DB LOCAL QUERY*************************");
+        				if(f.results.length>0){
+        					syncProposalsToACS({dataArray: f.results},function(j){
+            						Ti.API.info("****************COMPLETE SYNC TO ACS*************************");	
+        						loading._hide();
+                                loadingWin.close();
+        						Ti.App.fireEvent('reloadProposals');
+        						callback({
+        						    done: true
+        						});
+        				    });		
+        				}
+    				    else{
+        					loading._hide();
+        					loadingWin.close();
+        					Ti.App.fireEvent('reloadProposals');
+        					callback({
+        					    done: true
+        					});
+    				    }
+    			    });
+    					
+    		    //});
+    	    });
+    	});
+    });
+};
 
 function arr_diff(a1, a2)
 {
@@ -697,6 +746,7 @@ function syncLibrary(callback){
 
 // function syncReferralPartners()
 
+exports.proposalSync = proposalSync;
 exports.syncWithACS = syncWithACS;
 exports.syncDialog = syncDialog;
 exports.syncProposalsToACS = syncProposalsToACS;

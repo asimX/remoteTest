@@ -7,9 +7,12 @@
     <property name="acs-oauth-secret-development" type="string">rib4jo2J260Wa9N5U3BpqcdlBy6d0biy</property>
     <property name="acs-oauth-key-development" type="string">lgeVGP8VTR7MtHfBYXw1zrN2KhJyUTyF</property>
     <property name="acs-api-key-development" type="string">ZjxblkhEN42zd6WdS2XML4cwLJi8xCn0</property>
+    <!--<property name="acs-oauth-secret-development" type="string">GHmMeONQdJ4CYXR5LmLmEFczYveQM7SZ</property>
+    <property name="acs-oauth-key-development" type="string">P354oP7fi2Q5rPAR6D4yJoEJBcSTQlD2</property>
+    <property name="acs-api-key-development" type="string">Q8j2efLgKn7QYqPyUuRCyQ9GX852axKp</property>!-->
     <id>com.bwa.interchangeGenius</id>
     <name>pps</name>
-    <version>1.1.9</version>
+    <version>1.2.3</version>
     <publisher>BWA</publisher>
     <url>http://</url>
     <description>not specified</description>

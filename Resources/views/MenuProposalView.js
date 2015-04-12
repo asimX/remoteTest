@@ -17,12 +17,12 @@ exports.MenuProposalView = function() {
 	self.add(loading);
 	
 	var tvContainer = Ti.UI.createView({
-		top: "2%",
+		//top: "2%",
 		height: Ti.UI.FILL,
-		width: "86.4%",
-		bottom: "2%",
-		borderColor: "#a9a9a9",
-		borderWidth: 2.5
+		width: Ti.UI.FILL,//"86.4%",
+		//bottom: "2%",
+		//borderColor: "#a9a9a9",
+		//borderWidth: 2.5
 	});
 	
 	self.add(tvContainer);
@@ -42,7 +42,8 @@ exports.MenuProposalView = function() {
 		// loading._show({
 			// message: "SYNCING PROPOSALS"
 		// });
-		Ti.App.fireEvent('proposalSync');//,{ai: loading});
+		Ti.App.fireEvent('proposalSync');
+		//,{ai: loading});
 	});
 	
 	var myArray = [];
@@ -55,7 +56,7 @@ exports.MenuProposalView = function() {
 		width : '100%',
 		height : '60dp',
 	});
-	tvContainer.add(headerView);
+	//tvContainer.add(headerView);
 	var viewLine = Titanium.UI.createView({
 		//borderRadius : 10,
 		backgroundColor : '#6c6c6c',
@@ -65,7 +66,7 @@ exports.MenuProposalView = function() {
 		height : '2dp',
 		zIndex : 1
 	});
-	tvContainer.add(viewLine);
+	//tvContainer.add(viewLine);
 	
 	///////////////////////////////////////////////////////////////////////
 	
@@ -180,14 +181,14 @@ exports.MenuProposalView = function() {
 			    bDate = new Date(b.LastUpdated);
 			    // return  (a.repName - b.repName) || (bDate - aDate);
 			    
-			    if(a.repName < b.repName){
+			    if(bDate < aDate){
 			        return -1;  
-			    }else if(a.repName > b.repName){
+			    }else if(bDate > aDate){
 			        return 1;
 			    }else{
-			        if(aDate < bDate){
+			        if(a.repName < b.repName){
 			           return 1;
-			        }else if(aDate > bDate){
+			        }else if(a.repName > b.repName){
 			          return -1;
 			        }else{
 			          return 0;
@@ -228,56 +229,89 @@ exports.MenuProposalView = function() {
 					backgroundColor: "transparent",
 					//layout: "vertical",
 					height: Ti.UI.FILL,
-					width: "45%",
-					left: 0
+					width: "70%",//"45%",
+					left: 0,
+					//backgroundColor: "yellow"
 				});
-			
-				var labLastDate = Ti.UI.createLabel({
-					color : '#B8B8B8',//d0d0d0',
-					font : {
-						fontFamily : 'Arial',
-						//	fontSize : defaultFontSize + 6,
-						//		fontWeight : 'bold'
-					},
-					text : new Date(myArray[i].LastUpdated).toLocaleString(),
-					left : 5,
-					top: 5,
-					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
-					width : Ti.UI.SIZE,
-					height : 8,
-					zIndex: 1
-					//backgroundColor: "blue"
-				});
+                
+                var labRepName = Ti.UI.createLabel({
+                    color : '#B8B8B8',//d0d0d0',
+                    font : {
+                        fontFamily : 'Arial',
+                        fontSize : 15,
+                        fontWeight : 'bold'
+                    },
+                    text : myArray[i].repName,//new Date(myArray[i].LastUpdated).toLocaleString(),
+                    left : 30,//5,
+                    bottom: 10,
+                    top: 47,
+                    textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+                    width : Ti.UI.SIZE,
+                    //height : 8,
+                    //zIndex: 1
+                    //backgroundColor: "blue"
+                });
+                			
+				// var labLastDate = Ti.UI.createLabel({
+					// color : '#0082b4',//'#B8B8B8',//d0d0d0',
+					// font : {
+						// fontFamily : 'Arial',
+						// //	fontSize : defaultFontSize + 6,
+					    // fontWeight : 'bold'
+					// },
+					// text : new Date(myArray[i].LastUpdated).toLocaleString(),
+					// left : 10,//5,
+					// //top: 5,
+					// textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+					// width : Ti.UI.SIZE,
+					// //height : 8,
+					// //zIndex: 1
+					// backgroundColor: "blue"
+				// });
 				
 				//Ti.API.error(myArray[i].Date);
 				var busName = Ti.UI.createLabel({
 					color : '#222',
 					font : {
 						fontFamily : 'Arial',
-						fontSize : 18,
+						fontSize : 22,
 						//fontWeight : 'normal'
 					},
 					text : myArray[i].BusinessName,
-					left : 10,
-					//top : 12,
+					left : 30,
+					top : 12,
 					verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER,
-					width : Ti.UI.SIZE,
-					height: Ti.UI.SIZE,
-					bottom:15
+					//width : Ti.UI.SIZE,
+					//height: Ti.UI.SIZE,
+					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+					wordWrap: false,
+					bottom:24
 					//backgroundColor: "green"
 				});
 				//row.add(labelDetails);
 			
 				nameView.add(busName);
-				nameView.add(labLastDate);
+				nameView.add(labRepName);
 				
 				row.add(nameView);
-		
+		        
+		        var rightParentView = Ti.UI.createView({
+		            width: "30%",
+		            height: Ti.UI.FILL,
+		            left: "70%",
+		            //backgroundColor: "blue"
+		            //layout: "vertical"
+		        });
+		        
 				var statusClickArea = Ti.UI.createView({
-					width: "25%",
-					height: Ti.UI.FILL,
-					left: "45%",
-					name: "status"
+					width: Ti.UI.FILL,//"25%",
+					height: "50%", //Ti.UI.FILL,
+					top: 0,
+					left: 0,   
+					//left: "45%",
+					name: "status",
+					layout: "horizontal"
+					//backgroundColor: "yellow"
 				});
 				
 				//check to fix bug with status being date
@@ -286,71 +320,124 @@ exports.MenuProposalView = function() {
 					myArray[i].IsUpdated=1;
 				}
 				
+				var labStat = Ti.UI.createLabel({
+				    color: "#0082b4",
+				    font:{
+				        fontFamily : 'Arial',
+                        fontSize : 15,
+				    },
+				    text: "STATUS:   ",
+				    textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
+				    width: Ti.UI.SIZE,
+				    height: Ti.UI.SIZE,
+				    left: 0,
+				    //verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+				    top: 10
+				});
+				
 				var labStatus = Ti.UI.createLabel({
 					color : '#222',
 					font : {
 						fontFamily : 'Arial',
-						fontSize : 18,
+						fontSize : 15,
 						//fontWeight : 'normal'
 					},
 					text : myArray[i].ProposalStatus,
-					textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-					//right : 65,
-					bottom : 15,
-					//width : "25%",
+					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+					//right : 20,
+					//bottom : 15,
+					width : Ti.UI.FILL,
 					height : Ti.UI.SIZE,
-					//top: 28,
-					//left: "40%",
-					name: "status"
+					top: 10,
+					//left: "50%",
+					name: "status",
+					//backgroundColor: "green"
 				});
 				
+				statusClickArea.add(labStat);
 				statusClickArea.add(labStatus);
-				row.add(statusClickArea);
-				
+				rightParentView.add(statusClickArea);
+				//row.add(statusClickArea);
+				 
 				var rpClickArea = Ti.UI.createView({
-					width : "35%",
-					left: "65%",
-					height: Ti.UI.FILL,
-					name: "rp"
+					width : Ti.UI.FILL,  //"35%",
+					//left: "65%",
+					height: "50%",
+					top: "50%",
+					name: "rp",
+					layout: "horizontal"
 				});
 				
+				var labRP = Ti.UI.createLabel({
+                    color: "#0082b4",
+                    font:{
+                        fontFamily : 'Arial',
+                        fontSize : 15,
+                    },
+                    text: "REFERRAL PARTNER:   ",
+                    textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
+                    width: Ti.UI.SIZE,
+                    height: Ti.UI.SIZE,
+                    left: 0,
+                    //verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+                    top: 10
+                });
+                
 				var labRPName = Ti.UI.createLabel({
 					color : '#222',
 					font : {
 						fontFamily : 'Arial',
-						fontSize : 18,
+						fontSize : 15,
 						//fontWeight : 'normal'
 					},
 					text : '',
-					textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
+					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 					//right : 25,
-					bottom : 15,
-					// width : "35%",
+					//bottom : 15,
+					width : Ti.UI.FILL,
 					height : Ti.UI.SIZE,
-					//top: 28,
-					// left: "65%",
-					name: "rp"
+					top: 10,
+					//left: 20,
+					name: "rp",
+					//backgroundColor: "green"
 				});
 				
 				if(myArray[i].rpID==null){
 					labRPName.text='None';
 				}
-				else if(!(myArray[i].valueOf() in globalVariables.GV.ReferralPartners)){
+				else if(!(myArray[i].rpID.valueOf() in globalVariables.GV.ReferralPartners)){
 				    labRPName.text='None';
 				}
 				else{
 					labRPName.text=globalVariables.GV.ReferralPartners[(myArray[i].rpID).valueOf()].title;
 				}
 				
+				rpClickArea.add(labRP);
 				rpClickArea.add(labRPName);
-				row.add(rpClickArea);
+				rightParentView.add(rpClickArea);
+				row.add(rightParentView);
+				//row.add(rpClickArea);
 				
+				var curr = new Date(myArray[i].LastUpdated);
 				if(i>0){
-					if(myArray[i].repName !== myArray[i-1].repName){
+					
+					var prev = new Date(myArray[i-1].LastUpdated);
+					var changeHeading = false;
+					if(curr.getDate() < prev.getDate() && curr.getMonth()==prev.getMonth()&&curr.getYear()==prev.getYear()){
+					   changeHeading = true;
+					// if(myArray[i].repName !== myArray[i-1].repName){
 						//tableData.push(sections[j]);
+					}
+					else if(curr.getDate() > prev.getDate() && curr.getMonth()<prev.getMonth()&&curr.getYear()==prev.getYear()){
+					   changeHeading=true;
+					}
+					else if(curr.getDate > prev.getDate && curr.getMonth>prev.getMonth && curr.getYear < prev.getYear){
+					    changeHeading = true;
+					}
+					if(changeHeading){
 						j++;
 						sections[j]= Ti.UI.createTableViewSection({
-							headerTitle: "     "+myArray[i].repName
+							headerTitle: "     "+curr.toLocaleString()//myArray[i].repName
 						});	
 						sections[j].add(row);
 					}
@@ -361,7 +448,7 @@ exports.MenuProposalView = function() {
 				else if(i==0)
 				{
 					sections[j] = Ti.UI.createTableViewSection({
-						headerTitle: "     "+myArray[i].repName
+						headerTitle: "     "+curr.toLocaleString()//myArray[i].repName
 					});
 					sections[j].add(row);
 				}
@@ -372,7 +459,7 @@ exports.MenuProposalView = function() {
 	
 	var tableView = Ti.UI.createTableView({
 		backgroundColor : 'white',
-		top : '61dp',
+		//top : '61dp',
 		separatorInsets:{
 			left: 0
 		}
@@ -431,7 +518,7 @@ exports.MenuProposalView = function() {
 							acs.isLoggedIn(function(h){
 								if(h.loggedIn){
 									acs.updateProposal({row: myArray[f.row.rownum]},function(i){
-										if(i.success===false)	
+										if(i.success==false)	
 										{
 											loading._hide();
 											alert('Problem Updating on backend. Try again later');
@@ -440,8 +527,17 @@ exports.MenuProposalView = function() {
 										{
 											db.setUpdateOff({proposalId: myArray[f.row.rownum].ProposalId}, function(j){
 												if(j.success){
-													loading._hide();
-													alert('Updated on back end');
+													db.setUploadedOn({
+													    proposalId: myArray[f.row.rownum].ProposalId
+													}, function(k){
+													    if(k.success){
+													       loading._hide();
+													       alert('Updated on back end');
+													    }
+													    else{
+													        alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+													    }
+													});	
 												}
 												else{
 													alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
@@ -454,7 +550,7 @@ exports.MenuProposalView = function() {
 						}
 						else{
 							acs.updateProposal({row: myArray[f.row.rownum]},function(h){
-								if(h.success===false)	
+								if(h.success==false)	
 								{
 									loading._hide();
 									alert('Problem Updating on backend. Try again later');
@@ -463,8 +559,17 @@ exports.MenuProposalView = function() {
 								{
 									db.setUpdateOff({proposalId: myArray[f.row.rownum].ProposalId}, function(j){
 										if(j.success){
-											loading._hide();
-											alert('Updated on back end');
+											db.setUploadedOn({
+                                                proposalId: myArray[f.row.rownum].ProposalId
+                                            }, function(k){
+                                                if(k.success){
+                                                   loading._hide();
+                                                   alert('Updated on back end');
+                                                }
+                                                else{
+                                                    alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                                }
+                                            }); 
 										}
 										else{
 											alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
@@ -491,8 +596,9 @@ exports.MenuProposalView = function() {
 				title: "Proposal Status",
 				width: 150,
 				height: 130,
-				arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_LEFT,
+				arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_RIGHT,
 				contentView: statusTV,
+				
 				//index: e.index 
 			});
 			
@@ -535,6 +641,7 @@ exports.MenuProposalView = function() {
 						loading._show({
 							message: "Updating Referral Partner in back office."
 						});
+						myArray[f.row.rownum].rpID=f.row.id;
 						if(Ti.Network.online)
 						{
 							if(!globalVariables.GV.cloudSessionSet){
@@ -550,8 +657,17 @@ exports.MenuProposalView = function() {
 											{
 												db.setUpdateOff({proposalId: myArray[f.row.rownum].ProposalId}, function(j){
 													if(j.success){
-														loading._hide();
-														alert('Updated on back end');
+														db.setUploadedOn({
+                                                            proposalId: myArray[f.row.rownum].ProposalId
+                                                        }, function(k){
+                                                            if(k.success){
+                                                               loading._hide();
+                                                               alert('Updated on back end');
+                                                            }
+                                                            else{
+                                                                alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                                            }
+                                                        }); 
 													}
 													else{
 														alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
@@ -578,8 +694,17 @@ exports.MenuProposalView = function() {
 									{
 										db.setUpdateOff({proposalId: myArray[f.row.rownum].ProposalId}, function(j){
 											if(j.success){
-												loading._hide();
-												alert('Updated on back end');
+												db.setUploadedOn({
+                                                    proposalId: myArray[f.row.rownum].ProposalId
+                                                }, function(k){
+                                                    if(k.success){
+                                                       loading._hide();
+                                                       alert('Updated on back end');
+                                                    }
+                                                    else{
+                                                        alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                                    }
+                                                }); 
 											}
 											else{
 												alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');

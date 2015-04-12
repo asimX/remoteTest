@@ -11,18 +11,19 @@ function HomeScreen(params) {
 	var lastView = null;
 	
 	var selfW = Ti.UI.createWindow({
-		backgroundColor : 'black',
+		backgroundColor : 'black',//'#3a3f65',
 		backgroundImage : 'images/perforatedMetalBlack.png',
-		tintColor: '#0082b4',
-		navTintColor: '#0082b4',
+		tintColor: '#FFF', //'#0082b4',
+		navTintColor: '#FFF',//'#0082b4',
 		titleAttributes:{
-			color:'#0082b4',
+			color:'#FFF',//'#0082b4',
         	font: {//fontFamily:'GillSans-Light', 
         		   fontSize:24,
         		   //fontWeight : 'bold'
         	}
        },
-       title: "Interchange Analysis"
+       title: "Interchange Analysis",
+       barColor: "#0082b4"
 	});
 	
 	var sliderPosition = 0;
@@ -228,33 +229,40 @@ function HomeScreen(params) {
 						message:"Downloading Proposals from backend"
 					});
 					globalVariables.GV.proposalsViewFirstTime=false;
-					sync.syncWithACS(function(g){
-						if(g.success){
-							loading._hide();
-							if(!g.downloaded)
-							{
-								loading._show({
-									message: "Looking for changes"
-								});
-								sync.syncChanges(function(f){
-									if(f.success){
-										loading._hide();
-										Ti.App.fireEvent("reloadProposals");
-									}
-									else{
-										alert("Error downloading updated proposals from back end. Try again later by pressing the sync button on the bottom right \n"+e.results);
-									}
-								});
-							}
-							else{
-								Ti.App.fireEvent("reloadProposals");
-							}
-						}
-						else{
-							alert("Error downloading new proposals from back-end. Try again by pressing the sync button on the bottom right \n"+ e.results);
-							loading._hide();
-						}
-					});
+					loading._hide();
+					sync.proposalSync(function(g){
+                        if(g.done){
+                            
+                            //do something
+                        }
+                    });
+					// sync.syncWithACS(function(g){
+						// if(g.success){
+							// loading._hide();
+							// if(!g.downloaded)
+							// {
+								// loading._show({
+									// message: "Looking for changes"
+								// });
+								// sync.syncChanges(function(f){
+									// if(f.success){
+										// loading._hide();
+										// Ti.App.fireEvent("reloadProposals");
+									// }
+									// else{
+										// alert("Error downloading updated proposals from back end. Try again later by pressing the sync button on the bottom right \n"+e.results);
+									// }
+								// });
+							// }
+							// else{
+								// Ti.App.fireEvent("reloadProposals");
+							// }
+						// }
+						// else{
+							// alert("Error downloading new proposals from back-end. Try again by pressing the sync button on the bottom right \n"+ e.results);
+							// loading._hide();
+						// }
+					// });
 				}
 			});
 		} else {
@@ -268,33 +276,40 @@ function HomeScreen(params) {
 						message:"Downloading Proposals from backend"
 					});
 					globalVariables.GV.proposalsViewFirstTime=false;
-					sync.syncWithACS(function(g){
-						if(g.success){
-							loading._hide();
-							if(!g.downloaded)  //this is only true when db is empty, so here if it's not empty we're looking for changes to current proposals
-							{
-								loading._show({
-									message: "Looking for changes"
-								});
-								sync.syncChanges(function(f){
-									if(f.success){
-										loading._hide();
-										Ti.App.fireEvent("reloadProposals");
-									}
-									else{
-										alert("Error downloading updated proposals from back end. Try again later by pressing the sync button on the bottom right \n"+f.results);
-									}
-								});
-							}
-							else{
-								Ti.App.fireEvent("reloadProposals");
-							}
-						}
-						else{
-							alert("Error downloading proposals from back-end. Try again by pressing the sync button on the bottom right \n"+ e.results);
-							loading._hide();
-						}
+					loading._hide();
+					sync.proposalSync(function(g){
+					    if(g.done){
+					        
+					        //do something
+					    }
 					});
+					// sync.syncWithACS(function(g){
+						// if(g.success){
+							// loading._hide();
+							// if(!g.downloaded)  //this is only true when db is empty, so here if it's not empty we're looking for changes to current proposals
+							// {
+								// loading._show({
+									// message: "Looking for changes"
+								// });
+								// sync.syncChanges(function(f){
+									// if(f.success){
+										// loading._hide();
+										// Ti.App.fireEvent("reloadProposals");
+									// }
+									// else{
+										// alert("Error downloading updated proposals from back end. Try again later by pressing the sync button on the bottom right \n"+f.results);
+									// }
+								// });
+							// }
+							// else{
+								// Ti.App.fireEvent("reloadProposals");
+							// }
+						// }
+						// else{
+							// alert("Error downloading proposals from back-end. Try again by pressing the sync button on the bottom right \n"+ e.results);
+							// loading._hide();
+						// }
+					// });
 				}
 				
 			});

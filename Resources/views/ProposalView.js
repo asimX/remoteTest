@@ -860,7 +860,7 @@ exports.Proposal = function() {
 	});
 
     var testBtn = Ti.UI.createButton({
-        title : 'Test user Reassign',
+        title : 'ADD DEL FIELD',
         top : '1%',
         color : '#0082b4',
         right : 40,
@@ -869,8 +869,13 @@ exports.Proposal = function() {
     
     self.add(testBtn);
     
+    // testBtn.addEventListener("click", function(e){
+        // acs.updateOwner();
+    // });
+    
     testBtn.addEventListener("click", function(e){
-        acs.updateOwner();
+        //acs.deleteAllByUID("5346b4791316e90b6e2baac1");
+        acs.addDelField();
     });
 	
 	var goButton = Ti.UI.createButton({
