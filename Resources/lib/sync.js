@@ -20,26 +20,58 @@ function syncProposalsToACS(params,callback){
 	function uploader(i){
 		if(i<dataArray.length){
 			if((dataArray[i].ProposalId=="0"||dataArray[i].IsUploaded==0)){//&&!dataArray[i].IsUpdated){
-				acs.createProposal({row: dataArray[i]}, function(e){
-					if(e.success==false)	
-					{
-						alert('Problem Creating on backend. Try again later');
-						success=false;
-						uploader(dataArray.length);
-					}
-					else{
-						Ti.API.info(e.proposalId+" , "+ e.timeId);
-						db.InsertProposalID({
-							proposalId: e.proposalId,
-							localPropId: dataArray[i].localPropId
-						}, function(f){
-							if(f.success)
-							{
-								uploader(i+1);
-							}
-						});	
-					}
-				});
+				if(dataArray[i].userId == globalVariables.GV.userId ){
+    				acs.createProposal({row: dataArray[i]}, function(e){
+    					if(e.success==false)	
+    					{
+    						alert('Problem Creating on backend. Try again later');
+    						success=false;
+    						uploader(dataArray.length);
+    					}
+    					else{
+    						Ti.API.info(e.proposalId+" , "+ e.timeId);
+    						db.InsertProposalID({
+    							proposalId: e.proposalId,
+    							localPropId: dataArray[i].localPropId
+    						}, function(f){
+    							if(f.success)
+    							{
+    								uploader(i+1);
+    							}
+    						});	
+    					}
+    				});
+				}
+				else{
+				   acs.updateProposal({row: dataArray[i]},function(e){
+                        if(e.success===false)   
+                        {
+                            alert('Problem Updating on backend case 2. Try again later');
+                            success=false;
+                            uploader(dataArray.length);
+                        }
+                        else
+                        {
+                            Ti.API.info(e.proposalId+" , "+ e.proposalId);
+                            db.setUploadedOn({
+                                proposalId: e.proposalId
+                            }, function(f){
+                                if(f.success)
+                                {
+                                    db.setUpdateOff({
+                                        proposalId: e.proposalId
+                                            }, function(g){
+                                        if(g.success)
+                                        {
+                                            uploader(i+1);
+                                        }
+                                    });
+                                }
+                            });
+                            
+                        }
+                    }); 
+				}
 			}
 			else if (dataArray[i].ProposalId!="0" && dataArray[i].IsUpdated==1&&!dataArray[i].IsUploaded)
 			{
@@ -297,95 +329,101 @@ function syncWithACS(callback){
 				}
 			}
 			else{
-				// if(globalVariables.GV.userRole!="Admin")
-				// {
+				//if(globalVariables.GV.userRole!="Admin")
+				//{
 					var propIds = [];
 					for(var i=0;i<f.results.length;i++)
 					{
 						propIds.push(f.results[i].ProposalId);
 					}
-					acs.downloadRemoteProposals({
-						localProposals: propIds
-						},function(e){
-							//propIds=null;
-							if(e.success){
-								if(e.results.length>0){
-								    //if(globalVariables.GV.userRole=="Admin"){
-								        
-								    
-    								    var arrayToInsert=[];
-    								    for(var i=0;i<e.results.length;i++)
-    								    {
-    								        var j=0;
-    								        var matchFound=false;
-    								        while(j<propIds.length && !matchFound)
-    								        {
-    								            if(e.results[i].id==propIds[j])
-    								            {
-    								                matchFound=true;
-    								                Ti.API.info("MATCH FOUND: "+e.results[i].id+" = "+propIds[j]+" , "+e.results[i].BusinessName);
-    								            }
-    								            
-    								            j++;
-    								                
-    								        }
+					db.getLastCreatedProp(function(g){
+					    
+					
+					   acs.downloadRemoteProposals({
+    						lastCreatedDate: g.lastCreatedDate
+    						},function(e){
+    							//propIds=null;
+    							if(e.success){
+    								if(e.results.length>0){
+    								    //if(globalVariables.GV.userRole=="Admin"){
     								        
-    								        if(!matchFound){
-    								            arrayToInsert.push(e.results[i]);
-    								            Ti.API.info("MATCH NOT FOUND: PUSHING   "+e.results[i].id+" , "+e.results[i].BusinessName);
-    								        }
-    								    }
-    								    j = matchFound = propIds= null;
-    									if(arrayToInsert.length>0)
-    									{
-    									    db.insertProposal(arrayToInsert, function(g){
-    										  if(g.success){
-    										      callback({
-    										          success:true,
-    												  downloaded: false
-    										      });
-    										  }
-    									   });
-    									}
-    									else{
-                                            callback({
-                                                success:true,
-                                                downloaded: false
-                                            });
-                                        }
-									
-								    //}
-								    // else{
-								        // db.insertProposal(e.results, function(g){
-                                              // if(g.success){
-                                                  // callback({
-                                                      // success:true,
-                                                      // downloaded: false
-                                                  // });
-                                              // }
-                                           // });
-                                    // }
-                                }
-								else{
-									callback({
-										success:true,
-										downloaded: false
-									});
-								}
-							
-							}
-							else{
-								callback({
-									success: false,
-									results: "Error:  \n"+JSON.stringify(e.results)
-								});
-								//alert("Error:  \n"+JSON.stringify(e.results));
-							}
-							
-					});
-				//}
+    								    
+        								    var arrayToInsert=[];
+        								    for(var i=0;i<e.results.length;i++)
+        								    {
+        								        var j=0;
+        								        var matchFound=false;
+        								        while(j<propIds.length && !matchFound)
+        								        {
+        								            if(e.results[i].id==propIds[j])
+        								            {
+        								                matchFound=true;
+        								                Ti.API.info("MATCH FOUND: "+e.results[i].id+" = "+propIds[j]+" , "+e.results[i].BusinessName);
+        								            }
+        								            
+        								            j++;
+        								                
+        								        }
+        								        
+        								        if(!matchFound){
+        								            arrayToInsert.push(e.results[i]);
+        								            Ti.API.info("MATCH NOT FOUND: PUSHING   "+e.results[i].id+" , "+e.results[i].BusinessName);
+        								        }
+        								    }
+        								    j = matchFound = propIds= null;
+        									if(arrayToInsert.length>0)
+        									{
+        									    db.insertProposal(arrayToInsert, function(g){
+        										  if(g.success){
+        										      callback({
+        										          success:true,
+        												  downloaded: false
+        										      });
+        										  }
+        										  globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
+                                                  Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
+        									   });
+        									}
+        									else{
+                                                callback({
+                                                    success:true,
+                                                    downloaded: false
+                                                });
+                                            }
+    									
+    								    //}
+    								    // else{
+    								        // db.insertProposal(e.results, function(g){
+                                                  // if(g.success){
+                                                      // callback({
+                                                          // success:true,
+                                                          // downloaded: false
+                                                      // });
+                                                  // }
+                                               // });
+                                        // }
+                                    }
+    								else{
+    									callback({
+    										success:true,
+    										downloaded: false
+    									});
+    								}
+    							
+    							}
+    							else{
+    								callback({
+    									success: false,
+    									results: "Error:  \n"+JSON.stringify(e.results)
+    								});
+    								//alert("Error:  \n"+JSON.stringify(e.results));
+    							}
+    							
+    					});
+    				});
+				}
 				
-			}
+			//}
 		});
 			
 	}
@@ -408,10 +446,12 @@ function syncChanges(callback){
 						Ti.API.info('FOUND ONLINE PROPOSALS BY UID');
 						if(e.success){
 							if(e.results.length>0){
-								Ti.API.info('CALLING DB INSERT PROPOSALS');
+								//Ti.API.info('CALLING DB INSERT PROPOSALS');
 								db.importPropUpdates(e.results, function(g){
-									Ti.API.info('INSERT PROPOSALS DONE');
+									//Ti.API.info('INSERT PROPOSALS DONE');
 									if(g.success){
+									    globalVariables.GV.lastProposalSyncDate = new Date().toISOString();
+                                        Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
 										callback({success:true,
 												  downloaded: true
 										});
@@ -443,6 +483,8 @@ function syncChanges(callback){
 							if(e.results.length>0){
 								db.importPropUpdates(e.results, function(g){
 									if(g.success){
+									    globalVariables.GV.lastProposalSyncDate = new Date().toISOString();
+                                        Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
 										callback({success:true,
 												  downloaded: true
 										});
@@ -472,6 +514,8 @@ function syncChanges(callback){
 							if(e.results.length>0){
 								db.importPropUpdates(e.results, function(g){
 									if(g.success){
+									    globalVariables.GV.lastProposalSyncDate = new Date().toISOString();
+                                        Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
 										callback({success:true,
 												  downloaded: true
 										});
@@ -501,6 +545,8 @@ function syncChanges(callback){
 							if(e.results.length>0){
 								db.importPropUpdates(e.results, function(g){
 									if(g.success){
+									    globalVariables.GV.lastProposalSyncDate = new Date().toISOString();
+                                        Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
 										callback({success:true,
 												  downloaded: true
 										});
@@ -639,7 +685,7 @@ function proposalSync(callback){
     			message : 'LOOKING FOR CHANGES'
     		});
     		loadingWin.add(loading);
-    		syncChanges(function(h){
+     		syncChanges(function(h){
     			Ti.API.info("****************COMPLETE SYNC CHANGES*************************");
     			loadingWin.remove(loading);
     			loading._show({
@@ -652,6 +698,7 @@ function proposalSync(callback){
         				Ti.API.info("****************COMPLETE DB LOCAL QUERY*************************");
         				if(f.results.length>0){
         					syncProposalsToACS({dataArray: f.results},function(j){
+        					    
             						Ti.API.info("****************COMPLETE SYNC TO ACS*************************");	
         						loading._hide();
                                 loadingWin.close();
@@ -669,6 +716,8 @@ function proposalSync(callback){
         					    done: true
         					});
     				    }
+    			    globalVariables.GV.lastProposalSyncDate = new Date().toISOString();
+                    Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
     			    });
     					
     		    //});
@@ -700,7 +749,7 @@ function syncLibrary(callback){
 						db.fillLibrary(h.results, function(m){
 							if(m.success){
 								Ti.App.fireEvent('reloadLibrary');
-								globalVariables.GV.lastFileSyncDate=(new Date).toISOString();
+								globalVariables.GV.lastFileSyncDate=new Date().toISOString();
 								Ti.App.Properties.setString("lastFileSyncDate", globalVariables.GV.lastFileSyncDate);
 								//Ti.App.fireEvent("loadLibrary");
 								callback({
@@ -718,7 +767,7 @@ function syncLibrary(callback){
 						});
 					}
 					else{
-						globalVariables.GV.lastFileSyncDate=(new Date).toISOString();
+						globalVariables.GV.lastFileSyncDate=new Date().toISOString();
 						Ti.App.Properties.setString("lastFileSyncDate", globalVariables.GV.lastFileSyncDate);
 						callback({
 							success: true

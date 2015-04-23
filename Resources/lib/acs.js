@@ -443,7 +443,7 @@ function queryProposals(date,queryResults,callbak){
 exports.queryProposalsByUid = function(params, callback) {
 	
 	var d=null;
-	var searchDate = null;
+	var searchDate = globalVariables.GV.lastProposalSyncDate;
 	var searchParams = null;
 	if(params.getUpdates){
 	    
@@ -526,7 +526,7 @@ exports.queryProposalsBySmid = function(params,callback) {
 	//var value=params.value;
 	//Ti.API.info(key+": "+value);
 	var d=null;
-    var searchDate = null;
+    var searchDate = globalVariables.GV.lastProposalSyncDate;
 	var searchParams = null;
 	
 	if(params.getUpdates){
@@ -540,7 +540,7 @@ exports.queryProposalsBySmid = function(params,callback) {
             updated_at: {"$gt": searchDate},
             Deleted: 0
         };
-        Ti.API.info("INSIDE OF queryProposalBySmid");
+        Ti.API.info("INSIDE OF queryProposalBySmid: "+globalVariables.GV.lastProposalSyncDate);
     }
     else{
         searchParams = {
@@ -559,7 +559,7 @@ exports.queryProposalsBySmid = function(params,callback) {
 			// Deleted: 0
 		// }
 	}, function(e) {
-		Ti.API.debug("queryProposal by sm_ID Results: " + JSON.stringify(e));
+		Ti.API.info("queryProposal by sm_ID Results: " + JSON.stringify(e));
 		if (e.success) {
 			if(params.getUpdates){
 				db.getAllLastDates(function(f){
@@ -608,7 +608,7 @@ exports.queryProposalsByTmid = function(params, callback) {
 	//var value=params.value;
 	//Ti.API.info(key+": "+value);
 	var d=null;
-    var searchDate = null;
+    var searchDate = globalVariables.GV.lastProposalSyncDate;
 	var searchParams = null;
     
     if(params.getUpdates){
@@ -820,7 +820,7 @@ exports.queryAllProposals = function(params,callback) {
             // }
         }
         
-        if(totalResults>queryResults){
+        if(totalResults>queryResults.length){
             recursiveQueryAll(500);    
         }
         else{
@@ -952,14 +952,17 @@ exports.queryAllProposals = function(params,callback) {
 
 exports.downloadRemoteProposals = function(params, callback){
 	var conditions=null;
-	Ti.API.info("LOCAL PROPOSALS:  "+params.localProposals);
+	Ti.API.info("LAST CREATED DATE:  "+params.lastCreatedDate);
 	if(globalVariables.GV.userRole=="Admin"){
 		Cloud.Objects.query({
 			classname : 'Proposal',
 			limit: 1000,
+			//id: {'$nin':params.localProposals},
 			where: {
-				id: {'$nin':params.localProposals},
-				Deleted: 0
+				//id: {'$nin':params.localProposals},
+				Deleted: 0,
+				created_at: {"$gt": params.lastCreatedDate}
+				//"order": "-updated_at"
 			}
 		}, function(e){
 				Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
@@ -983,11 +986,11 @@ exports.downloadRemoteProposals = function(params, callback){
 		Cloud.Objects.query({
 			classname : 'Proposal',
 			limit: 1000,
-			id: {"$nin":params.localProposals},
+			//id: {"$nin":params.localProposals},
 			where: {
 				sm_id: globalVariables.GV.userId,
 				Deleted: 0,
-				id: {'$nin':params.localProposals}
+				created_at: {"$gt": params.lastCreatedDate}
 			}
 		}, function(e){
 			Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
@@ -1013,7 +1016,7 @@ exports.downloadRemoteProposals = function(params, callback){
 			where: {
 				tm_id: globalVariables.GV.userId,
 				Deleted: 0,
-				id: {"$nin":params.localProposals}
+				created_at: {"$gt": params.lastCreatedDate}
 			}
 		}, function(e){
 			Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
@@ -1039,7 +1042,7 @@ exports.downloadRemoteProposals = function(params, callback){
 		where: {
 			user_id: globalVariables.GV.userId,
 			Deleted: 0,
-			id: {"$nin":params.localProposals}
+			created_at: {"$gt": params.lastCreatedDate}
 		}
 		}, function(e){
 			Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
@@ -1176,7 +1179,7 @@ exports.createProposal = function(params,callback) {
 				//timeId: row.timeId,
 				Notes: row.NotesText,
 				//LastUpdated: row.LastUpdated,
-				DateCreated: new Date(row.DateCreated).toISOString(),
+				//DateCreated: new Date(row.DateCreated).toISOString(),
 				ProposalStatus: row.ProposalStatus,
 				rpID: row.rpID,
 				sm_id: smid,
@@ -1267,7 +1270,7 @@ exports.createProposal = function(params,callback) {
 				//timeId: globalVariables.GV.timeId,
 				Notes: globalVariables.GV.NotesText,
 				//LastUpdated: globalVariables.GV.LastUpdated,
-				DateCreated: new Date(globalVariables.GV.DateCreated).toISOString(),
+				//DateCreated: new Date(globalVariables.GV.DateCreated).toISOString(),
 				ProposalStatus: globalVariables.GV.ProposalStatus,
 				rpID: globalVariables.GV.rpID,
 				sm_id: smid,
@@ -1361,7 +1364,7 @@ exports.updateProposal = function (params,callback){
 				//timeId: row.timeId,
 				Notes: row.NotesText,
 				//LastUpdated: row.LastUpdated,
-				DateCreated: row.Date,
+				//DateCreated: row.Date,
 				ProposalStatus: row.ProposalStatus,
 				rpID: row.rpID,
 				sm_id: row.sm_id,
@@ -1370,10 +1373,11 @@ exports.updateProposal = function (params,callback){
 ,
 		}, function(e) {
 			if (e.success) {
-				globalVariables.GV.ProposalId = e.Proposal[0].id;
+				//globalVariables.GV.ProposalId = e.Proposal[0].id;
 				//alert.alert("Success", "Updated Successfully");
 				callback({success: true,
-					proposalId: e.Proposal[0].id
+					proposalId: e.Proposal[0].id,
+					LastUpdated: e.Proposal[0].updated_at
 					//timeId: e.Proposal[0].timeId
 				});
 			} else {
@@ -1449,7 +1453,7 @@ exports.updateProposal = function (params,callback){
 					//timeId: globalVariables.GV.timeId,
 					Notes: globalVariables.GV.NotesText,
 					//LastUpdated: globalVariables.GV.LastUpdated,
-					DateCreated: globalVariables.GV.DateCreated,
+					//DateCreated: globalVariables.GV.DateCreated,
 					ProposalStatus: globalVariables.GV.ProposalStatus,
 					rpID: globalVariables.GV.rpID,
 					sm_id: globalVariables.GV.sm_id,
@@ -1462,6 +1466,7 @@ exports.updateProposal = function (params,callback){
 				alert.alert("Success", "Updated Successfully");
 				callback({success: true,
 					proposalId: e.Proposal[0].id,
+					proposals: e.Proposal
 					//timeId: e.Proposal[0].timeId
 				});
 			} else {

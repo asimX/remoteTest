@@ -677,23 +677,25 @@ exports.Proposal = function() {
 										acs.updateProposal(null, function(g){
 											if(g.success){
 												//updated IsUpdated Column in DB
-												db.setUpdateOff({proposalId: thisPropId}, function(h){
-													if(h.success){
-														db.setUploadedOn({proposalId: thisPropId}, function(i){
-															
-															Ti.App.fireEvent('reloadProposals');
-															globalVariables.GV.ResetValues();
-															Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
-															Ti.App.fireEvent('fillCSInfo',{initialize:true});
-															Ti.App.fireEvent('fillIaInfo',{initialize:true});
-															Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
-															Ti.App.fireEvent('fillProposedPricing',{initialize:true});
-															Ti.App.fireEvent('fillNotes',{initialize:true});
-															loading._hide();
-                                                            alert("Proposal Synced with cloud");
-														});
-													}
-												});
+												db.importPropUpdates(g.proposals, function(s){
+    												db.setUpdateOff({proposalId: thisPropId}, function(h){
+    													if(h.success){
+    														db.setUploadedOn({proposalId: thisPropId}, function(i){
+    															
+    															Ti.App.fireEvent('reloadProposals');
+    															globalVariables.GV.ResetValues();
+    															Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
+    															Ti.App.fireEvent('fillCSInfo',{initialize:true});
+    															Ti.App.fireEvent('fillIaInfo',{initialize:true});
+    															Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
+    															Ti.App.fireEvent('fillProposedPricing',{initialize:true});
+    															Ti.App.fireEvent('fillNotes',{initialize:true});
+    															loading._hide();
+                                                                alert("Proposal Synced with cloud");
+    														});
+    													}
+    												});
+    								            });   
 											}
 										});
 									}
@@ -859,24 +861,24 @@ exports.Proposal = function() {
 
 	});
 
-    var testBtn = Ti.UI.createButton({
-        title : 'ADD DEL FIELD',
-        top : '1%',
-        color : '#0082b4',
-        right : 40,
-        height : 70
-    });
-    
-    self.add(testBtn);
-    
-    // testBtn.addEventListener("click", function(e){
-        // acs.updateOwner();
+    // var testBtn = Ti.UI.createButton({
+        // title : 'ADD DEL FIELD',
+        // top : '1%',
+        // color : '#0082b4',
+        // right : 40,
+        // height : 70
     // });
-    
-    testBtn.addEventListener("click", function(e){
-        //acs.deleteAllByUID("5346b4791316e90b6e2baac1");
-        acs.addDelField();
-    });
+//     
+    // self.add(testBtn);
+//     
+    // // testBtn.addEventListener("click", function(e){
+        // // acs.updateOwner();
+    // // });
+//     
+    // testBtn.addEventListener("click", function(e){
+        // acs.deleteAllByUID("5346b4791316e90b6e2baac1");
+        // //acs.addDelField();
+    // });
 	
 	var goButton = Ti.UI.createButton({
 		title : 'Create PDF',

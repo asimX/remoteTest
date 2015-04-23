@@ -46,7 +46,7 @@ exports.MenuProposalView = function() {
 		//,{ai: loading});
 	});
 	
-	var myArray = [];
+	//var myArray = [];
 	
 	var headerView = Titanium.UI.createView({
 		//borderRadius : 10,
@@ -153,13 +153,22 @@ exports.MenuProposalView = function() {
 			// }
 		// }
 	// }
+	var updating = false;
+	var dynamicIndex=0;
+	var scrollToIndex = 0;
 	
-	function loadData(params){
+	function loadData(skip){
 		var tableData = [];
-	
-		db.ShowProposal(function(f){
-			myArray = f.results;
-			
+		if(skip==0){
+		    tableView.setData(tableData);
+		}
+	    //var skip = params.skip;
+	    //myArray=[];
+	    var results=null;
+		db.ShowProposal({skip: skip},function(f){
+			//myArray = f.results;
+			results = f.results;
+			scrollToIndex = results.length;
 			// if(globalVariables.GV.userRole=="Admin"){
 				// data.sort(function (x, y) {
    	 				// var n = x.repName - y.repName;
@@ -176,24 +185,24 @@ exports.MenuProposalView = function() {
 			    // return a>b ? -1 : a<b ? 1 : 0;
 			// });
 			
-			myArray.sort(function(a, b){
-			    aDate = new Date(a.LastUpdated);
-			    bDate = new Date(b.LastUpdated);
-			    // return  (a.repName - b.repName) || (bDate - aDate);
-			    
-			    if(bDate < aDate){
-			        return -1;  
-			    }else if(bDate > aDate){
-			        return 1;
-			    }else{
-			        if(a.repName < b.repName){
-			           return 1;
-			        }else if(a.repName > b.repName){
-			          return -1;
-			        }else{
-			          return 0;
-			        }
-			    }
+			// myArray.sort(function(a, b){
+			    // aDate = new Date(a.LastUpdated);
+			    // bDate = new Date(b.LastUpdated);
+			    // // return  (a.repName - b.repName) || (bDate - aDate);
+// 			    
+			    // if(bDate < aDate){
+			        // return -1;  
+			    // }else if(bDate > aDate){
+			        // return 1;
+			    // }else{
+			        // if(a.repName < b.repName){
+			           // return 1;
+			        // }else if(a.repName > b.repName){
+			          // return -1;
+			        // }else{
+			          // return 0;
+			        // }
+			    // }
 			    
 			    // if(a.repName===b.repName){
 			    	// return bDate - aDate;
@@ -215,246 +224,264 @@ exports.MenuProposalView = function() {
 			
 			var sections=[];
 			var j=0;
-			
-			for (var i = 0; i < myArray.length; i++) {
-				var row = Ti.UI.createTableViewRow({
-					className : 'proposalRow', // used to improve table performance
-					selectedBackgroundColor : 'white',
-					rowIndex : i, // custom property, useful for determining the row during events
-					height : 70,
-					//layout: "horizontal"
-				});
-	
-				var nameView = Ti.UI.createView({
-					backgroundColor: "transparent",
-					//layout: "vertical",
-					height: Ti.UI.FILL,
-					width: "70%",//"45%",
-					left: 0,
-					//backgroundColor: "yellow"
-				});
-                
-                var labRepName = Ti.UI.createLabel({
-                    color : '#B8B8B8',//d0d0d0',
-                    font : {
-                        fontFamily : 'Arial',
-                        fontSize : 15,
-                        fontWeight : 'bold'
-                    },
-                    text : myArray[i].repName,//new Date(myArray[i].LastUpdated).toLocaleString(),
-                    left : 30,//5,
-                    bottom: 10,
-                    top: 47,
-                    textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
-                    width : Ti.UI.SIZE,
-                    //height : 8,
-                    //zIndex: 1
-                    //backgroundColor: "blue"
-                });
-                			
-				// var labLastDate = Ti.UI.createLabel({
-					// color : '#0082b4',//'#B8B8B8',//d0d0d0',
-					// font : {
-						// fontFamily : 'Arial',
-						// //	fontSize : defaultFontSize + 6,
-					    // fontWeight : 'bold'
-					// },
-					// text : new Date(myArray[i].LastUpdated).toLocaleString(),
-					// left : 10,//5,
-					// //top: 5,
-					// textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
-					// width : Ti.UI.SIZE,
-					// //height : 8,
-					// //zIndex: 1
-					// backgroundColor: "blue"
-				// });
-				
-				//Ti.API.error(myArray[i].Date);
-				var busName = Ti.UI.createLabel({
-					color : '#222',
-					font : {
-						fontFamily : 'Arial',
-						fontSize : 22,
-						//fontWeight : 'normal'
-					},
-					text : myArray[i].BusinessName,
-					left : 30,
-					top : 12,
-					verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER,
-					//width : Ti.UI.SIZE,
-					//height: Ti.UI.SIZE,
-					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
-					wordWrap: false,
-					bottom:24
-					//backgroundColor: "green"
-				});
-				//row.add(labelDetails);
-			
-				nameView.add(busName);
-				nameView.add(labRepName);
-				
-				row.add(nameView);
-		        
-		        var rightParentView = Ti.UI.createView({
-		            width: "30%",
-		            height: Ti.UI.FILL,
-		            left: "70%",
-		            //backgroundColor: "blue"
-		            //layout: "vertical"
-		        });
-		        
-				var statusClickArea = Ti.UI.createView({
-					width: Ti.UI.FILL,//"25%",
-					height: "50%", //Ti.UI.FILL,
-					top: 0,
-					left: 0,   
-					//left: "45%",
-					name: "status",
-					layout: "horizontal"
-					//backgroundColor: "yellow"
-				});
-				
-				//check to fix bug with status being date
-				if(myArray[i].ProposalStatus==null){// || myArray[i].ProposalStatus!="Appointment" || myArray[i].ProposalStatus!="Presented" || myArray[i].ProposalStatus!="Signed"){
-					myArray[i].ProposalStatus="Appointment";
-					myArray[i].IsUpdated=1;
-				}
-				
-				var labStat = Ti.UI.createLabel({
-				    color: "#0082b4",
-				    font:{
-				        fontFamily : 'Arial',
-                        fontSize : 15,
-				    },
-				    text: "STATUS:   ",
-				    textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
-				    width: Ti.UI.SIZE,
-				    height: Ti.UI.SIZE,
-				    left: 0,
-				    //verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-				    top: 10
-				});
-				
-				var labStatus = Ti.UI.createLabel({
-					color : '#222',
-					font : {
-						fontFamily : 'Arial',
-						fontSize : 15,
-						//fontWeight : 'normal'
-					},
-					text : myArray[i].ProposalStatus,
-					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
-					//right : 20,
-					//bottom : 15,
-					width : Ti.UI.FILL,
-					height : Ti.UI.SIZE,
-					top: 10,
-					//left: "50%",
-					name: "status",
-					//backgroundColor: "green"
-				});
-				
-				statusClickArea.add(labStat);
-				statusClickArea.add(labStatus);
-				rightParentView.add(statusClickArea);
-				//row.add(statusClickArea);
-				 
-				var rpClickArea = Ti.UI.createView({
-					width : Ti.UI.FILL,  //"35%",
-					//left: "65%",
-					height: "50%",
-					top: "50%",
-					name: "rp",
-					layout: "horizontal"
-				});
-				
-				var labRP = Ti.UI.createLabel({
-                    color: "#0082b4",
-                    font:{
-                        fontFamily : 'Arial',
-                        fontSize : 15,
-                    },
-                    text: "REFERRAL PARTNER:   ",
-                    textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
-                    width: Ti.UI.SIZE,
-                    height: Ti.UI.SIZE,
-                    left: 0,
-                    //verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-                    top: 10
-                });
-                
-				var labRPName = Ti.UI.createLabel({
-					color : '#222',
-					font : {
-						fontFamily : 'Arial',
-						fontSize : 15,
-						//fontWeight : 'normal'
-					},
-					text : '',
-					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
-					//right : 25,
-					//bottom : 15,
-					width : Ti.UI.FILL,
-					height : Ti.UI.SIZE,
-					top: 10,
-					//left: 20,
-					name: "rp",
-					//backgroundColor: "green"
-				});
-				
-				if(myArray[i].rpID==null){
-					labRPName.text='None';
-				}
-				else if(!(myArray[i].rpID.valueOf() in globalVariables.GV.ReferralPartners)){
-				    labRPName.text='None';
-				}
-				else{
-					labRPName.text=globalVariables.GV.ReferralPartners[(myArray[i].rpID).valueOf()].title;
-				}
-				
-				rpClickArea.add(labRP);
-				rpClickArea.add(labRPName);
-				rightParentView.add(rpClickArea);
-				row.add(rightParentView);
-				//row.add(rpClickArea);
-				
-				var curr = new Date(myArray[i].LastUpdated);
-				if(i>0){
-					
-					var prev = new Date(myArray[i-1].LastUpdated);
-					var changeHeading = false;
-					if(curr.getDate() < prev.getDate() && curr.getMonth()==prev.getMonth()&&curr.getYear()==prev.getYear()){
-					   changeHeading = true;
-					// if(myArray[i].repName !== myArray[i-1].repName){
-						//tableData.push(sections[j]);
-					}
-					else if(curr.getDate() > prev.getDate() && curr.getMonth()<prev.getMonth()&&curr.getYear()==prev.getYear()){
-					   changeHeading=true;
-					}
-					else if(curr.getDate > prev.getDate && curr.getMonth>prev.getMonth && curr.getYear < prev.getYear){
-					    changeHeading = true;
-					}
-					if(changeHeading){
-						j++;
-						sections[j]= Ti.UI.createTableViewSection({
-							headerTitle: "     "+curr.toLocaleString()//myArray[i].repName
-						});	
-						sections[j].add(row);
-					}
-					else{
-						sections[j].add(row);
-					}
-				}
-				else if(i==0)
-				{
-					sections[j] = Ti.UI.createTableViewSection({
-						headerTitle: "     "+curr.toLocaleString()//myArray[i].repName
-					});
-					sections[j].add(row);
-				}
-			}
-			tableView.setData(sections);
-		});
+			if(results.length>0){
+    			for (var i = 0; i < results.length; i++) {
+    			    myArray.push(results[i]);
+    				var row = Ti.UI.createTableViewRow({
+    					className : 'proposalRow', // used to improve table performance
+    					selectedBackgroundColor : 'white',
+    					rowIndex : i, // custom property, useful for determining the row during events
+    					height : 70,
+    					//layout: "horizontal"
+    				});
+    	
+    				var nameView = Ti.UI.createView({
+    					backgroundColor: "transparent",
+    					//layout: "vertical",
+    					height: Ti.UI.FILL,
+    					width: "70%",//"45%",
+    					left: 0,
+    					//backgroundColor: "yellow"
+    				});
+                    
+                    var labRepName = Ti.UI.createLabel({
+                        color : '#B8B8B8',//d0d0d0',
+                        font : {
+                            fontFamily : 'Arial',
+                            fontSize : 15,
+                            fontWeight : 'bold'
+                        },
+                        text : results[i].repName,//new Date(myArray[i].LastUpdated).toLocaleString(),
+                        left : 30,//5,
+                        bottom: 10,
+                        top: 47,
+                        textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+                        width : Ti.UI.SIZE,
+                        //height : 8,
+                        //zIndex: 1
+                        //backgroundColor: "blue"
+                    });
+                    			
+    				// var labLastDate = Ti.UI.createLabel({
+    					// color : '#0082b4',//'#B8B8B8',//d0d0d0',
+    					// font : {
+    						// fontFamily : 'Arial',
+    						// //	fontSize : defaultFontSize + 6,
+    					    // fontWeight : 'bold'
+    					// },
+    					// text : new Date(myArray[i].LastUpdated).toLocaleString(),
+    					// left : 10,//5,
+    					// //top: 5,
+    					// textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+    					// width : Ti.UI.SIZE,
+    					// //height : 8,
+    					// //zIndex: 1
+    					// backgroundColor: "blue"
+    				// });
+    				
+    				//Ti.API.error(myArray[i].Date);
+    				var busName = Ti.UI.createLabel({
+    					color : '#222',
+    					font : {
+    						fontFamily : 'Arial',
+    						fontSize : 22,
+    						//fontWeight : 'normal'
+    					},
+    					text : results[i].BusinessName,
+    					left : 30,
+    					top : 12,
+    					verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER,
+    					//width : Ti.UI.SIZE,
+    					//height: Ti.UI.SIZE,
+    					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+    					wordWrap: false,
+    					bottom:24
+    					//backgroundColor: "green"
+    				});
+    				//row.add(labelDetails);
+    			
+    				nameView.add(busName);
+    				nameView.add(labRepName);
+    				
+    				row.add(nameView);
+    		        
+    		        var rightParentView = Ti.UI.createView({
+    		            width: "30%",
+    		            height: Ti.UI.FILL,
+    		            left: "70%",
+    		            //backgroundColor: "blue"
+    		            //layout: "vertical"
+    		        });
+    		        
+    				var statusClickArea = Ti.UI.createView({
+    					width: Ti.UI.FILL,//"25%",
+    					height: "50%", //Ti.UI.FILL,
+    					top: 0,
+    					left: 0,   
+    					//left: "45%",
+    					name: "status",
+    					layout: "horizontal"
+    					//backgroundColor: "yellow"
+    				});
+    				
+    				//check to fix bug with status being date
+    				if(results[i].ProposalStatus==null){// || myArray[i].ProposalStatus!="Appointment" || myArray[i].ProposalStatus!="Presented" || myArray[i].ProposalStatus!="Signed"){
+    					results[i].ProposalStatus="Appointment";
+    					results[i].IsUpdated=1;
+    				}
+    				
+    				var labStat = Ti.UI.createLabel({
+    				    color: "#0082b4",
+    				    font:{
+    				        fontFamily : 'Arial',
+                            fontSize : 15,
+    				    },
+    				    text: "STATUS:   ",
+    				    textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
+    				    width: Ti.UI.SIZE,
+    				    height: Ti.UI.SIZE,
+    				    left: 0,
+    				    //verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+    				    top: 10
+    				});
+    				
+    				var labStatus = Ti.UI.createLabel({
+    					color : '#222',
+    					font : {
+    						fontFamily : 'Arial',
+    						fontSize : 15,
+    						//fontWeight : 'normal'
+    					},
+    					text : results[i].ProposalStatus,
+    					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+    					//right : 20,
+    					//bottom : 15,
+    					width : Ti.UI.FILL,
+    					height : Ti.UI.SIZE,
+    					top: 10,
+    					//left: "50%",
+    					name: "status",
+    					//backgroundColor: "green"
+    				});
+    				
+    				statusClickArea.add(labStat);
+    				statusClickArea.add(labStatus);
+    				rightParentView.add(statusClickArea);
+    				//row.add(statusClickArea);
+    				 
+    				var rpClickArea = Ti.UI.createView({
+    					width : Ti.UI.FILL,  //"35%",
+    					//left: "65%",
+    					height: "50%",
+    					top: "50%",
+    					name: "rp",
+    					layout: "horizontal"
+    				});
+    				
+    				var labRP = Ti.UI.createLabel({
+                        color: "#0082b4",
+                        font:{
+                            fontFamily : 'Arial',
+                            fontSize : 15,
+                        },
+                        text: "REFERRAL PARTNER:   ",
+                        textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
+                        width: Ti.UI.SIZE,
+                        height: Ti.UI.SIZE,
+                        left: 0,
+                        //verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+                        top: 10
+                    });
+                    
+    				var labRPName = Ti.UI.createLabel({
+    					color : '#222',
+    					font : {
+    						fontFamily : 'Arial',
+    						fontSize : 15,
+    						//fontWeight : 'normal'
+    					},
+    					text : '',
+    					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+    					//right : 25,
+    					//bottom : 15,
+    					width : Ti.UI.FILL,
+    					height : Ti.UI.SIZE,
+    					top: 10,
+    					//left: 20,
+    					name: "rp",
+    					//backgroundColor: "green"
+    				});
+    				
+    				if(results[i].rpID==null){
+    					labRPName.text='None';
+    				}
+    				else if(!(results[i].rpID.valueOf() in globalVariables.GV.ReferralPartners)){
+    				    labRPName.text='None';
+    				}
+    				else{
+    					labRPName.text=globalVariables.GV.ReferralPartners[(results[i].rpID).valueOf()].title;
+    				}
+    				
+    				rpClickArea.add(labRP);
+    				rpClickArea.add(labRPName);
+    				rightParentView.add(rpClickArea);
+    				row.add(rightParentView);
+    				//row.add(rpClickArea);
+    				var moment=require("/lib/moment");
+    				var curr = moment(results[i].LastUpdated);
+    				// sections[j]= Ti.UI.createTableViewSection({
+                                // headerTitle: "     "+curr.toLocaleString()//myArray[i].repName
+                    //});
+    				
+    				if(skip==0 && i==0)
+    				{
+    					sections[j] = Ti.UI.createTableViewSection({
+    						headerTitle: "     "+curr.local().format('LLLL')//myArray[i].repName
+    					});
+    					sections[j].add(row);
+    					tableView.appendSection(sections[j]);
+    				}
+    				else
+    				{
+    					if(i==0){
+    					    var prev = moment(myArray[scrollToIndex].LastUpdated);
+    					}
+    					else{
+    					   var prev = moment(results[i-1].LastUpdated);    
+    					}
+    					
+    					var changeHeading = false;
+    					if(curr.local().date() < prev.local().date() && curr.month()==prev.month()&&curr.year()==prev.year()){
+    					   changeHeading = true;
+    					// if(myArray[i].repName !== myArray[i-1].repName){
+    						//tableData.push(sections[j]);
+    					}
+    					else if(/*(curr.getDate() > prev.getDate()||curr.getDate() < prev.getDate()) && */curr.month()<prev.month()&&curr.year()==prev.year()){
+    					   changeHeading=true;
+    					}
+    					else if(/*curr.getDate > prev.getDate && curr.getMonth>prev.getMonth && */curr.year() < prev.year()){
+    					    changeHeading = true;
+    					}
+    					if(changeHeading){
+    						j++;
+    						sections[j]= Ti.UI.createTableViewSection({
+    							headerTitle: "     "+curr.local().format('LLLL')//myArray[i].repName
+    						});	
+    						sections[j].add(row);
+    						tableView.appendSection(sections[j]);
+    					}
+    					else{
+    						//sections[j].add(row);
+    						tableView.appendRow(row);
+    					}
+    				}
+    				
+    			}
+    		}
+			updating=false;
+			dynamicIndex = skip + results.length;
+			//tableView.setData(sections);
+		//});
 	}
 	
 	var tableView = Ti.UI.createTableView({
@@ -528,11 +555,21 @@ exports.MenuProposalView = function() {
 											db.setUpdateOff({proposalId: myArray[f.row.rownum].ProposalId}, function(j){
 												if(j.success){
 													db.setUploadedOn({
-													    proposalId: myArray[f.row.rownum].ProposalId
+													    proposalId: myArray[f.row.rownum].ProposalId,
+													    //LastUpdated: i.LastUpdated
 													}, function(k){
 													    if(k.success){
-													       loading._hide();
-													       alert('Updated on back end');
+													       db.setLastUpdated({
+													           LastUpdated: i.LastUpdated,
+													           proposalId: myArray[f.row.rownum].ProposalId,}, function(l){
+                                                               if(l.success){
+                                                                   loading._hide();
+                                                                   alert('Updated on back end');
+                                                               }
+                                                               else{
+                                                                   alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                                               }
+                                                           });
 													    }
 													    else{
 													        alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
@@ -560,11 +597,20 @@ exports.MenuProposalView = function() {
 									db.setUpdateOff({proposalId: myArray[f.row.rownum].ProposalId}, function(j){
 										if(j.success){
 											db.setUploadedOn({
-                                                proposalId: myArray[f.row.rownum].ProposalId
+                                                proposalId: myArray[f.row.rownum].ProposalId,
+                                                LastUpdated: h.LastUpdated
                                             }, function(k){
                                                 if(k.success){
-                                                   loading._hide();
-                                                   alert('Updated on back end');
+                                                   db.setLastUpdated({LastUpdated: h.LastUpdated}, function(l){
+                                                       if(l.success){
+                                                           loading._hide();
+                                                           alert('Updated on back end');
+                                                       }
+                                                       else{
+                                                           alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                                       }
+                                                   });
+                                                   
                                                 }
                                                 else{
                                                     alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
@@ -833,9 +879,61 @@ exports.MenuProposalView = function() {
 		}
 
 	});
-
+    
+    var loadingRow = Ti.UI.createTableViewRow({title:"Loading..."});
+    var lastRow = 0;//dynamicIndex;
+    
+    function beginUpdate()
+    {
+        updating = true;
+    
+        tableView.appendRow(loadingRow);
+    
+        // just mock out the reload
+        endUpdate();
+    }
+    
+    function endUpdate()
+    {
+        //updating = false;
+        lastRow=dynamicIndex;
+        tableView.deleteRow(lastRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.NONE});
+    
+        // simulate loading
+        loadData(dynamicIndex);
+        //lastRow = dynamicIndex;
+        // just scroll down a bit to the new rows to bring them into view
+        //tableView.scrollToIndex(lastRow-scrollToIndex,{animated:true,position:Ti.UI.iPhone.TableViewScrollPosition.BOTTOM});
+        updating=false;
+        //navActInd.hide();
+    }
+    
+    var lastDistance=0;
+    
+    tableView.addEventListener("scroll", function(e){
+        var offset = e.contentOffset.y;
+        var height = e.size.height;
+        var total = offset + height;
+        var theEnd = e.contentSize.height;
+        var distance = theEnd - total;
+    
+        // going down is the only time we dynamically load,
+        // going up we can safely ignore -- note here that
+        // the values will be negative so we do the opposite
+        if (distance < lastDistance)
+        {
+            // adjust the % of rows scrolled before we decide to start fetching
+            var nearEnd = theEnd * .95;
+    
+            if (!updating && (total >= nearEnd))
+            {
+                beginUpdate();
+            }
+        }
+        lastDistance = distance; 
+    });
 	Ti.App.addEventListener('reloadProposals', function(e){
-		loadData();
+		loadData(0);
 	});
 
 	return self;
