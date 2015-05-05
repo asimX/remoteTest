@@ -662,83 +662,88 @@ exports.InterchangeAnalysis = function() {
 			
 			if(!globalVariables.GV.tfInterFeeChange)
 			{
-				if (globalVariables.GV.BusinessType == 'Retail Low') {
-					tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.RetailLowDb);
-					tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.RetailLowAmex)) + (globalVariables.GV.aeTransactions * 0.1);
-					tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.RetailLowDis);
-					tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.RetailLowMcard);
-					tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.RetailLowVsa);				
-				} else if (globalVariables.GV.BusinessType == 'Retail High') {
-					tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.RetailHighDb);
-					tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.RetailHighAmex)) + (globalVariables.GV.aeTransactions * 0.1);
-					tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.RetailHighDis);
-					tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.RetailHighMcard);
-					tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.RetailHighVsa);
-				} else if (globalVariables.GV.BusinessType == 'Restaurant Low') {
-					tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.RestaurantLowDb);
-					tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.RestaurantLowAmex)) + (globalVariables.GV.aeTransactions * 0.05);
-					Ti.API.info(tfAeInterFee.value);
-					tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.RestaurantLowDis);
-					tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.RestaurantLowMcard);
-					tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.RestaurantLowVsa);
-				} else if (globalVariables.GV.BusinessType == 'Restaurant High') {
-					tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.RestaurantHighDb);
-					tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.RestaurantHighAmex)) + (globalVariables.GV.aeTransactions * 0.05);
-					tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.RestaurantHighDis);
-					tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.RestaurantHighMcard);
-					tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.RestaurantHighVsa);
-	
-				} else if (globalVariables.GV.BusinessType == 'Small Ticket') {
-					tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.SmallTicketDb);
-					tfAeInterFee.value = globalVariables.GV.aeVol * parseFloat(globalVariables.GV.SmallTicketAmex);
-					tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.SmallTicketDis);
-					tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.SmallTicketMcard);
-					tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.SmallTicketVsa);
-				} else if (globalVariables.GV.BusinessType == 'MOTO') {
-					tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.MOTODb);
-					tfAeInterFee.value = globalVariables.GV.aeVol * parseFloat(globalVariables.GV.MOTOAmex);
-					tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.MOTODis);
-					tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.MOTOMcard);
-					tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.MOTOVsa);
-	
-				} else if (globalVariables.GV.BusinessType == 'Internet') {
-					tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.InternetDb);
-					tfAeInterFee.value = globalVariables.GV.aeVol * parseFloat(globalVariables.GV.InternetAmex);
-					tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.InternetDis);
-					tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.InternetMcard);
-					tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.InternetVsa);
-	
-				} else if (globalVariables.GV.BusinessType == 'Business to Business') {
-					tfDebitInterFee.value = globalVariables.GV.debitVol * globalVariables.GV.BusinessToBusinessDb;
-					tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.BusinessToBusinessAmex)) + (globalVariables.GV.aeTransactions * 0.15);
-					//	tfAeInterFee.value =globalVariables.GV
-					//tfAeInterFee.value = (globalVariables.GV.aeVol * 0.0289) + (globalVariables.GV.aeTransactions * 0.15);
-	
-					tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.BusinessToBusinessDis);
-					tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.BusinessToBusinessMcard);
-					tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.BusinessToBusinessVsa);
-	
-				} else if (globalVariables.GV.BusinessType == 'Supermarket') {
-					tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.SupermarketDb);
-					tfAeInterFee.value = globalVariables.GV.aeVol * parseFloat(globalVariables.GV.SupermarketAmex);
-					tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.SupermarketDis);
-					tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.SupermarketMcard);
-					tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.SupermarketVsa);
-	
-				} else if (globalVariables.GV.BusinessType == 'Hotel/Lodging') {
-					tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.HotelLodgingDb);
-					tfAeInterFee.value = globalVariables.GV.aeVol * parseFloat(globalVariables.GV.HotelLodgingAmex);
-					tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.HotelLodgingDis);
-					tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.HotelLodgingMcard);
-					tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.HotelLodgingVsa);
-				} else {
-					tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.UtilitiesDb);
-					tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.UtilitiesAmex)) + (globalVariables.GV.aeTransactions * 0.15);
-					tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.UtilitiesDis);
-					tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.UtilitiesMcard);
-					tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.UtilitiesVsa);
-	
-				}
+				tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.DebitRate);
+                tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.AmexRate)) + (globalVariables.GV.AmexTrRate * 0.1);
+                tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.DsRate);
+                tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.McRate);
+                tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.VisaRate); 
+				// if (globalVariables.GV.BusinessType == 'Retail Low') {
+					// tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.RetailLowDb);
+					// tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.RetailLowAmex)) + (globalVariables.GV.aeTransactions * 0.1);
+					// tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.RetailLowDis);
+					// tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.RetailLowMcard);
+					// tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.RetailLowVsa);				
+				// } else if (globalVariables.GV.BusinessType == 'Retail High') {
+					// tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.RetailHighDb);
+					// tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.RetailHighAmex)) + (globalVariables.GV.aeTransactions * 0.1);
+					// tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.RetailHighDis);
+					// tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.RetailHighMcard);
+					// tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.RetailHighVsa);
+				// } else if (globalVariables.GV.BusinessType == 'Restaurant Low') {
+					// tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.RestaurantLowDb);
+					// tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.RestaurantLowAmex)) + (globalVariables.GV.aeTransactions * 0.05);
+					// Ti.API.info(tfAeInterFee.value);
+					// tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.RestaurantLowDis);
+					// tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.RestaurantLowMcard);
+					// tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.RestaurantLowVsa);
+				// } else if (globalVariables.GV.BusinessType == 'Restaurant High') {
+					// tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.RestaurantHighDb);
+					// tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.RestaurantHighAmex)) + (globalVariables.GV.aeTransactions * 0.05);
+					// tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.RestaurantHighDis);
+					// tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.RestaurantHighMcard);
+					// tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.RestaurantHighVsa);
+// 	
+				// } else if (globalVariables.GV.BusinessType == 'Small Ticket') {
+					// tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.SmallTicketDb);
+					// tfAeInterFee.value = globalVariables.GV.aeVol * parseFloat(globalVariables.GV.SmallTicketAmex);
+					// tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.SmallTicketDis);
+					// tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.SmallTicketMcard);
+					// tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.SmallTicketVsa);
+				// } else if (globalVariables.GV.BusinessType == 'MOTO') {
+					// tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.MOTODb);
+					// tfAeInterFee.value = globalVariables.GV.aeVol * parseFloat(globalVariables.GV.MOTOAmex);
+					// tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.MOTODis);
+					// tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.MOTOMcard);
+					// tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.MOTOVsa);
+// 	
+				// } else if (globalVariables.GV.BusinessType == 'Internet') {
+					// tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.InternetDb);
+					// tfAeInterFee.value = globalVariables.GV.aeVol * parseFloat(globalVariables.GV.InternetAmex);
+					// tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.InternetDis);
+					// tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.InternetMcard);
+					// tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.InternetVsa);
+// 	
+				// } else if (globalVariables.GV.BusinessType == 'Business to Business') {
+					// tfDebitInterFee.value = globalVariables.GV.debitVol * globalVariables.GV.BusinessToBusinessDb;
+					// tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.BusinessToBusinessAmex)) + (globalVariables.GV.aeTransactions * 0.15);
+					// //	tfAeInterFee.value =globalVariables.GV
+					// //tfAeInterFee.value = (globalVariables.GV.aeVol * 0.0289) + (globalVariables.GV.aeTransactions * 0.15);
+// 	
+					// tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.BusinessToBusinessDis);
+					// tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.BusinessToBusinessMcard);
+					// tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.BusinessToBusinessVsa);
+// 	
+				// } else if (globalVariables.GV.BusinessType == 'Supermarket') {
+					// tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.SupermarketDb);
+					// tfAeInterFee.value = globalVariables.GV.aeVol * parseFloat(globalVariables.GV.SupermarketAmex);
+					// tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.SupermarketDis);
+					// tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.SupermarketMcard);
+					// tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.SupermarketVsa);
+// 	
+				// } else if (globalVariables.GV.BusinessType == 'Hotel/Lodging') {
+					// tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.HotelLodgingDb);
+					// tfAeInterFee.value = globalVariables.GV.aeVol * parseFloat(globalVariables.GV.HotelLodgingAmex);
+					// tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.HotelLodgingDis);
+					// tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.HotelLodgingMcard);
+					// tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.HotelLodgingVsa);
+				// } else {
+					// tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.UtilitiesDb);
+					// tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.UtilitiesAmex)) + (globalVariables.GV.aeTransactions * 0.15);
+					// tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.UtilitiesDis);
+					// tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.UtilitiesMcard);
+					// tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.UtilitiesVsa);
+// 	
+				// }
 			}
 			
 			labVisaCardFees.setText(parseFloat(tfVisaInterFee.value) + parseFloat(labVisaProcFees.getText()));

@@ -9,8 +9,8 @@ var db = require('/db/db');
 var utility = require("lib/utilities");
 
 var loggedIn = false;
-globalVariables.GV.sessionId = Ti.App.Properties.getString('sessionId',null);
-globalVariables.GV.userId = Ti.App.Properties.getString('userId', null);
+//globalVariables.GV.sessionId = Ti.App.Properties.getString('sessionId',null);
+//globalVariables.GV.userId = Ti.App.Properties.getString('userId', null);
 
 // local utility variables
 //var queryResults = [];

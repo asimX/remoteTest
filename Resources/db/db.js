@@ -6,7 +6,7 @@ var globalVariables = require('globalVariables');
 exports.init = function(){
 	var db = Ti.Database.open('pps');
 	db.execute('CREATE TABLE IF NOT EXISTS Proposal(localPropID INTEGER PRIMARY KEY, proposalId TEXT, repName TEXT, userId TEXT, BusinessName TEXT,StreetAddress TEXT,State TEXT,City TEXT,Zip TEXT,Contact TEXT,Phone TEXT, BusinessType TEXT, ProcessingMonths TEXT,debitVol REAL,aeVol REAL,dsVol REAL ,mcVol REAL ,visaVol REAL,debitTransactions REAL ,aeTransactions REAL ,dsTransactions REAL ,mcTransactions REAL ,visaTransactions REAL, debitAverageTicket REAL ,aeAverageTicket REAL ,dsAverageTicket REAL ,mcAverageTicket REAL ,visaAverageTicket REAL,TotalCurrentFees REAL,CurrentEffectiveRate REAL,debitInterchangeFees REAL , aeInterchangeFees REAL,dsInterchangeFees REAL ,mcInterchangeFees REAL,visaInterchangeFees REAL,debitProcessingFees REAL ,aeProcessingFees REAL,dsProcessingFees REAL,mcProcessingFees REAL,visaProcessingFees REAL,debitCardFees REAL ,aeCardFees REAL ,dsCardFees REAL ,mcCardFees REAL ,visaCardFees REAL ,TotalNewFees REAL,NewEffectiveRate REAL,MonthlySavings REAL,Year1Savings REAL,Year2Savings REAL,Year3Savings REAL,Year4Savings REAL,ProcessingFee REAL,AuthFee REAL,PinDebitProcessingFee REAL,PinDebitAuthFee REAL,MonthlyServiceFee REAL,IndustryComplinceFee REAL,TerminalFee REAL,MXGatewayFee REAL,DebitAccessFee REAL,DateCreated TEXT, Notes TEXT, IsUpdated INTEGER, LastUpdated TEXT, IsUploaded INTEGER, ProposalStatus TEXT, rpID TEXT, sm_id TEXT, tm_id TEXT);');
-	db.execute('CREATE TABLE IF NOT EXISTS BusinessType (BusinessTypeName TEXT,visa_rate REAL,mc_rate REAL,ds_rate REAL,amex_rate REAL,debit_rate REAL)');
+	db.execute('CREATE TABLE IF NOT EXISTS BusinessType (BusinessTypeName TEXT,visa_rate REAL,mc_rate REAL,ds_rate REAL,amex_rate REAL,tr_amex_rate REAL, debit_rate REAL)');
 	db.execute('CREATE TABLE IF NOT EXISTS ReferralPartner (rp_id TEXT, BusinessName TEXT, StreetAddress TEXT, State TEXT, City TEXT, Zip TEXT, Contact TEXT)');
 	db.execute('CREATE TABLE IF NOT EXISTS Library (file_id TEXT, file_name TEXT, folder TEXT, url TEXT, local_path TEXT, updated_at TEXT)');
 	
@@ -207,16 +207,17 @@ exports.ShowProposal = function(params, callback) {
 	var sqlStatement = null;
 	if(globalVariables.GV.userRole=="Admin")
 	{
-		sqlStatement = "Select * from Proposal order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";
+		sqlStatement = "Select * from Proposal order by repName ASC, datetime(LastUpdated) DESC LIMIT "+params.skip+",500";
+		//"Select * from Proposal order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";
 	}
 	else if(globalVariables.GV.userRole=="Sales Manager"){
-		sqlStatement = "Select * from Proposal where sm_id= '"+ globalVariables.GV.userId+"' order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";// GROUP BY userId ORDER BY repName ";
+		sqlStatement = "Select * from Proposal where sm_id= '"+ globalVariables.GV.userId+"' order by repName ASC, order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";// GROUP BY userId ORDER BY repName ";
 	}
 	else if(globalVariables.GV.userRole=="Territory Manager"){
-		sqlStatement = "Select * from Proposal where tm_id= '"+ globalVariables.GV.userId+"'  order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";// GROUP BY userId ORDER BY repName ";
+		sqlStatement = "Select * from Proposal where tm_id= '"+ globalVariables.GV.userId+"' order by repName ASC, order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";// GROUP BY userId ORDER BY repName ";
 	}
 	else{
-		sqlStatement = "Select * from Proposal where userId= '"+ globalVariables.GV.userId+"'  order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";// 
+		sqlStatement = "Select * from Proposal where userId= '"+ globalVariables.GV.userId+"' order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";// 
 	}
 	var dataArray = [];
 	try{
@@ -479,10 +480,10 @@ exports.FillBusinessType = function(dataArray) {
 		// }
 		db.execute('DELETE FROM BusinessType');
 		for(var i=0;i<dataArray.length;i++){
-			db.execute('INSERT INTO BusinessType (BusinessTypeName,visa_rate ,mc_rate ,ds_rate,amex_rate ,debit_rate ) VALUES(?,?,?,?,?,?)', dataArray[i].typeName, dataArray[i].visaRate, dataArray[i].mcRate, dataArray[i].dsRate, dataArray[i].amexRate, dataArray[i].debitRate);
+			db.execute('INSERT INTO BusinessType (BusinessTypeName,visa_rate ,mc_rate ,ds_rate,amex_rate ,tr_amex_rate, debit_rate ) VALUES(?,?,?,?,?,?,?)', dataArray[i].typeName, dataArray[i].visaRate, dataArray[i].mcRate, dataArray[i].dsRate, dataArray[i].amexRate, dataArray[i].amexTrRate, dataArray[i].debitRate);
 		}
 		db.close();
-		LoadBusinessTypes(function(){});
+		//LoadBusinessTypes(function(){});
 	}
 	catch(err){
 		Ti.API.error("Error in Fill Business Table:  \n"+JSON.stringify(err));
@@ -505,109 +506,140 @@ exports.FillReferralPartners = function(dataArray){
 	}
 };
 
-function LoadBusinessTypes (callback) {
+exports.getBusinessTypes = function(callback){
+    
+    try{
+        var db = Ti.Database.open('pps');
+        var BTypeTable = db.execute('select BusinessTypeName from BusinessType');
+        var bTypes = [];
+        while(BTypeTable.isValidRow()){
+            bTypes.push({title: BTypeTable.fieldByName('BusinessTypeName')});
+            BTypeTable.next();
+        }
+        callback({
+            results: bTypes,
+            success: true
+        });
+    }
+    
+    catch(err){
+        callback({
+            success: false,
+            results: JSON.stringify(err)
+        });
+    }
+};
+
+function LoadBusinessRates (bName) {
 
 	try{
 		var db = Ti.Database.open('pps');
-		var BTypeTable = db.execute('select * from BusinessType');
+		var BTypeTable = db.execute('select * from BusinessType where BusinessTypeName=?',bName);
 	
 		//var ID = [];
-		var BusinessTypeName = [];
-		var visa_rate = [];
-		var mc_rate = [];
-		var ds_rate = [];
-		var amex_rate = [];
-		var debit_rate = [];
-		var i = 0;
+		// var BusinessTypeName = [];
+		// var visa_rate = [];
+		// var mc_rate = [];
+		// var ds_rate = [];
+		// var amex_rate = [];
+		// var debit_rate = [];
+		// var i = 0;
 		while (BTypeTable.isValidRow()) {
 			//ID[i] = BTypeTable.fieldByName('ID');
-			var name = BTypeTable.fieldByName('BusinessTypeName');
-			if(name=="Retail High")
-			{
-				globalVariables.GV.RetailHighVsa = BTypeTable.fieldByName('visa_rate');
-				globalVariables.GV.RetailHighMcard = BTypeTable.fieldByName('mc_rate');
-				globalVariables.GV.RetailHighDis = BTypeTable.fieldByName('ds_rate');
-				globalVariables.GV.RetailHighAmex = BTypeTable.fieldByName('amex_rate');
-				globalVariables.GV.RetailHighDb = BTypeTable.fieldByName('debit_rate');
-			}
-			else if(name=="Retail Low")
-			{
-				globalVariables.GV.RetailLowVsa = BTypeTable.fieldByName('visa_rate');
-				globalVariables.GV.RetailLowMcard = BTypeTable.fieldByName('mc_rate');
-				globalVariables.GV.RetailLowDis = BTypeTable.fieldByName('ds_rate');
-				globalVariables.GV.RetailLowAmex = BTypeTable.fieldByName('amex_rate');
-				globalVariables.GV.RetailLowDb = BTypeTable.fieldByName('debit_rate');
-			}
-			else if(name=="Restaurant High")
-			{
-				globalVariables.GV.RestaurantHighVsa = BTypeTable.fieldByName('visa_rate');
-				globalVariables.GV.RestaurantHighMcard = BTypeTable.fieldByName('mc_rate');
-				globalVariables.GV.RestaurantHighDis = BTypeTable.fieldByName('ds_rate');
-				globalVariables.GV.RestaurantHighAmex = BTypeTable.fieldByName('amex_rate');
-				globalVariables.GV.RestaurantHighDb = BTypeTable.fieldByName('debit_rate');
-			}
-			else if(name=="Restaurant Low")
-			{
-				globalVariables.GV.RestaurantLowVsa = BTypeTable.fieldByName('visa_rate');
-				globalVariables.GV.RestaurantLowMcard = BTypeTable.fieldByName('mc_rate');
-				globalVariables.GV.RestaurantLowDis = BTypeTable.fieldByName('ds_rate');
-				globalVariables.GV.RestaurantLowAmex = BTypeTable.fieldByName('amex_rate');
-				globalVariables.GV.RestaurantLowDb = BTypeTable.fieldByName('debit_rate');
-			}
-			else if(name=="Utilities")
-			{
-				globalVariables.GV.UtilitiesVsa = BTypeTable.fieldByName('visa_rate');
-				globalVariables.GV.UtilitiesMcard = BTypeTable.fieldByName('mc_rate');
-				globalVariables.GV.UtilitiesDis = BTypeTable.fieldByName('ds_rate');
-				globalVariables.GV.UtilitiesAmex = BTypeTable.fieldByName('amex_rate');
-				globalVariables.GV.UtilitiesDb = BTypeTable.fieldByName('debit_rate');
-			}
-			else if(name=="Hotel/Lodging")
-			{
-				globalVariables.GV.HotelLodgingVsa = BTypeTable.fieldByName('visa_rate');
-				globalVariables.GV.HotelLodgingMcard = BTypeTable.fieldByName('mc_rate');
-				globalVariables.GV.HotelLodgingDis = BTypeTable.fieldByName('ds_rate');
-				globalVariables.GV.HotelLodgingAmex = BTypeTable.fieldByName('amex_rate');
-				globalVariables.GV.HotelLodgingDb = BTypeTable.fieldByName('debit_rate');
-			}
-			else if(name=="Supermarket")
-			{
-				globalVariables.GV.SupermarketVsa = BTypeTable.fieldByName('visa_rate');
-				globalVariables.GV.SupermarketMcard = BTypeTable.fieldByName('mc_rate');
-				globalVariables.GV.SupermarketDis = BTypeTable.fieldByName('ds_rate');
-				globalVariables.GV.SupermarketAmex = BTypeTable.fieldByName('amex_rate');
-				globalVariables.GV.SupermarketDb = BTypeTable.fieldByName('debit_rate');
-			}
-			else if(name=="Business to Business")
-			{
-				globalVariables.GV.BusinessToBusinessVsa = BTypeTable.fieldByName('visa_rate');
-				globalVariables.GV.BusinessToBusinessMcard = BTypeTable.fieldByName('mc_rate');
-				globalVariables.GV.BusinessToBusinessDis = BTypeTable.fieldByName('ds_rate');
-				globalVariables.GV.BusinessToBusinessAmex = BTypeTable.fieldByName('amex_rate');
-				globalVariables.GV.BusinessToBusinessDb = BTypeTable.fieldByName('debit_rate');
-			}
-			else if (name=="Internet"){
-				globalVariables.GV.InternetVsa = BTypeTable.fieldByName('visa_rate');
-				globalVariables.GV.InternetMcard = BTypeTable.fieldByName('mc_rate');
-				globalVariables.GV.InternetDis = BTypeTable.fieldByName('ds_rate');
-				globalVariables.GV.InternetAmex = BTypeTable.fieldByName('amex_rate');
-				globalVariables.GV.InternetDb = BTypeTable.fieldByName('debit_rate');
-			}
-			else if(name=="MOTO"){
-				globalVariables.GV.MOTOVsa = BTypeTable.fieldByName('visa_rate');
-				globalVariables.GV.MOTOMcard = BTypeTable.fieldByName('mc_rate');
-				globalVariables.GV.MOTODis = BTypeTable.fieldByName('ds_rate');
-				globalVariables.GV.	MOTOAmex = BTypeTable.fieldByName('amex_rate');
-				globalVariables.GV.MOTODb = BTypeTable.fieldByName('debit_rate');
-			}
-			else if(name=="Small Ticket")
-			{
-				globalVariables.GV.SmallTicketVsa = BTypeTable.fieldByName('visa_rate');
-				globalVariables.GV.SmallTicketMcard = BTypeTable.fieldByName('mc_rate');
-				globalVariables.GV.SmallTicketDis = BTypeTable.fieldByName('ds_rate');
-				globalVariables.GV.SmallTicketAmex = BTypeTable.fieldByName('amex_rate');
-				globalVariables.GV.SmallTicketDb = BTypeTable.fieldByName('debit_rate');
-			}
+			//var name = BTypeTable.fieldByName('BusinessTypeName');
+			globalVariables.GV.VisaRate = BTypeTable.fieldByName('visa_rate');
+			globalVariables.GV.McRate = BTypeTable.fieldByName('mc_rate');
+			globalVariables.GV.DsRate = BTypeTable.fieldByName('ds_rate');
+			globalVariables.GV.AmexRate = BTypeTable.fieldByName('amex_rate');
+			globalVariables.GV.AmexTrRate = BTypeTable.fieldByName('tr_amex_rate');
+			globalVariables.GV.DebitRate = BTypeTable.fieldByName('debit_rate');
+			
+			// if(name=="Retail High")
+			// {
+				// globalVariables.GV.RetailHighVsa = BTypeTable.fieldByName('visa_rate');
+				// globalVariables.GV.RetailHighMcard = BTypeTable.fieldByName('mc_rate');
+				// globalVariables.GV.RetailHighDis = BTypeTable.fieldByName('ds_rate');
+				// globalVariables.GV.RetailHighAmex = BTypeTable.fieldByName('amex_rate');
+				// globalVariables.GV.RetailHighDb = BTypeTable.fieldByName('debit_rate');
+			// }
+			// else if(name=="Retail Low")
+			// {
+				// globalVariables.GV.RetailLowVsa = BTypeTable.fieldByName('visa_rate');
+				// globalVariables.GV.RetailLowMcard = BTypeTable.fieldByName('mc_rate');
+				// globalVariables.GV.RetailLowDis = BTypeTable.fieldByName('ds_rate');
+				// globalVariables.GV.RetailLowAmex = BTypeTable.fieldByName('amex_rate');
+				// globalVariables.GV.RetailLowDb = BTypeTable.fieldByName('debit_rate');
+			// }
+			// else if(name=="Restaurant High")
+			// {
+				// globalVariables.GV.RestaurantHighVsa = BTypeTable.fieldByName('visa_rate');
+				// globalVariables.GV.RestaurantHighMcard = BTypeTable.fieldByName('mc_rate');
+				// globalVariables.GV.RestaurantHighDis = BTypeTable.fieldByName('ds_rate');
+				// globalVariables.GV.RestaurantHighAmex = BTypeTable.fieldByName('amex_rate');
+				// globalVariables.GV.RestaurantHighDb = BTypeTable.fieldByName('debit_rate');
+			// }
+			// else if(name=="Restaurant Low")
+			// {
+				// globalVariables.GV.RestaurantLowVsa = BTypeTable.fieldByName('visa_rate');
+				// globalVariables.GV.RestaurantLowMcard = BTypeTable.fieldByName('mc_rate');
+				// globalVariables.GV.RestaurantLowDis = BTypeTable.fieldByName('ds_rate');
+				// globalVariables.GV.RestaurantLowAmex = BTypeTable.fieldByName('amex_rate');
+				// globalVariables.GV.RestaurantLowDb = BTypeTable.fieldByName('debit_rate');
+			// }
+			// else if(name=="Utilities")
+			// {
+				// globalVariables.GV.UtilitiesVsa = BTypeTable.fieldByName('visa_rate');
+				// globalVariables.GV.UtilitiesMcard = BTypeTable.fieldByName('mc_rate');
+				// globalVariables.GV.UtilitiesDis = BTypeTable.fieldByName('ds_rate');
+				// globalVariables.GV.UtilitiesAmex = BTypeTable.fieldByName('amex_rate');
+				// globalVariables.GV.UtilitiesDb = BTypeTable.fieldByName('debit_rate');
+			// }
+			// else if(name=="Hotel/Lodging")
+			// {
+				// globalVariables.GV.HotelLodgingVsa = BTypeTable.fieldByName('visa_rate');
+				// globalVariables.GV.HotelLodgingMcard = BTypeTable.fieldByName('mc_rate');
+				// globalVariables.GV.HotelLodgingDis = BTypeTable.fieldByName('ds_rate');
+				// globalVariables.GV.HotelLodgingAmex = BTypeTable.fieldByName('amex_rate');
+				// globalVariables.GV.HotelLodgingDb = BTypeTable.fieldByName('debit_rate');
+			// }
+			// else if(name=="Supermarket")
+			// {
+				// globalVariables.GV.SupermarketVsa = BTypeTable.fieldByName('visa_rate');
+				// globalVariables.GV.SupermarketMcard = BTypeTable.fieldByName('mc_rate');
+				// globalVariables.GV.SupermarketDis = BTypeTable.fieldByName('ds_rate');
+				// globalVariables.GV.SupermarketAmex = BTypeTable.fieldByName('amex_rate');
+				// globalVariables.GV.SupermarketDb = BTypeTable.fieldByName('debit_rate');
+			// }
+			// else if(name=="Business to Business")
+			// {
+				// globalVariables.GV.BusinessToBusinessVsa = BTypeTable.fieldByName('visa_rate');
+				// globalVariables.GV.BusinessToBusinessMcard = BTypeTable.fieldByName('mc_rate');
+				// globalVariables.GV.BusinessToBusinessDis = BTypeTable.fieldByName('ds_rate');
+				// globalVariables.GV.BusinessToBusinessAmex = BTypeTable.fieldByName('amex_rate');
+				// globalVariables.GV.BusinessToBusinessDb = BTypeTable.fieldByName('debit_rate');
+			// }
+			// else if (name=="Internet"){
+				// globalVariables.GV.InternetVsa = BTypeTable.fieldByName('visa_rate');
+				// globalVariables.GV.InternetMcard = BTypeTable.fieldByName('mc_rate');
+				// globalVariables.GV.InternetDis = BTypeTable.fieldByName('ds_rate');
+				// globalVariables.GV.InternetAmex = BTypeTable.fieldByName('amex_rate');
+				// globalVariables.GV.InternetDb = BTypeTable.fieldByName('debit_rate');
+			// }
+			// else if(name=="MOTO"){
+				// globalVariables.GV.MOTOVsa = BTypeTable.fieldByName('visa_rate');
+				// globalVariables.GV.MOTOMcard = BTypeTable.fieldByName('mc_rate');
+				// globalVariables.GV.MOTODis = BTypeTable.fieldByName('ds_rate');
+				// globalVariables.GV.	MOTOAmex = BTypeTable.fieldByName('amex_rate');
+				// globalVariables.GV.MOTODb = BTypeTable.fieldByName('debit_rate');
+			// }
+			// else if(name=="Small Ticket")
+			// {
+				// globalVariables.GV.SmallTicketVsa = BTypeTable.fieldByName('visa_rate');
+				// globalVariables.GV.SmallTicketMcard = BTypeTable.fieldByName('mc_rate');
+				// globalVariables.GV.SmallTicketDis = BTypeTable.fieldByName('ds_rate');
+				// globalVariables.GV.SmallTicketAmex = BTypeTable.fieldByName('amex_rate');
+				// globalVariables.GV.SmallTicketDb = BTypeTable.fieldByName('debit_rate');
+			// }
 			
 			// visa_rate[i] = BTypeTable.fieldByName('visa_rate');
 			// Ti.API.info('visa_rate');
@@ -622,7 +654,7 @@ function LoadBusinessTypes (callback) {
 			// i++;
 			BTypeTable.next();
 		};
-		callback();
+		//callback();
 	}
 	catch(err){
 		Ti.API.error('Error querying business type table:  \n'+JSON.stringify(err));
@@ -630,7 +662,7 @@ function LoadBusinessTypes (callback) {
 
 };
 
-exports.LoadBusinessTypes = LoadBusinessTypes;
+exports.LoadBusinessRates = LoadBusinessRates;
 
 exports.InsertProposalID = function(params, callback){
 	try{
@@ -860,7 +892,7 @@ exports.updateLocalProposal=function(callback){
 };
 
 exports.importPropUpdates = function(dataArray, callback){
-	//var success = true;
+	var success = true;
 	var moment=require('/lib/moment');
 	for(var i=0;i<dataArray.length;i++){
 		try{
@@ -901,8 +933,8 @@ exports.importPropUpdates = function(dataArray, callback){
 			dateHolder=null;
 			aclid=null;
 			isUploaded=null;
-			moment=null;
-			callback({success: true});
+			//moment=null;
+			//callback({success: true});
 		}
 		catch(err){
 			moment=null;
@@ -912,7 +944,7 @@ exports.importPropUpdates = function(dataArray, callback){
 		}
 	}
 	//moment=null;
-	//callback({success: success});
+	callback({success: success});
 };
 
 exports.setUpdateOff = function(params, callback){
@@ -932,7 +964,7 @@ function LoadReferralPartners(callback){
 	try{
 		var db= Ti.Database.open('pps');
 		var rpTable = db.execute('Select rp_id, BusinessName from ReferralPartner');
-		while(rpTable.isValidRow())
+  		while(rpTable.isValidRow())
 		{
 			var json={};
 			json[rpTable.fieldByName('rp_id').valueOf()] = {

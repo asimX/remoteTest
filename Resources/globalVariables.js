@@ -81,6 +81,16 @@ exports.GV = {
 	ProcessingMonths : '',
 	ProposalStatus: null,
 
+    //////////charge rates//////////////
+	
+	VisaRate: 0,
+	McRate: 0,
+	DsRate: 0,
+	AmexRate: 0,
+	AmexTrRate: 0,
+	DebitRate: 0,
+	
+	
 	//////////////////////////Debit
 
 	RetailLowDb : 0.00795,
@@ -277,98 +287,98 @@ exports.GV = {
 		
 	},
 	
-	SetRates: function(dataArray){
-		if(dataArray.length>0){
-			for(var i=0;i<dataArray.length;i++){
-				var name = dataArray[i].typeName;
-				if(name=="Retail High")
-				{
-					this.RetailHighVsa = dataArray[i].visaRate;
-					this.RetailHighMcard = dataArray[i].mcRate;
-					this.RetailHighDis = dataArray[i].dsRate;
-					this.RetailHighAmex = dataArray[i].amexRate;
-					this.RetailHighDb = dataArray[i].debitRate;
-				}
-				else if(name=="Retail Low")
-				{
-					this.RetailLowVsa = dataArray[i].visaRate;
-					this.RetailLowMcard = dataArray[i].mcRate;
-					this.RetailLowDis = dataArray[i].dsRate;
-					this.RetailLowAmex = dataArray[i].amexRate;
-					this.RetailLowDb = dataArray[i].debitRate;
-				}
-				else if(name=="Restaurant High")
-				{
-					this.RestaurantHighVsa = dataArray[i].visaRate;
-					this.RestaurantHighMcard = dataArray[i].mcRate;
-					this.RestaurantHighDis = dataArray[i].dsRate;
-					this.RestaurantHighAmex = dataArray[i].amexRate;
-					this.RestaurantHighDb = dataArray[i].debitRate;
-				}
-				else if(name=="Restaurant Low")
-				{
-					this.RestaurantLowVsa = dataArray[i].visaRate;
-					this.RestaurantLowMcard = dataArray[i].mcRate;
-					this.RestaurantLowDis = dataArray[i].dsRate;
-					this.RestaurantLowAmex = dataArray[i].amexRate;
-					this.RestaurantLowDb = dataArray[i].debitRate;
-				}
-				else if(name=="Utilities")
-				{
-					this.UtilitiesVsa = dataArray[i].visaRate;
-					this.UtilitiesMcard = dataArray[i].mcRate;
-					this.UtilitiesDis = dataArray[i].dsRate;
-					this.UtilitiesAmex = dataArray[i].amexRate;
-					this.UtilitiesDb = dataArray[i].debitRate;
-				}
-				else if(name=="Hotel/Lodging")
-				{
-					this.HotelLodgingVsa = dataArray[i].visaRate;
-					this.HotelLodgingMcard = dataArray[i].mcRate;
-					this.HotelLodgingDis = dataArray[i].dsRate;
-					this.HotelLodgingAmex = dataArray[i].amexRate;
-					this.HotelLodgingDb = dataArray[i].debitRate;
-				}
-				else if(name=="Supermarket")
-				{
-					this.SupermarketVsa = dataArray[i].visaRate;
-					this.SupermarketMcard = dataArray[i].mcRate;
-					this.SupermarketDis = dataArray[i].dsRate;
-					this.SupermarketAmex = dataArray[i].amexRate;
-					this.SupermarketDb = dataArray[i].debitRate;
-				}
-				else if(name=="Business to Business")
-				{
-					this.BusinessToBusinessVsa = dataArray[i].visaRate;
-					this.BusinessToBusinessMcard = dataArray[i].mcRate;
-					this.BusinessToBusinessDis = dataArray[i].dsRate;
-					this.BusinessToBusinessAmex = dataArray[i].dsRate;
-					this.BusinessToBusinessDb = dataArray[i].debitRate;
-				}
-				else if (name=="Internet"){
-					this.InternetVsa = dataArray[i].visaRate;
-					this.InternetMcard = dataArray[i].mcRate;
-					this.InternetDis = dataArray[i].dsRate;
-					this.InternetAmex = dataArray[i].amexRate;
-					this.InternetDb = dataArray[i].debitRate;
-				}
-				else if(name=="MOTO"){
-					this.MOTOVsa = dataArray[i].visaRate;
-					this.MOTOMcard = dataArray[i].mcRate;
-					this.MOTODis = dataArray[i].dsRate;
-					this.MOTOAmex = dataArray[i].amexRate;
-					this.MOTODb = dataArray[i].debitRate;
-				}
-				else if(name=="Small Ticket")
-				{
-					this.SmallTicketVsa = dataArray[i].visaRate;
-					this.SmallTicketMcard = dataArray[i].mcRate;
-					this.SmallTicketDis = dataArray[i].dsRate;
-					this.SmallTicketAmex = dataArray[i].amexRate;
-					this.SmallTicketDb = dataArray[i].debitRate;
-				}
-			}
-		}
-	}
+	// SetRates: function(dataArray){
+		// if(dataArray.length>0){
+			// for(var i=0;i<dataArray.length;i++){
+				// var name = dataArray[i].typeName;
+				// if(name=="Retail High")
+				// {
+					// this.RetailHighVsa = dataArray[i].visaRate;
+					// this.RetailHighMcard = dataArray[i].mcRate;
+					// this.RetailHighDis = dataArray[i].dsRate;
+					// this.RetailHighAmex = dataArray[i].amexRate;
+					// this.RetailHighDb = dataArray[i].debitRate;
+				// }
+				// else if(name=="Retail Low")
+				// {
+					// this.RetailLowVsa = dataArray[i].visaRate;
+					// this.RetailLowMcard = dataArray[i].mcRate;
+					// this.RetailLowDis = dataArray[i].dsRate;
+					// this.RetailLowAmex = dataArray[i].amexRate;
+					// this.RetailLowDb = dataArray[i].debitRate;
+				// }
+				// else if(name=="Restaurant High")
+				// {
+					// this.RestaurantHighVsa = dataArray[i].visaRate;
+					// this.RestaurantHighMcard = dataArray[i].mcRate;
+					// this.RestaurantHighDis = dataArray[i].dsRate;
+					// this.RestaurantHighAmex = dataArray[i].amexRate;
+					// this.RestaurantHighDb = dataArray[i].debitRate;
+				// }
+				// else if(name=="Restaurant Low")
+				// {
+					// this.RestaurantLowVsa = dataArray[i].visaRate;
+					// this.RestaurantLowMcard = dataArray[i].mcRate;
+					// this.RestaurantLowDis = dataArray[i].dsRate;
+					// this.RestaurantLowAmex = dataArray[i].amexRate;
+					// this.RestaurantLowDb = dataArray[i].debitRate;
+				// }
+				// else if(name=="Utilities")
+				// {
+					// this.UtilitiesVsa = dataArray[i].visaRate;
+					// this.UtilitiesMcard = dataArray[i].mcRate;
+					// this.UtilitiesDis = dataArray[i].dsRate;
+					// this.UtilitiesAmex = dataArray[i].amexRate;
+					// this.UtilitiesDb = dataArray[i].debitRate;
+				// }
+				// else if(name=="Hotel/Lodging")
+				// {
+					// this.HotelLodgingVsa = dataArray[i].visaRate;
+					// this.HotelLodgingMcard = dataArray[i].mcRate;
+					// this.HotelLodgingDis = dataArray[i].dsRate;
+					// this.HotelLodgingAmex = dataArray[i].amexRate;
+					// this.HotelLodgingDb = dataArray[i].debitRate;
+				// }
+				// else if(name=="Supermarket")
+				// {
+					// this.SupermarketVsa = dataArray[i].visaRate;
+					// this.SupermarketMcard = dataArray[i].mcRate;
+					// this.SupermarketDis = dataArray[i].dsRate;
+					// this.SupermarketAmex = dataArray[i].amexRate;
+					// this.SupermarketDb = dataArray[i].debitRate;
+				// }
+				// else if(name=="Business to Business")
+				// {
+					// this.BusinessToBusinessVsa = dataArray[i].visaRate;
+					// this.BusinessToBusinessMcard = dataArray[i].mcRate;
+					// this.BusinessToBusinessDis = dataArray[i].dsRate;
+					// this.BusinessToBusinessAmex = dataArray[i].dsRate;
+					// this.BusinessToBusinessDb = dataArray[i].debitRate;
+				// }
+				// else if (name=="Internet"){
+					// this.InternetVsa = dataArray[i].visaRate;
+					// this.InternetMcard = dataArray[i].mcRate;
+					// this.InternetDis = dataArray[i].dsRate;
+					// this.InternetAmex = dataArray[i].amexRate;
+					// this.InternetDb = dataArray[i].debitRate;
+				// }
+				// else if(name=="MOTO"){
+					// this.MOTOVsa = dataArray[i].visaRate;
+					// this.MOTOMcard = dataArray[i].mcRate;
+					// this.MOTODis = dataArray[i].dsRate;
+					// this.MOTOAmex = dataArray[i].amexRate;
+					// this.MOTODb = dataArray[i].debitRate;
+				// }
+				// else if(name=="Small Ticket")
+				// {
+					// this.SmallTicketVsa = dataArray[i].visaRate;
+					// this.SmallTicketMcard = dataArray[i].mcRate;
+					// this.SmallTicketDis = dataArray[i].dsRate;
+					// this.SmallTicketAmex = dataArray[i].amexRate;
+					// this.SmallTicketDb = dataArray[i].debitRate;
+				// }
+			// }
+		// }
+	// }
 };
 

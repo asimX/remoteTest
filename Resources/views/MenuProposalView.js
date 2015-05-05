@@ -2,6 +2,7 @@ var db = require('db/db');
 var globalVariables = require('globalVariables');
 var sync = require('lib/sync');
 var loading = require('lib/loading').loading();
+var moment = require('/lib/moment');
 exports.MenuProposalView = function() {
 	
 	///////////////////////// ANIMATIONS /////////////////////////////////
@@ -244,14 +245,14 @@ exports.MenuProposalView = function() {
     					//backgroundColor: "yellow"
     				});
                     
-                    var labRepName = Ti.UI.createLabel({
+                    var labLastDate = Ti.UI.createLabel({
                         color : '#B8B8B8',//d0d0d0',
                         font : {
                             fontFamily : 'Arial',
                             fontSize : 15,
                             fontWeight : 'bold'
                         },
-                        text : results[i].repName,//new Date(myArray[i].LastUpdated).toLocaleString(),
+                        text : moment(results[i].LastUpdated).local().format('LLLL'),//new Date(myArray[i].LastUpdated).toLocaleString(),
                         left : 30,//5,
                         bottom: 10,
                         top: 47,
@@ -301,7 +302,7 @@ exports.MenuProposalView = function() {
     				//row.add(labelDetails);
     			
     				nameView.add(busName);
-    				nameView.add(labRepName);
+    				nameView.add(labLastDate);
     				
     				row.add(nameView);
     		        
@@ -427,8 +428,8 @@ exports.MenuProposalView = function() {
     				rightParentView.add(rpClickArea);
     				row.add(rightParentView);
     				//row.add(rpClickArea);
-    				var moment=require("/lib/moment");
-    				var curr = moment(results[i].LastUpdated);
+    				//var moment=require("/lib/moment");
+    				var curr = results[i].repName;//moment(results[i].LastUpdated);
     				// sections[j]= Ti.UI.createTableViewSection({
                                 // headerTitle: "     "+curr.toLocaleString()//myArray[i].repName
                     //});
@@ -436,7 +437,7 @@ exports.MenuProposalView = function() {
     				if(skip==0 && i==0)
     				{
     					sections[j] = Ti.UI.createTableViewSection({
-    						headerTitle: "     "+curr.local().format('LLLL')//myArray[i].repName
+    						headerTitle: "     "+curr //curr.local().format('LLLL')//
     					});
     					sections[j].add(row);
     					tableView.appendSection(sections[j]);
@@ -444,28 +445,29 @@ exports.MenuProposalView = function() {
     				else
     				{
     					if(i==0){
-    					    var prev = moment(myArray[scrollToIndex].LastUpdated);
+    					    var prev = myArray[scrollToIndex].repName;//moment(myArray[scrollToIndex].repName);//LastUpdated);
     					}
     					else{
-    					   var prev = moment(results[i-1].LastUpdated);    
+    					   var prev = results[i-1].repName;//moment();//LastUpdated);    
     					}
     					
     					var changeHeading = false;
-    					if(curr.local().date() < prev.local().date() && curr.month()==prev.month()&&curr.year()==prev.year()){
+    					//if(curr.local().date() < prev.local().date() && curr.month()==prev.month()&&curr.year()==prev.year()){
+    					if(curr !== prev){
     					   changeHeading = true;
     					// if(myArray[i].repName !== myArray[i-1].repName){
     						//tableData.push(sections[j]);
     					}
-    					else if(/*(curr.getDate() > prev.getDate()||curr.getDate() < prev.getDate()) && */curr.month()<prev.month()&&curr.year()==prev.year()){
-    					   changeHeading=true;
-    					}
-    					else if(/*curr.getDate > prev.getDate && curr.getMonth>prev.getMonth && */curr.year() < prev.year()){
-    					    changeHeading = true;
-    					}
+    					// else if(/*(curr.getDate() > prev.getDate()||curr.getDate() < prev.getDate()) && */curr.month()<prev.month()&&curr.year()==prev.year()){eeeeeeeeeeeeeeeeeeeeeeeq
+    					   // changeHeading=true;
+    					// }
+    					// else if(/*curr.getDate > prev.getDate && curr.getMonth>prev.getMonth && */curr.year() < prev.year()){
+    					    // changeHeading = true;
+    					// }
     					if(changeHeading){
     						j++;
     						sections[j]= Ti.UI.createTableViewSection({
-    							headerTitle: "     "+curr.local().format('LLLL')//myArray[i].repName
+    							headerTitle: "     "+curr//.local().format('LLLL')//myArray[i].repName
     						});	
     						sections[j].add(row);
     						tableView.appendSection(sections[j]);

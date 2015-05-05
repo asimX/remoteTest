@@ -130,17 +130,31 @@ function LoginScreen() {
 			});
 			globalVariables.GV.navGroup.open();			
 			//Download latest referral partner list
+			// acs.getPartners(function(f){
+				// if(f.success){
+					// db.FillReferralPartners(f.results);
+				// }
+				// acs.getRates(function(g){
+					// if(g.success){
+						// db.FillBusinessType(g.results);
+						// globalVariables.GV.SetRates(g.results);
+					// }
+				// });
+			// });
+			
 			acs.getPartners(function(f){
-				if(f.success){
-					db.FillReferralPartners(f.results);
-				}
-				acs.getRates(function(g){
-					if(g.success){
-						db.FillBusinessType(g.results);
-						globalVariables.GV.SetRates(g.results);
-					}
-				});
-			});
+                if(f.success){
+                    db.FillReferralPartners(f.results);
+                    db.LoadReferralPartners(function(f){});
+                }
+                acs.getRates(function(g){
+                    if(g.success){
+                        db.FillBusinessType(g.results);
+                        //globalVariables.GV.SetRates(g.results);
+                        //db.LoadBusinessTypes(function(e){});
+                    }
+                });
+            });
 			
 		}
 

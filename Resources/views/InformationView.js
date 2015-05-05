@@ -385,20 +385,24 @@ exports.Information = function() {
 		//rightButton : drop_button,
 		//rightButtonMode : Titanium.UI.INPUT_BUTTONMODE_ALWAYS
 	});
+	var bTypeData = [];
 	
-	var bTypeData = [
-		{title:'Retail Low'},
-	 	{title:'Retail High'},
-	 	{title:'Restaurant Low'},
-	 	{title:'Restaurant High'},
-	 	{title:'Small Ticket'},
-	 	{title:'MOTO'},
-	 	{title:'Internet'},
-	 	{title:'Business to Business'},
-	 	{title:'Supermarket'},
-	 	{title:'Hotel/Lodging'},
-	 	{title:'Utilities'}
-	];
+	db.getBusinessTypes(function(e){
+	    bTypeData = e.results;
+	});
+	// var bTypeData = [
+		// {title:'Retail Low'},
+	 	// {title:'Retail High'},
+	 	// {title:'Restaurant Low'},
+	 	// {title:'Restaurant High'},
+	 	// {title:'Small Ticket'},
+	 	// {title:'MOTO'},
+	 	// {title:'Internet'},
+	 	// {title:'Business to Business'},
+	 	// {title:'Supermarket'},
+	 	// {title:'Hotel/Lodging'},
+	 	// {title:'Utilities'}
+	// ];
 	
 	var BtypePopover = Ti.UI.iPad.createPopover({//require('lib/popover').getPopover({
 		title: "Business Type",
@@ -421,6 +425,8 @@ exports.Information = function() {
 	tableview.addEventListener("click", function(e){
 		tfBtype.value = globalVariables.GV.BusinessType = e.row.title;
 		globalVariables.GV.tfInterFeeChange=false;
+		db.LoadBusinessRates(e.row.title);
+		//globalVariables.GV.SetRates(e.row.title);
 		BtypePopover.hide();
 	});
 	
@@ -562,6 +568,7 @@ exports.Information = function() {
 		tfContact.value = globalVariables.GV.Contact;
 		tfPhone.value = globalVariables.GV.Phone;
 		tfBtype.value = globalVariables.GV.BusinessType;
+		db.LoadBusinessRates(globalVariables.GV.BusinessType);
 		tfPmonth.value = globalVariables.GV.ProcessingMonths;
 		}
 		else{

@@ -12,7 +12,7 @@
     <property name="acs-api-key-development" type="string">Q8j2efLgKn7QYqPyUuRCyQ9GX852axKp</property>!-->
     <id>com.bwa.interchangeGenius</id>
     <name>pps</name>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
     <publisher>BWA</publisher>
     <url>http://</url>
     <description>not specified</description>

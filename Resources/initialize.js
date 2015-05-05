@@ -2,7 +2,7 @@ var globalVariables = require('globalVariables');
 var db = require("db/db");
 var sync = require("lib/sync");
 var acs = require("lib/acs");
-var Cloud = require('ti.cloud');
+//var Cloud = require('ti.cloud');
 
 
 exports.init = function(startApp){
@@ -56,8 +56,8 @@ exports.init = function(startApp){
 		globalVariables.GV.lastProposalSyncDate = Ti.App.Properties.getString("lastProposalSyncDate");
 		
 		//load charge rates
-		db.LoadBusinessTypes(function(e){
-			db.LoadReferralPartners(function(f){
+		// db.LoadBusinessTypes(function(e){
+			// db.LoadReferralPartners(function(f){
 				if(globalVariables.GV.sessionId!=null)
 				{
 					if(Ti.Network.online)
@@ -70,6 +70,19 @@ exports.init = function(startApp){
 									// }
 								// });
 								sync.syncDialog();
+								acs.getPartners(function(f){
+                                    if(f.success){
+                                        db.FillReferralPartners(f.results);
+                                        db.LoadReferralPartners(function(f){});
+                                    }
+                                    acs.getRates(function(g){
+                                        if(g.success){
+                                            db.FillBusinessType(g.results);
+                                            //globalVariables.GV.SetRates(g.results);
+                                            //db.LoadBusinessTypes(function(e){});
+                                        }
+                                    });
+                                });
 							}
 							else{
 								alert("You are logged out. Please Login again to continue");
@@ -82,8 +95,10 @@ exports.init = function(startApp){
 					}
 						
 				}
-			});
-		});	
+		// db.LoadBusinessTypes(function(e){
+            // db.LoadReferralPartners(function(f){
+			// });
+		// });	
 		
 	});
 	
@@ -110,29 +125,70 @@ exports.init = function(startApp){
 	});
 	
 	//load charge rates
-	db.LoadBusinessTypes(function(e){
-		db.LoadReferralPartners(function(f){
-			if(globalVariables.GV.sessionId!=null)
-            {
-                if(Ti.Network.online)
-                {
-                    acs.isLoggedIn(function(g){
-                        if(g.loggedIn){
-                            startApp({loggedIn: true});
+	// db.LoadBusinessTypes(function(e){
+		// db.LoadReferralPartners(function(f){
+			// if(globalVariables.GV.sessionId!=null)
+            // {
+                // if(Ti.Network.online)
+                // {
+                    // acs.isLoggedIn(function(g){
+                        // if(g.loggedIn){
+                            // startApp({loggedIn: true});
+                        // }
+                        // else{
+                            // startApp({loggedIn: false});
+                        // }
+                    // });
+                // }
+//                     
+            // }
+            // else{
+                // startApp({loggedIn: false});
+            // }
+// 			
+		// });
+	// });
+	// if(globalVariables.GV.sessionId!=null)
+    // {
+        if(Ti.Network.online)
+        {
+            acs.isLoggedIn(function(g){
+                if(g.loggedIn){
+                    // acs.updateTmid(function(h){
+                        // if(h.success){
+                            // alert("Roxie's proposals Updated");
+                        // }
+                    // });
+                    //sync.syncDialog();
+                    acs.getPartners(function(f){
+                        if(f.success){
+                            db.FillReferralPartners(f.results);
+                            db.LoadReferralPartners(function(f){});
                         }
-                        else{
-                            startApp({loggedIn: false});
-                        }
+                        acs.getRates(function(g){
+                            if(g.success){
+                                db.FillBusinessType(g.results);
+                                //globalVariables.GV.SetRates(g.results);
+                                //db.LoadBusinessTypes(function(e){});
+                                startApp({loggedIn: true});
+                            }
+                        });
                     });
                 }
-                    
-            }
-            else{
-                startApp({loggedIn: false});
-            }
-			
-		});
-	});
-	
+                else{
+                    // alert("You are logged out. Please Login again to continue");
+                    // globalVariables.GV.loginScreen = new LoginScreen();
+                    // globalVariables.GV.loginScreen.open();
+                    // globalVariables.GV.navGroup.close();
+                    // Ti.App.fireEvent("closeHomeWindow");
+                    startApp({loggedIn: false});
+                }
+            });
+        }
+        else{
+            startApp({loggedIn: false});
+        }
+            
+    //}
 		
 };
