@@ -121,14 +121,14 @@ function LoginScreen() {
 		});//loading);
 		
 		function loadHome(callback){
-			var HomeScreen = require('ui/HomeScreen');
-			globalVariables.GV.homeScreen = new HomeScreen({
-				//indicator: loading
-			});
-			globalVariables.GV.navGroup = Titanium.UI.iOS.createNavigationWindow({
-				window : globalVariables.GV.homeScreen
-			});
-			globalVariables.GV.navGroup.open();			
+			// var HomeScreen = require('ui/HomeScreen');
+			// globalVariables.GV.homeScreen = new HomeScreen({
+				// //indicator: loading
+			// });
+			// globalVariables.GV.navGroup = Titanium.UI.iOS.createNavigationWindow({
+				// window : globalVariables.GV.homeScreen
+			// });
+			// globalVariables.GV.navGroup.open();			
 			//Download latest referral partner list
 			// acs.getPartners(function(f){
 				// if(f.success){
@@ -150,6 +150,15 @@ function LoginScreen() {
                 acs.getRates(function(g){
                     if(g.success){
                         db.FillBusinessType(g.results);
+                        var HomeScreen = require('ui/HomeScreen');
+                        globalVariables.GV.homeScreen = new HomeScreen({
+                            //indicator: loading
+                        });
+                        globalVariables.GV.navGroup = Titanium.UI.iOS.createNavigationWindow({
+                            window : globalVariables.GV.homeScreen
+                        });
+                        globalVariables.GV.navGroup.open();
+                        callback();
                         //globalVariables.GV.SetRates(g.results);
                         //db.LoadBusinessTypes(function(e){});
                     }

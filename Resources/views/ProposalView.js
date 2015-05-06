@@ -1000,6 +1000,13 @@ exports.Proposal = function() {
 	Ti.App.addEventListener('fillSavingsInfo', function(e){
 		if(!e.initialize){
 			
+			globalVariables.GV.MonthlySavings = Math.abs(globalVariables.GV.TotalCurrentFees - globalVariables.GV.TotalNewFees);
+        
+            globalVariables.GV.Year1Savings = parseFloat(globalVariables.GV.MonthlySavings*12).toFixed(2);
+            globalVariables.GV.Year2Savings = parseFloat(globalVariables.GV.MonthlySavings*24).toFixed(2);
+            globalVariables.GV.Year3Savings = parseFloat(globalVariables.GV.MonthlySavings*36).toFixed(2);
+            globalVariables.GV.Year4Savings = parseFloat(globalVariables.GV.MonthlySavings*48).toFixed(2);
+            
             labYear1Savingsii.setText(utility.formatCurrency(globalVariables.GV.Year1Savings,"$"));
            
             labYear2Savingsii.setText(utility.formatCurrency(globalVariables.GV.Year2Savings, "$"));
