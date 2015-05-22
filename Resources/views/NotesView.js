@@ -75,17 +75,17 @@ exports.NotesView = function() {
 
 		if (e.source.value == "") {
 			e.source.value = e.source._hintText;
-			globalVariables.GV.NotesText = "";
+			globalVariables.GV.Notes = "";
 		}
 		else
 		{
-			globalVariables.GV.NotesText = textNotes.value;
+			globalVariables.GV.Notes = textNotes.value;
 		}
 	});
 	
 	Ti.App.addEventListener('fillNotes', function(e){
 		if(!e.initialize){
-			textNotes.value = globalVariables.GV.NotesText;
+			textNotes.value = globalVariables.GV.Notes;
 		}
 		else{
 			textNotes.value="";

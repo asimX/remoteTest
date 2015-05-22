@@ -724,36 +724,45 @@ exports.Proposal = function() {
 										});
 									}
 									else{
-										db.setUploadedOff({proposalId: thisPropId}, function(e){			
-											Ti.App.fireEvent('reloadProposals');
-											globalVariables.GV.ResetValues();
-											Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
-											Ti.App.fireEvent('fillCSInfo',{initialize:true});
-											Ti.App.fireEvent('fillIaInfo',{initialize:true});
-											Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
-											Ti.App.fireEvent('fillProposedPricing',{initialize:true});
-											Ti.App.fireEvent('fillNotes',{initialize:true});
-											loading._hide();
-                                            alert("Saved Locally only. Sync to upload later.");
-										});
+										db.setUpdateOff({proposalId: thisPropId}, function(h){
+                                            if(h.success){
+        										db.setUploadedOff({proposalId: thisPropId}, function(e){			
+        											Ti.App.fireEvent('reloadProposals');
+        											globalVariables.GV.ResetValues();
+        											Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
+        											Ti.App.fireEvent('fillCSInfo',{initialize:true});
+        											Ti.App.fireEvent('fillIaInfo',{initialize:true});
+        											Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
+        											Ti.App.fireEvent('fillProposedPricing',{initialize:true});
+        											Ti.App.fireEvent('fillNotes',{initialize:true});
+        											loading._hide();
+                                                    alert("Saved Locally only. Sync to upload later.");
+        										});
+        									}
+        					           });
 									}
 								});
 							}
 						}
 						else{
-							db.setUploadedOff({proposalId: thisPropId}, function(e){
-								
-								Ti.App.fireEvent('reloadProposals');
-								globalVariables.GV.ResetValues();
-								Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
-								Ti.App.fireEvent('fillCSInfo',{initialize:true});
-								Ti.App.fireEvent('fillIaInfo',{initialize:true});
-								Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
-								Ti.App.fireEvent('fillProposedPricing',{initialize:true});
-								Ti.App.fireEvent('fillNotes',{initialize:true});
-								loading._hide();
-								alert("Device is offline. Sync with cloud after connecting to WiFi Network");
-							});
+        					db.setUpdateOff({proposalId: thisPropId}, function(h){
+                                if(h.success){		
+        							
+        							db.setUploadedOff({proposalId: thisPropId}, function(e){
+        								
+        								Ti.App.fireEvent('reloadProposals');
+        								globalVariables.GV.ResetValues();
+        								Ti.App.fireEvent('fillBusinessInfo',{initialize:true});
+        								Ti.App.fireEvent('fillCSInfo',{initialize:true});
+        								Ti.App.fireEvent('fillIaInfo',{initialize:true});
+        								Ti.App.fireEvent('fillSavingsInfo',{initialize:true});
+        								Ti.App.fireEvent('fillProposedPricing',{initialize:true});
+        								Ti.App.fireEvent('fillNotes',{initialize:true});
+        								loading._hide();
+        								alert("Device is offline. Sync with cloud after connecting to WiFi Network");
+        							});
+        						}
+        					});
 						}
 					});
 				}
@@ -781,7 +790,7 @@ exports.Proposal = function() {
             					acs.createProposal(null,function(f){
             						if(f.success)
             						{
-            							db.InsertProposalID(f, function(g){
+            							db.InsertProposalID({proposal: f.proposal}, function(g){
             								if(g.success)
             								{
             								    
@@ -816,7 +825,7 @@ exports.Proposal = function() {
                             if(f.success)
                             {
                                 
-                                db.InsertProposalID(f, function(g){
+                                db.InsertProposalID({proposal: f.proposal}, function(g){
                                     if(g.success)
                                     {
                                         

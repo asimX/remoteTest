@@ -3,12 +3,14 @@ var globalVariables = require('globalVariables');
 //var Getdate = require('lib/currentDate');
 //var Date;
 
+
 exports.init = function(){
 	var db = Ti.Database.open('pps');
 	db.execute('CREATE TABLE IF NOT EXISTS Proposal(localPropID INTEGER PRIMARY KEY, proposalId TEXT, repName TEXT, userId TEXT, BusinessName TEXT,StreetAddress TEXT,State TEXT,City TEXT,Zip TEXT,Contact TEXT,Phone TEXT, BusinessType TEXT, ProcessingMonths TEXT,debitVol REAL,aeVol REAL,dsVol REAL ,mcVol REAL ,visaVol REAL,debitTransactions REAL ,aeTransactions REAL ,dsTransactions REAL ,mcTransactions REAL ,visaTransactions REAL, debitAverageTicket REAL ,aeAverageTicket REAL ,dsAverageTicket REAL ,mcAverageTicket REAL ,visaAverageTicket REAL,TotalCurrentFees REAL,CurrentEffectiveRate REAL,debitInterchangeFees REAL , aeInterchangeFees REAL,dsInterchangeFees REAL ,mcInterchangeFees REAL,visaInterchangeFees REAL,debitProcessingFees REAL ,aeProcessingFees REAL,dsProcessingFees REAL,mcProcessingFees REAL,visaProcessingFees REAL,debitCardFees REAL ,aeCardFees REAL ,dsCardFees REAL ,mcCardFees REAL ,visaCardFees REAL ,TotalNewFees REAL,NewEffectiveRate REAL,MonthlySavings REAL,Year1Savings REAL,Year2Savings REAL,Year3Savings REAL,Year4Savings REAL,ProcessingFee REAL,AuthFee REAL,PinDebitProcessingFee REAL,PinDebitAuthFee REAL,MonthlyServiceFee REAL,IndustryComplinceFee REAL,TerminalFee REAL,MXGatewayFee REAL,DebitAccessFee REAL,DateCreated TEXT, Notes TEXT, IsUpdated INTEGER, LastUpdated TEXT, IsUploaded INTEGER, ProposalStatus TEXT, rpID TEXT, sm_id TEXT, tm_id TEXT);');
 	db.execute('CREATE TABLE IF NOT EXISTS BusinessType (BusinessTypeName TEXT,visa_rate REAL,mc_rate REAL,ds_rate REAL,amex_rate REAL,tr_amex_rate REAL, debit_rate REAL)');
 	db.execute('CREATE TABLE IF NOT EXISTS ReferralPartner (rp_id TEXT, BusinessName TEXT, StreetAddress TEXT, State TEXT, City TEXT, Zip TEXT, Contact TEXT)');
 	db.execute('CREATE TABLE IF NOT EXISTS Library (file_id TEXT, file_name TEXT, folder TEXT, url TEXT, local_path TEXT, updated_at TEXT)');
+	db.execute('CREATE TABLE IF NOT EXISTS Users (user_id TEXT, first_name TEXT, last_name TEXT, team_name TEXT, team_id TEXT)');
 	
 	
 	// pps table additions
@@ -36,7 +38,6 @@ exports.insertAclBugFix = function(callback){
 };
 
 exports.insertSmTmBugFix = function(callback){
-    
     try{
         if(globalVariables.GV.userRole!="Sales Manager" || globalVariables.GV.userRole!="Admin")
         {
@@ -85,13 +86,32 @@ var addColumn = function(dbname, tblName, newFieldName, colSpec) {
 	db.close();
 };
 
+exports.fillUsers = function(input,callback){
+    try{
+        var db = Ti.Database.open('pps');
+        db.execute('Delete from Users');
+        for(var i=0; i<input.length; i++){
+            db.execute('INSERT INTO Users (user_id, first_name, last_name, team_name, team_id) VALUES(?, ?, ?, ?, ?)',input[i].id, input[i].first_name, input[i].last_name, input[i].sales_team_name, input[i].team_id);
+        }
+        db.close();
+        db=null;
+        callback({success: true}); 
+    }
+    catch(err){
+        callback({
+            success: false,
+            message: JSON.stringify(err)
+        });
+    }
+};
+
 exports.FillProposal = function(callback) {
 	var d = new Date();
 	globalVariables.GV.DateCreated = globalVariables.GV.LastUpdated = d.toISOString();
 	//globalVariables.GV.timeId = Date.time;
 	try{
 		var db = Ti.Database.open('pps');
-		db.execute('INSERT INTO Proposal (proposalId, userId, repName, BusinessName,StreetAddress,State,City,Zip,Contact,Phone,BusinessType, ProcessingMonths,debitVol,aeVol,dsVol ,mcVol,visaVol,debitTransactions,aeTransactions ,dsTransactions,mcTransactions,visaTransactions, debitAverageTicket ,aeAverageTicket ,dsAverageTicket ,mcAverageTicket ,visaAverageTicket ,TotalCurrentFees ,CurrentEffectiveRate ,debitInterchangeFees , aeInterchangeFees,dsInterchangeFees,mcInterchangeFees,visaInterchangeFees,debitProcessingFees,aeProcessingFees,dsProcessingFees,mcProcessingFees,visaProcessingFees,debitCardFees ,aeCardFees ,dsCardFees,mcCardFees,visaCardFees,TotalNewFees,NewEffectiveRate,MonthlySavings,Year1Savings,Year2Savings,Year3Savings,Year4Savings,ProcessingFee,AuthFee,PinDebitProcessingFee,PinDebitAuthFee,MonthlyServiceFee,IndustryComplinceFee,TerminalFee,MXGatewayFee,DebitAccessFee,DateCreated, Notes, IsUpdated, LastUpdated, IsUploaded, ProposalStatus, rpID, sm_id, tm_id, acl_id)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', "0", globalVariables.GV.userId, globalVariables.GV.repName, globalVariables.GV.BusinessName, globalVariables.GV.StreetAddress, globalVariables.GV.State, globalVariables.GV.City, globalVariables.GV.Zip, globalVariables.GV.Contact, globalVariables.GV.Phone, globalVariables.GV.BusinessType, globalVariables.GV.ProcessingMonths, globalVariables.GV.debitVol, globalVariables.GV.aeVol, globalVariables.GV.dsVol, globalVariables.GV.mcVol, globalVariables.GV.visaVol, globalVariables.GV.debitTransactions, globalVariables.GV.aeTransactions, globalVariables.GV.dsTransactions, globalVariables.GV.mcTransactions, globalVariables.GV.visaTransactions, globalVariables.GV.debitAverageTicket, globalVariables.GV.aeAverageTicket, globalVariables.GV.dsAverageTicket, globalVariables.GV.mcAverageTicket, globalVariables.GV.visaAverageTicket, globalVariables.GV.TotalCurrentFees, globalVariables.GV.CurrentEffectiveRate, globalVariables.GV.debitInterchangeFees, globalVariables.GV.aeInterchangeFees, globalVariables.GV.dsInterchangeFees, globalVariables.GV.mcInterchangeFees, globalVariables.GV.visaInterchangeFees, globalVariables.GV.debitProcessingFees, globalVariables.GV.aeProcessingFees, globalVariables.GV.dsProcessingFees, globalVariables.GV.mcProcessingFees, globalVariables.GV.visaProcessingFees, globalVariables.GV.debitCardFees, globalVariables.GV.aeCardFees, globalVariables.GV.dsCardFees, globalVariables.GV.mcCardFees, globalVariables.GV.visaCardFees, globalVariables.GV.TotalNewFees, globalVariables.GV.NewEffectiveRate, globalVariables.GV.MonthlySavings, globalVariables.GV.Year1Savings, globalVariables.GV.Year2Savings, globalVariables.GV.Year3Savings, globalVariables.GV.Year4Savings, globalVariables.GV.ProcessingFee, globalVariables.GV.AuthFee, globalVariables.GV.PinDebitProcessingFee, globalVariables.GV.PinDebitAuthFee, globalVariables.GV.MonthlyServiceFee, globalVariables.GV.IndustryComplinceFee, globalVariables.GV.TerminalFee, globalVariables.GV.MXGatewayFee, globalVariables.GV.DebitAccessFee, globalVariables.GV.DateCreated, globalVariables.GV.NotesText, 0, globalVariables.GV.LastUpdated, 0, globalVariables.GV.ProposalStatus, globalVariables.GV.rpID, globalVariables.GV.sm_id, globalVariables.GV.tm_id, globalVariables.GV.acl_id);
+		db.execute('INSERT INTO Proposal (proposalId, userId, repName, BusinessName,StreetAddress,State,City,Zip,Contact,Phone,BusinessType, ProcessingMonths,debitVol,aeVol,dsVol ,mcVol,visaVol,debitTransactions,aeTransactions ,dsTransactions,mcTransactions,visaTransactions, debitAverageTicket ,aeAverageTicket ,dsAverageTicket ,mcAverageTicket ,visaAverageTicket ,TotalCurrentFees ,CurrentEffectiveRate ,debitInterchangeFees , aeInterchangeFees,dsInterchangeFees,mcInterchangeFees,visaInterchangeFees,debitProcessingFees,aeProcessingFees,dsProcessingFees,mcProcessingFees,visaProcessingFees,debitCardFees ,aeCardFees ,dsCardFees,mcCardFees,visaCardFees,TotalNewFees,NewEffectiveRate,MonthlySavings,Year1Savings,Year2Savings,Year3Savings,Year4Savings,ProcessingFee,AuthFee,PinDebitProcessingFee,PinDebitAuthFee,MonthlyServiceFee,IndustryComplinceFee,TerminalFee,MXGatewayFee,DebitAccessFee,DateCreated, Notes, IsUpdated, LastUpdated, IsUploaded, ProposalStatus, rpID, sm_id, tm_id, acl_id)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', "0", globalVariables.GV.userId, globalVariables.GV.repName, globalVariables.GV.BusinessName, globalVariables.GV.StreetAddress, globalVariables.GV.State, globalVariables.GV.City, globalVariables.GV.Zip, globalVariables.GV.Contact, globalVariables.GV.Phone, globalVariables.GV.BusinessType, globalVariables.GV.ProcessingMonths, globalVariables.GV.debitVol, globalVariables.GV.aeVol, globalVariables.GV.dsVol, globalVariables.GV.mcVol, globalVariables.GV.visaVol, globalVariables.GV.debitTransactions, globalVariables.GV.aeTransactions, globalVariables.GV.dsTransactions, globalVariables.GV.mcTransactions, globalVariables.GV.visaTransactions, globalVariables.GV.debitAverageTicket, globalVariables.GV.aeAverageTicket, globalVariables.GV.dsAverageTicket, globalVariables.GV.mcAverageTicket, globalVariables.GV.visaAverageTicket, globalVariables.GV.TotalCurrentFees, globalVariables.GV.CurrentEffectiveRate, globalVariables.GV.debitInterchangeFees, globalVariables.GV.aeInterchangeFees, globalVariables.GV.dsInterchangeFees, globalVariables.GV.mcInterchangeFees, globalVariables.GV.visaInterchangeFees, globalVariables.GV.debitProcessingFees, globalVariables.GV.aeProcessingFees, globalVariables.GV.dsProcessingFees, globalVariables.GV.mcProcessingFees, globalVariables.GV.visaProcessingFees, globalVariables.GV.debitCardFees, globalVariables.GV.aeCardFees, globalVariables.GV.dsCardFees, globalVariables.GV.mcCardFees, globalVariables.GV.visaCardFees, globalVariables.GV.TotalNewFees, globalVariables.GV.NewEffectiveRate, globalVariables.GV.MonthlySavings, globalVariables.GV.Year1Savings, globalVariables.GV.Year2Savings, globalVariables.GV.Year3Savings, globalVariables.GV.Year4Savings, globalVariables.GV.ProcessingFee, globalVariables.GV.AuthFee, globalVariables.GV.PinDebitProcessingFee, globalVariables.GV.PinDebitAuthFee, globalVariables.GV.MonthlyServiceFee, globalVariables.GV.IndustryComplinceFee, globalVariables.GV.TerminalFee, globalVariables.GV.MXGatewayFee, globalVariables.GV.DebitAccessFee, globalVariables.GV.DateCreated, globalVariables.GV.Notes, 0, globalVariables.GV.LastUpdated, 0, globalVariables.GV.ProposalStatus, globalVariables.GV.rpID, globalVariables.GV.sm_id, globalVariables.GV.tm_id, globalVariables.GV.acl_id);
 		globalVariables.GV.currentLocalId=db.lastInsertRowId;
 		db.close();
 		d=null;
@@ -187,7 +207,7 @@ exports.insertProposal = function(dataArray, callback){
 			// else{
 			    // aclid=dataArray[i].acls[0].id;
 			// }
-			db.execute('INSERT INTO Proposal (proposalId, userId, repName, BusinessName,StreetAddress,State,City,Zip,Contact,Phone,BusinessType, ProcessingMonths,debitVol,aeVol,dsVol ,mcVol,visaVol,debitTransactions,aeTransactions ,dsTransactions,mcTransactions,visaTransactions, debitAverageTicket ,aeAverageTicket ,dsAverageTicket ,mcAverageTicket ,visaAverageTicket ,TotalCurrentFees ,CurrentEffectiveRate ,debitInterchangeFees , aeInterchangeFees,dsInterchangeFees,mcInterchangeFees,visaInterchangeFees,debitProcessingFees,aeProcessingFees,dsProcessingFees,mcProcessingFees,visaProcessingFees,debitCardFees ,aeCardFees ,dsCardFees,mcCardFees,visaCardFees,TotalNewFees,NewEffectiveRate,MonthlySavings,Year1Savings,Year2Savings,Year3Savings,Year4Savings,ProcessingFee,AuthFee,PinDebitProcessingFee,PinDebitAuthFee,MonthlyServiceFee,IndustryComplinceFee,TerminalFee,MXGatewayFee,DebitAccessFee,DateCreated, Notes, IsUpdated, LastUpdated, IsUploaded, ProposalStatus, rpID, sm_id, tm_id, acl_id)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', dataArray[i].id, dataArray[i].user.id, dataArray[i].user.first_name+" "+dataArray[i].user.last_name, dataArray[i].BusinessName, dataArray[i].StreetAddress, dataArray[i].State, dataArray[i].City, dataArray[i].Zip, dataArray[i].Contact, dataArray[i].Phone, dataArray[i].BusinessType, dataArray[i].ProcessingMonths, dataArray[i].debitVol, dataArray[i].aeVol, dataArray[i].dsVol, dataArray[i].mcVol, dataArray[i].visaVol, dataArray[i].debitTransactions, dataArray[i].aeTransactions, dataArray[i].dsTransactions, dataArray[i].mcTransactions, dataArray[i].visaTransactions, dataArray[i].debitAverageTicket, dataArray[i].aeAverageTicket, dataArray[i].dsAverageTicket, dataArray[i].mcAverageTicket, dataArray[i].visaAverageTicket, dataArray[i].TotalCurrentFees, dataArray[i].CurrentEffectiveRate, dataArray[i].debitInterchangeFees, dataArray[i].aeInterchangeFees, dataArray[i].dsInterchangeFees, dataArray[i].mcInterchangeFees, dataArray[i].visaInterchangeFees, dataArray[i].debitProcessingFees, dataArray[i].aeProcessingFees, dataArray[i].dsProcessingFees, dataArray[i].mcProcessingFees, dataArray[i].visaProcessingFees, dataArray[i].debitCardFees, dataArray[i].aeCardFees, dataArray[i].dsCardFees, dataArray[i].mcCardFees, dataArray[i].visaCardFees, dataArray[i].TotalNewFees, dataArray[i].NewEffectiveRate, dataArray[i].MonthlySavings, dataArray[i].Year1Savings, dataArray[i].Year2Savings, dataArray[i].Year3Savings, dataArray[i].Year4Savings, dataArray[i].ProcessingFee, dataArray[i].AuthFee, dataArray[i].PinDebitProcessingFee, dataArray[i].PinDebitAuthFee, dataArray[i].MonthlyServiceFee, dataArray[i].IndustryComplinceFee, dataArray[i].TerminalFee, dataArray[i].MXGatewayFee, dataArray[i].DebitAccessFee, dataArray[i].created_at, dataArray[i].NotesText, _isUpdated, dataArray[i].updated_at, _isUploaded, dataArray[i].ProposalStatus, dataArray[i].rpID, dataArray[i].sm_id, dataArray[i].tm_id, aclid);
+			db.execute('INSERT INTO Proposal (proposalId, userId, repName, BusinessName,StreetAddress,State,City,Zip,Contact,Phone,BusinessType, ProcessingMonths,debitVol,aeVol,dsVol ,mcVol,visaVol,debitTransactions,aeTransactions ,dsTransactions,mcTransactions,visaTransactions, debitAverageTicket ,aeAverageTicket ,dsAverageTicket ,mcAverageTicket ,visaAverageTicket ,TotalCurrentFees ,CurrentEffectiveRate ,debitInterchangeFees , aeInterchangeFees,dsInterchangeFees,mcInterchangeFees,visaInterchangeFees,debitProcessingFees,aeProcessingFees,dsProcessingFees,mcProcessingFees,visaProcessingFees,debitCardFees ,aeCardFees ,dsCardFees,mcCardFees,visaCardFees,TotalNewFees,NewEffectiveRate,MonthlySavings,Year1Savings,Year2Savings,Year3Savings,Year4Savings,ProcessingFee,AuthFee,PinDebitProcessingFee,PinDebitAuthFee,MonthlyServiceFee,IndustryComplinceFee,TerminalFee,MXGatewayFee,DebitAccessFee,DateCreated, Notes, IsUpdated, LastUpdated, IsUploaded, ProposalStatus, rpID, sm_id, tm_id, acl_id)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', dataArray[i].id, dataArray[i].user.id, dataArray[i].user.first_name+" "+dataArray[i].user.last_name, dataArray[i].BusinessName, dataArray[i].StreetAddress, dataArray[i].State, dataArray[i].City, dataArray[i].Zip, dataArray[i].Contact, dataArray[i].Phone, dataArray[i].BusinessType, dataArray[i].ProcessingMonths, dataArray[i].debitVol, dataArray[i].aeVol, dataArray[i].dsVol, dataArray[i].mcVol, dataArray[i].visaVol, dataArray[i].debitTransactions, dataArray[i].aeTransactions, dataArray[i].dsTransactions, dataArray[i].mcTransactions, dataArray[i].visaTransactions, dataArray[i].debitAverageTicket, dataArray[i].aeAverageTicket, dataArray[i].dsAverageTicket, dataArray[i].mcAverageTicket, dataArray[i].visaAverageTicket, dataArray[i].TotalCurrentFees, dataArray[i].CurrentEffectiveRate, dataArray[i].debitInterchangeFees, dataArray[i].aeInterchangeFees, dataArray[i].dsInterchangeFees, dataArray[i].mcInterchangeFees, dataArray[i].visaInterchangeFees, dataArray[i].debitProcessingFees, dataArray[i].aeProcessingFees, dataArray[i].dsProcessingFees, dataArray[i].mcProcessingFees, dataArray[i].visaProcessingFees, dataArray[i].debitCardFees, dataArray[i].aeCardFees, dataArray[i].dsCardFees, dataArray[i].mcCardFees, dataArray[i].visaCardFees, dataArray[i].TotalNewFees, dataArray[i].NewEffectiveRate, dataArray[i].MonthlySavings, dataArray[i].Year1Savings, dataArray[i].Year2Savings, dataArray[i].Year3Savings, dataArray[i].Year4Savings, dataArray[i].ProcessingFee, dataArray[i].AuthFee, dataArray[i].PinDebitProcessingFee, dataArray[i].PinDebitAuthFee, dataArray[i].MonthlyServiceFee, dataArray[i].IndustryComplinceFee, dataArray[i].TerminalFee, dataArray[i].MXGatewayFee, dataArray[i].DebitAccessFee, dataArray[i].created_at, dataArray[i].Notes, _isUpdated, dataArray[i].updated_at, _isUploaded, dataArray[i].ProposalStatus, dataArray[i].rpID, dataArray[i].sm_id, dataArray[i].tm_id, aclid);
 			db.close();
 			dateHolder=null;
 			aclid=null;
@@ -202,23 +222,70 @@ exports.insertProposal = function(dataArray, callback){
 	callback({success: success});
 };
 
+exports.getUsers = function(callback){
+    var sqlStatement = null;
+    // if(globalVariables.GV.userRole=="Admin")
+    // {
+        sqlStatement = "Select * from Users";
+        //"Select * from Proposal order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";
+    // }
+    // else if(globalVariables.GV.userRole=="Sales Manager"){
+        // sqlStatement = "Select DISTINCT repName  from Proposal where sm_id= '"+ globalVariables.GV.userId+"' order by repName ASC, order by datetime(LastUpdated) DESC LIMIT "+params.skip+",30";// GROUP BY userId ORDER BY repName ";
+    // }
+    // else if(globalVariables.GV.userRole=="Territory Manager"){
+        // sqlStatement = "Select DISTINCT repName from Proposal where tm_id= '"+ globalVariables.GV.userId+"' order by repName ASC, order by datetime(LastUpdated) DESC LIMIT "+params.skip+",30";// GROUP BY userId ORDER BY repName ";
+    // }
+    // else{
+        // sqlStatement = "Select * from Proposal where userId= '"+ globalVariables.GV.userId+"' order by datetime(LastUpdated) DESC LIMIT "+params.skip+",30";// 
+    // }
+    var dataArray = [];
+    try{
+        var db = Ti.Database.open('pps');
+        var SPTable = db.execute(sqlStatement);//('select * from Proposal');
+        var i = 0;
+        while (SPTable.isValidRow()) {
+            dataArray.push({
+                first_name: SPTable.fieldByName('first_name'),
+                last_name: SPTable.fieldByName('last_name'),
+                user_id: SPTable.fieldByName('user_id')
+            });
+            SPTable.next();
+        }
+        db.close();
+        sqlStatement=null;
+    }
+    
+    catch (err){
+        Ti.API.error("Query Proposals Error: \n" + JSON.stringify(err));
+    }
+    
+    callback({results: dataArray});
+};
+
 exports.ShowProposal = function(params, callback) {
 	
 	var sqlStatement = null;
-	if(globalVariables.GV.userRole=="Admin")
-	{
-		sqlStatement = "Select * from Proposal order by repName ASC, datetime(LastUpdated) DESC LIMIT "+params.skip+",500";
-		//"Select * from Proposal order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";
-	}
-	else if(globalVariables.GV.userRole=="Sales Manager"){
-		sqlStatement = "Select * from Proposal where sm_id= '"+ globalVariables.GV.userId+"' order by repName ASC, order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";// GROUP BY userId ORDER BY repName ";
-	}
-	else if(globalVariables.GV.userRole=="Territory Manager"){
-		sqlStatement = "Select * from Proposal where tm_id= '"+ globalVariables.GV.userId+"' order by repName ASC, order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";// GROUP BY userId ORDER BY repName ";
+	// if(globalVariables.GV.userRole=="Admin")
+	// {
+		// sqlStatement = "Select * from Proposal order by repName ASC, datetime(LastUpdated) DESC LIMIT "+params.skip+",30";
+		// //"Select * from Proposal order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";
+	// }
+	// else if(globalVariables.GV.userRole=="Sales Manager"){
+		// sqlStatement = "Select * from Proposal where sm_id= '"+ globalVariables.GV.userId+"' order by repName ASC, order by datetime(LastUpdated) DESC LIMIT "+params.skip+",30";// GROUP BY userId ORDER BY repName ";
+	// }
+	// else if(globalVariables.GV.userRole=="Territory Manager"){
+		// sqlStatement = "Select * from Proposal where tm_id= '"+ globalVariables.GV.userId+"' order by repName ASC, order by datetime(LastUpdated) DESC LIMIT "+params.skip+",30";// GROUP BY userId ORDER BY repName ";
+	// }
+	// else{
+		// sqlStatement = "Select * from Proposal where userId= '"+ globalVariables.GV.userId+"' order by datetime(LastUpdated) DESC LIMIT "+params.skip+",30";// 
+	// }
+	if(params.proposalId){
+	    sqlStatement = "Select * from Proposal where proposalId= '"+ params.proposalId+"' order by datetime(LastUpdated) DESC";// LIMIT "+params.skip+",30";//
 	}
 	else{
-		sqlStatement = "Select * from Proposal where userId= '"+ globalVariables.GV.userId+"' order by datetime(LastUpdated) DESC LIMIT "+params.skip+",500";// 
+	    sqlStatement = "Select * from Proposal where userId= '"+ globalVariables.GV.userId+"' order by datetime(LastUpdated) DESC";// LIMIT "+params.skip+",30";//
 	}
+	
 	var dataArray = [];
 	try{
 		var db = Ti.Database.open('pps');
@@ -292,7 +359,7 @@ exports.ShowProposal = function(params, callback) {
 				DebitAccessFee : SPTable.fieldByName('DebitAccessFee'),
 				//timeId: SPTable.fieldByName('timeId'),
 				ProposalId: SPTable.fieldByName('proposalId'),
-				NotesText: SPTable.fieldByName('Notes'),
+				Notes: SPTable.fieldByName('Notes'),
 				IsUpdated : SPTable.fieldByName('IsUpdated'),
 				LastUpdated: SPTable.fieldByName('LastUpdated'),
 				userId: SPTable.fieldByName('userId'),
@@ -300,7 +367,8 @@ exports.ShowProposal = function(params, callback) {
 				rpID: SPTable.fieldByName('rpID'),
 				sm_id: SPTable.fieldByName('sm_id'),
 				tm_id: SPTable.fieldByName('tm_id'),
-				acl_id: SPTable.fieldByName('acl_id')
+				acl_id: SPTable.fieldByName('acl_id'),
+				IsUploaded: SPTable.fieldByName('IsUploaded')
 			});
 			
 			//Commenting out Log data
@@ -321,21 +389,21 @@ exports.ShowProposal = function(params, callback) {
 
 exports.getAllProposalIds = function(callback){
 	var sqlStatement = null;
-	if(globalVariables.GV.userRole=="Admin")
-	{
-		sqlStatement = "Select * from Proposal where IsUploaded=1";
-	}
-	else if(globalVariables.GV.userRole=="Sales Manager")
-	{ 
-		sqlStatement = "Select * from Proposal where IsUploaded=1 and sm_id= '"+ globalVariables.GV.userId+"'";
-	}
-	else if(globalVariables.GV.userRole=="Territory Manager")
-	{ 
-		sqlStatement = "Select * from Proposal where IsUploaded=1 and tm_id= '"+ globalVariables.GV.userId+"'";
-	}
-	else{
-		sqlStatement = "Select * from Proposal where IsUploaded=1 and userId= '"+ globalVariables.GV.userId+"'";
-	}
+	// if(globalVariables.GV.userRole=="Admin")
+	// {
+		sqlStatement = "Select * from Proposal where IsUploaded=1 and userId ='"+globalVariables.GV.userId+"'";
+    	// }
+    	// else if(globalVariables.GV.userRole=="Sales Manager")
+    	// { 
+    		// sqlStatement = "Select * from Proposal where IsUploaded=1 and sm_id= '"+ globalVariables.GV.userId+"'";
+    	// }
+    	// else if(globalVariables.GV.userRole=="Territory Manager")
+    	// { 
+    		// sqlStatement = "Select * from Proposal where IsUploaded=1 and tm_id= '"+ globalVariables.GV.userId+"'";
+    	// }
+    	// else{
+    		// sqlStatement = "Select * from Proposal where IsUploaded=1 and userId= '"+ globalVariables.GV.userId+"'";
+    	// }
 	var dataArray = [];
 	try{
 		var db = Ti.Database.open('pps');
@@ -490,6 +558,25 @@ exports.FillBusinessType = function(dataArray) {
 	}
 };
 
+exports.getProposalCount = function(callback){
+    try{
+        var db = Ti.Database.open('pps');
+        var totalTbl = db.execute('Select Count(*) as howMany from Proposal');
+        var total = totalTbl.fieldByName('howMany'); 
+        db.close();
+        callback({
+            success: true,
+            total: total
+        });
+    }
+    catch(err){
+        callback({
+            success: false,
+            message: err
+        });
+    }
+};
+
 exports.FillReferralPartners = function(dataArray){
 	try{
 		var db = Ti.Database.open('pps');
@@ -516,6 +603,7 @@ exports.getBusinessTypes = function(callback){
             bTypes.push({title: BTypeTable.fieldByName('BusinessTypeName')});
             BTypeTable.next();
         }
+        db.close();
         callback({
             results: bTypes,
             success: true
@@ -535,7 +623,7 @@ function LoadBusinessRates (bName) {
 	try{
 		var db = Ti.Database.open('pps');
 		var BTypeTable = db.execute('select * from BusinessType where BusinessTypeName=?',bName);
-	
+	    
 		//var ID = [];
 		// var BusinessTypeName = [];
 		// var visa_rate = [];
@@ -653,6 +741,7 @@ function LoadBusinessRates (bName) {
 			// Ti.API.info('debit_rate');
 			// i++;
 			BTypeTable.next();
+			db.close();
 		};
 		//callback();
 	}
@@ -668,15 +757,25 @@ exports.InsertProposalID = function(params, callback){
 	try{
 		var db = Ti.Database.open('pps');
 		// insert proposal and set IsUploaded column to 1
+		var moment = require('/lib/moment');
+		var localId = null;
 		if(params.localPropId)
 		{
-			db.execute('UPDATE Proposal SET proposalId=?, IsUploaded=1, IsUpdated=0 WHERE localPropID=?',params.proposalId,params.localPropId);
+			localId = params.localPropId;			
 		}
 		else
 		{
-			db.execute('UPDATE Proposal SET proposalId=?, IsUploaded=1, IsUpdated=0 WHERE localPropID=?',params.proposalId,globalVariables.GV.currentLocalId);
+			localId = globalVariables.GV.currentLocalId;
+			//db.execute('UPDATE Proposal SET proposalId=?, IsUploaded=1, IsUpdated=0 WHERE localPropID=?',params.proposalId,params.globalVariables.GV.currentLocalId);
 		}
+		var dateMoment = moment(params.proposal.updated_at);
+            
+        //new Date(dataArray[i].updated_at.toString());
+        params.proposal.updated_at = dateMoment.toISOString();//dateHolder.toISOString();
+        params.proposal.created_at = moment(params.proposal.created_at).toISOString();
+		db.execute('UPDATE Proposal SET proposalId=?, IsUploaded=1, IsUpdated=0, DateCreated=?, LastUpdated=? WHERE localPropID=?',params.proposal.id,params.proposal.created_at, params.proposal.updated_at, localId);
 		db.close();
+		moment=null;
 		callback({success: true});
 	}
 	catch (err){
@@ -750,21 +849,21 @@ exports.queryLocalProposals = function(callback){
 		var db = Ti.Database.open('pps');
 		//db.execute('SELECT * from Proposal where proposalId="0"');
 	    var queryStatement = null;
-		if(globalVariables.GV.userRole=="Account Executive")
-		{
+		// if(globalVariables.GV.userRole=="Account Executive")
+		// {
 		    queryStatement = 'select * from Proposal where (proposalId="0" or IsUploaded=0) and userId="'+globalVariables.GV.userId+'"';
-		}
-		else if(globalVariables.GV.userRole=="Territory Manager")
-		{
-		    queryStatement = 'select * from Proposal where (proposalId="0" or IsUploaded=0) and tm_id="'+globalVariables.GV.userId+'"';
-		}
-		else if(globalVariables.GV.userRole=="Sales Manager")
-		{
-		    queryStatement = 'select * from Proposal where (proposalId="0" or IsUploaded=0) and sm_id="'+globalVariables.GV.userId+'"';
-		}
-		else{
-		    queryStatement = 'select * from Proposal where proposalId="0" or IsUploaded=0';
-		}
+		// }
+		// else if(globalVariables.GV.userRole=="Territory Manager")
+		// {
+		    // queryStatement = 'select * from Proposal where (proposalId="0" or IsUploaded=0) and tm_id="'+globalVariables.GV.userId+'"';
+		// }
+		// else if(globalVariables.GV.userRole=="Sales Manager")
+		// {
+		    // queryStatement = 'select * from Proposal where (proposalId="0" or IsUploaded=0) and sm_id="'+globalVariables.GV.userId+'"';
+		// }
+		// else{
+		    // queryStatement = 'select * from Proposal where proposalId="0" or IsUploaded=0';
+		// }
 		var SPTable = db.execute(queryStatement);
 		    //'select * from Proposal where proposalId="0" or IsUploaded=0');// OR IsUpdated=1');
 		var i = 0;
@@ -835,10 +934,10 @@ exports.queryLocalProposals = function(callback){
 				DebitAccessFee : SPTable.fieldByName('DebitAccessFee'),
 				//timeId: SPTable.fieldByName('timeId'),
 				ProposalId: SPTable.fieldByName('proposalId'),
-				NotesText: SPTable.fieldByName('Notes'),
+				Notes: SPTable.fieldByName('Notes'),
 				IsUpdated : SPTable.fieldByName('IsUpdated'),
 				LastUpdated: SPTable.fieldByName('LastUpdated'),
-				localPropId: SPTable.fieldByName('localPropId'),
+				localPropId: SPTable.fieldByName('localPropID'),
 				IsUploaded: SPTable.fieldByName('IsUploaded'),
 				ProposalStatus: SPTable.fieldByName('ProposalStatus'),
 				rpID: SPTable.fieldByName('rpID'),
@@ -876,7 +975,7 @@ exports.updateLocalProposal=function(callback){
 			globalVariables.GV.DateCreated = globalVariables.GV.LastUpdated = d.toISOString();
 		}
 		
-		db.execute('UPDATE Proposal SET BusinessName=?,StreetAddress=?,State=?,City=?,Zip=?,Contact=?,Phone=?,BusinessType=?, ProcessingMonths=?,debitVol=?,aeVol=?,dsVol=? ,mcVol=?,visaVol=?,debitTransactions=?,aeTransactions=? ,dsTransactions=?,mcTransactions=?,visaTransactions=?, debitAverageTicket=? ,aeAverageTicket=? ,dsAverageTicket=? ,mcAverageTicket=? ,visaAverageTicket=? ,TotalCurrentFees=? ,CurrentEffectiveRate=? ,debitInterchangeFees=? , aeInterchangeFees=?,dsInterchangeFees=?,mcInterchangeFees=?,visaInterchangeFees=?,debitProcessingFees=?,aeProcessingFees=?,dsProcessingFees=?,mcProcessingFees=?,visaProcessingFees=?,debitCardFees=? ,aeCardFees=? ,dsCardFees=?,mcCardFees=?,visaCardFees=?,TotalNewFees=?,NewEffectiveRate=?,MonthlySavings=?,Year1Savings=?,Year2Savings=?,Year3Savings=?,Year4Savings=?,ProcessingFee=?,AuthFee=?,PinDebitProcessingFee=?,PinDebitAuthFee=?,MonthlyServiceFee=?,IndustryComplinceFee=?,TerminalFee=?,MXGatewayFee=?,DebitAccessFee=?,DateCreated=?, Notes=?, IsUpdated=?, LastUpdated=?, ProposalStatus=?, IsUploaded=? WHERE proposalId=?', globalVariables.GV.BusinessName, globalVariables.GV.StreetAddress, globalVariables.GV.State, globalVariables.GV.City, globalVariables.GV.Zip, globalVariables.GV.Contact, globalVariables.GV.Phone, globalVariables.GV.BusinessType, globalVariables.GV.ProcessingMonths, globalVariables.GV.debitVol, globalVariables.GV.aeVol, globalVariables.GV.dsVol, globalVariables.GV.mcVol, globalVariables.GV.visaVol, globalVariables.GV.debitTransactions, globalVariables.GV.aeTransactions, globalVariables.GV.dsTransactions, globalVariables.GV.mcTransactions, globalVariables.GV.visaTransactions, globalVariables.GV.debitAverageTicket, globalVariables.GV.aeAverageTicket, globalVariables.GV.dsAverageTicket, globalVariables.GV.mcAverageTicket, globalVariables.GV.visaAverageTicket, globalVariables.GV.TotalCurrentFees, globalVariables.GV.CurrentEffectiveRate, globalVariables.GV.debitInterchangeFees, globalVariables.GV.aeInterchangeFees, globalVariables.GV.dsInterchangeFees, globalVariables.GV.mcInterchangeFees, globalVariables.GV.visaInterchangeFees, globalVariables.GV.debitProcessingFees, globalVariables.GV.aeProcessingFees, globalVariables.GV.dsProcessingFees, globalVariables.GV.mcProcessingFees, globalVariables.GV.visaProcessingFees, globalVariables.GV.debitCardFees, globalVariables.GV.aeCardFees, globalVariables.GV.dsCardFees, globalVariables.GV.mcCardFees, globalVariables.GV.visaCardFees, globalVariables.GV.TotalNewFees, globalVariables.GV.NewEffectiveRate, globalVariables.GV.MonthlySavings, globalVariables.GV.Year1Savings, globalVariables.GV.Year2Savings, globalVariables.GV.Year3Savings, globalVariables.GV.Year4Savings, globalVariables.GV.ProcessingFee, globalVariables.GV.AuthFee, globalVariables.GV.PinDebitProcessingFee, globalVariables.GV.PinDebitAuthFee, globalVariables.GV.MonthlyServiceFee, globalVariables.GV.IndustryComplinceFee, globalVariables.GV.TerminalFee, globalVariables.GV.MXGatewayFee, globalVariables.GV.DebitAccessFee, globalVariables.GV.DateCreated, globalVariables.GV.NotesText, 1, globalVariables.GV.LastUpdated, globalVariables.GV.ProposalStatus, 0, globalVariables.GV.ProposalId);
+		db.execute('UPDATE Proposal SET BusinessName=?,StreetAddress=?,State=?,City=?,Zip=?,Contact=?,Phone=?,BusinessType=?, ProcessingMonths=?,debitVol=?,aeVol=?,dsVol=? ,mcVol=?,visaVol=?,debitTransactions=?,aeTransactions=? ,dsTransactions=?,mcTransactions=?,visaTransactions=?, debitAverageTicket=? ,aeAverageTicket=? ,dsAverageTicket=? ,mcAverageTicket=? ,visaAverageTicket=? ,TotalCurrentFees=? ,CurrentEffectiveRate=? ,debitInterchangeFees=? , aeInterchangeFees=?,dsInterchangeFees=?,mcInterchangeFees=?,visaInterchangeFees=?,debitProcessingFees=?,aeProcessingFees=?,dsProcessingFees=?,mcProcessingFees=?,visaProcessingFees=?,debitCardFees=? ,aeCardFees=? ,dsCardFees=?,mcCardFees=?,visaCardFees=?,TotalNewFees=?,NewEffectiveRate=?,MonthlySavings=?,Year1Savings=?,Year2Savings=?,Year3Savings=?,Year4Savings=?,ProcessingFee=?,AuthFee=?,PinDebitProcessingFee=?,PinDebitAuthFee=?,MonthlyServiceFee=?,IndustryComplinceFee=?,TerminalFee=?,MXGatewayFee=?,DebitAccessFee=?,DateCreated=?, Notes=?, IsUpdated=?, LastUpdated=?, ProposalStatus=?, IsUploaded=? WHERE proposalId=?', globalVariables.GV.BusinessName, globalVariables.GV.StreetAddress, globalVariables.GV.State, globalVariables.GV.City, globalVariables.GV.Zip, globalVariables.GV.Contact, globalVariables.GV.Phone, globalVariables.GV.BusinessType, globalVariables.GV.ProcessingMonths, globalVariables.GV.debitVol, globalVariables.GV.aeVol, globalVariables.GV.dsVol, globalVariables.GV.mcVol, globalVariables.GV.visaVol, globalVariables.GV.debitTransactions, globalVariables.GV.aeTransactions, globalVariables.GV.dsTransactions, globalVariables.GV.mcTransactions, globalVariables.GV.visaTransactions, globalVariables.GV.debitAverageTicket, globalVariables.GV.aeAverageTicket, globalVariables.GV.dsAverageTicket, globalVariables.GV.mcAverageTicket, globalVariables.GV.visaAverageTicket, globalVariables.GV.TotalCurrentFees, globalVariables.GV.CurrentEffectiveRate, globalVariables.GV.debitInterchangeFees, globalVariables.GV.aeInterchangeFees, globalVariables.GV.dsInterchangeFees, globalVariables.GV.mcInterchangeFees, globalVariables.GV.visaInterchangeFees, globalVariables.GV.debitProcessingFees, globalVariables.GV.aeProcessingFees, globalVariables.GV.dsProcessingFees, globalVariables.GV.mcProcessingFees, globalVariables.GV.visaProcessingFees, globalVariables.GV.debitCardFees, globalVariables.GV.aeCardFees, globalVariables.GV.dsCardFees, globalVariables.GV.mcCardFees, globalVariables.GV.visaCardFees, globalVariables.GV.TotalNewFees, globalVariables.GV.NewEffectiveRate, globalVariables.GV.MonthlySavings, globalVariables.GV.Year1Savings, globalVariables.GV.Year2Savings, globalVariables.GV.Year3Savings, globalVariables.GV.Year4Savings, globalVariables.GV.ProcessingFee, globalVariables.GV.AuthFee, globalVariables.GV.PinDebitProcessingFee, globalVariables.GV.PinDebitAuthFee, globalVariables.GV.MonthlyServiceFee, globalVariables.GV.IndustryComplinceFee, globalVariables.GV.TerminalFee, globalVariables.GV.MXGatewayFee, globalVariables.GV.DebitAccessFee, globalVariables.GV.DateCreated, globalVariables.GV.Notes, 1, globalVariables.GV.LastUpdated, globalVariables.GV.ProposalStatus, 0, globalVariables.GV.ProposalId);
 		db.close();
 		d=null;
 		//globalVariables.GV.requestedUpdate=false;
@@ -928,7 +1027,7 @@ exports.importPropUpdates = function(dataArray, callback){
                 aclid=dataArray[i].acls.id;
                 _isUploaded=1;
             }
-			db.execute('UPDATE Proposal SET userId=?, repName=?, BusinessName=?,StreetAddress=?,State=?,City=?,Zip=?,Contact=?,Phone=?,BusinessType=?, ProcessingMonths=?,debitVol=?,aeVol=?,dsVol=? ,mcVol=?,visaVol=?,debitTransactions=?,aeTransactions=? ,dsTransactions=?,mcTransactions=?,visaTransactions=?, debitAverageTicket=? ,aeAverageTicket=? ,dsAverageTicket=? ,mcAverageTicket=? ,visaAverageTicket=? ,TotalCurrentFees=? ,CurrentEffectiveRate=? ,debitInterchangeFees=? , aeInterchangeFees=?,dsInterchangeFees=?,mcInterchangeFees=?,visaInterchangeFees=?,debitProcessingFees=?,aeProcessingFees=?,dsProcessingFees=?,mcProcessingFees=?,visaProcessingFees=?,debitCardFees=? ,aeCardFees=? ,dsCardFees=?,mcCardFees=?,visaCardFees=?,TotalNewFees=?,NewEffectiveRate=?,MonthlySavings=?,Year1Savings=?,Year2Savings=?,Year3Savings=?,Year4Savings=?,ProcessingFee=?,AuthFee=?,PinDebitProcessingFee=?,PinDebitAuthFee=?,MonthlyServiceFee=?,IndustryComplinceFee=?,TerminalFee=?,MXGatewayFee=?,DebitAccessFee=?,DateCreated=?, Notes=?, IsUpdated=?, LastUpdated=?, ProposalStatus=?, acl_id=?, IsUploaded=? WHERE proposalId=?', dataArray[i].user_id, dataArray[i].user.first_name+" "+dataArray[i].user.last_name, dataArray[i].BusinessName, dataArray[i].StreetAddress, dataArray[i].State, dataArray[i].City, dataArray[i].Zip, dataArray[i].Contact, dataArray[i].Phone, dataArray[i].BusinessType, dataArray[i].ProcessingMonths, dataArray[i].debitVol, dataArray[i].aeVol, dataArray[i].dsVol, dataArray[i].mcVol, dataArray[i].visaVol, dataArray[i].debitTransactions, dataArray[i].aeTransactions, dataArray[i].dsTransactions, dataArray[i].mcTransactions, dataArray[i].visaTransactions, dataArray[i].debitAverageTicket, dataArray[i].aeAverageTicket, dataArray[i].dsAverageTicket, dataArray[i].mcAverageTicket, dataArray[i].visaAverageTicket, dataArray[i].TotalCurrentFees, dataArray[i].CurrentEffectiveRate, dataArray[i].debitInterchangeFees, dataArray[i].aeInterchangeFees, dataArray[i].dsInterchangeFees, dataArray[i].mcInterchangeFees, dataArray[i].visaInterchangeFees, dataArray[i].debitProcessingFees, dataArray[i].aeProcessingFees, dataArray[i].dsProcessingFees, dataArray[i].mcProcessingFees, dataArray[i].visaProcessingFees, dataArray[i].debitCardFees, dataArray[i].aeCardFees, dataArray[i].dsCardFees, dataArray[i].mcCardFees, dataArray[i].visaCardFees, dataArray[i].TotalNewFees, dataArray[i].NewEffectiveRate, dataArray[i].MonthlySavings, dataArray[i].Year1Savings, dataArray[i].Year2Savings, dataArray[i].Year3Savings, dataArray[i].Year4Savings, dataArray[i].ProcessingFee, dataArray[i].AuthFee, dataArray[i].PinDebitProcessingFee, dataArray[i].PinDebitAuthFee, dataArray[i].MonthlyServiceFee, dataArray[i].IndustryComplinceFee, dataArray[i].TerminalFee, dataArray[i].MXGatewayFee, dataArray[i].DebitAccessFee, dataArray[i].created_at, dataArray[i].NotesText, _isUpdated, dataArray[i].updated_at, dataArray[i].ProposalStatus, aclid, _isUploaded, dataArray[i].id);
+			db.execute('UPDATE Proposal SET userId=?, repName=?, BusinessName=?,StreetAddress=?,State=?,City=?,Zip=?,Contact=?,Phone=?,BusinessType=?, ProcessingMonths=?,debitVol=?,aeVol=?,dsVol=? ,mcVol=?,visaVol=?,debitTransactions=?,aeTransactions=? ,dsTransactions=?,mcTransactions=?,visaTransactions=?, debitAverageTicket=? ,aeAverageTicket=? ,dsAverageTicket=? ,mcAverageTicket=? ,visaAverageTicket=? ,TotalCurrentFees=? ,CurrentEffectiveRate=? ,debitInterchangeFees=? , aeInterchangeFees=?,dsInterchangeFees=?,mcInterchangeFees=?,visaInterchangeFees=?,debitProcessingFees=?,aeProcessingFees=?,dsProcessingFees=?,mcProcessingFees=?,visaProcessingFees=?,debitCardFees=? ,aeCardFees=? ,dsCardFees=?,mcCardFees=?,visaCardFees=?,TotalNewFees=?,NewEffectiveRate=?,MonthlySavings=?,Year1Savings=?,Year2Savings=?,Year3Savings=?,Year4Savings=?,ProcessingFee=?,AuthFee=?,PinDebitProcessingFee=?,PinDebitAuthFee=?,MonthlyServiceFee=?,IndustryComplinceFee=?,TerminalFee=?,MXGatewayFee=?,DebitAccessFee=?,DateCreated=?, Notes=?, IsUpdated=?, LastUpdated=?, ProposalStatus=?, acl_id=?, IsUploaded=? WHERE proposalId=?', dataArray[i].user.id, dataArray[i].user.first_name+" "+dataArray[i].user.last_name, dataArray[i].BusinessName, dataArray[i].StreetAddress, dataArray[i].State, dataArray[i].City, dataArray[i].Zip, dataArray[i].Contact, dataArray[i].Phone, dataArray[i].BusinessType, dataArray[i].ProcessingMonths, dataArray[i].debitVol, dataArray[i].aeVol, dataArray[i].dsVol, dataArray[i].mcVol, dataArray[i].visaVol, dataArray[i].debitTransactions, dataArray[i].aeTransactions, dataArray[i].dsTransactions, dataArray[i].mcTransactions, dataArray[i].visaTransactions, dataArray[i].debitAverageTicket, dataArray[i].aeAverageTicket, dataArray[i].dsAverageTicket, dataArray[i].mcAverageTicket, dataArray[i].visaAverageTicket, dataArray[i].TotalCurrentFees, dataArray[i].CurrentEffectiveRate, dataArray[i].debitInterchangeFees, dataArray[i].aeInterchangeFees, dataArray[i].dsInterchangeFees, dataArray[i].mcInterchangeFees, dataArray[i].visaInterchangeFees, dataArray[i].debitProcessingFees, dataArray[i].aeProcessingFees, dataArray[i].dsProcessingFees, dataArray[i].mcProcessingFees, dataArray[i].visaProcessingFees, dataArray[i].debitCardFees, dataArray[i].aeCardFees, dataArray[i].dsCardFees, dataArray[i].mcCardFees, dataArray[i].visaCardFees, dataArray[i].TotalNewFees, dataArray[i].NewEffectiveRate, dataArray[i].MonthlySavings, dataArray[i].Year1Savings, dataArray[i].Year2Savings, dataArray[i].Year3Savings, dataArray[i].Year4Savings, dataArray[i].ProcessingFee, dataArray[i].AuthFee, dataArray[i].PinDebitProcessingFee, dataArray[i].PinDebitAuthFee, dataArray[i].MonthlyServiceFee, dataArray[i].IndustryComplinceFee, dataArray[i].TerminalFee, dataArray[i].MXGatewayFee, dataArray[i].DebitAccessFee, dataArray[i].created_at, dataArray[i].Notes, _isUpdated, dataArray[i].updated_at, dataArray[i].ProposalStatus, aclid, _isUploaded, dataArray[i].id);
 			db.close();
 			dateHolder=null;
 			aclid=null;
@@ -958,6 +1057,19 @@ exports.setUpdateOff = function(params, callback){
 		callback({success: false});
 		Ti.API.error("Update Proposal ID Error: \n" + JSON.stringify(err));
 	}
+};
+
+exports.setUpdateOn = function(params, callback){
+    try{
+        var db = Ti.Database.open('pps');
+        db.execute('UPDATE Proposal SET IsUpdated=? WHERE proposalId=?',1,params.proposalId);
+        db.close();
+        callback({success: true});
+    }
+    catch (err){
+        callback({success: false});
+        Ti.API.error("Update Proposal ID Error: \n" + JSON.stringify(err));
+    }
 };
 
 function LoadReferralPartners(callback){
@@ -1119,7 +1231,15 @@ exports.getFolderFiles = function(folderName){
 	}
 };
 
-exports.getLastCreatedProp = function(callback){
+// exports.getProposal = function(proposalId){
+    // try{
+        // var db = Ti.Database.open('pps');
+        // var sqlStatement = 'SELECT * from Proposal where proposalId="' + proposalId+'"';
+        // var SPTable
+    // }
+// }
+
+exports.getLastCreatedPropDate = function(callback){
     var lastCreatedDate;
     try{
         var db = Ti.Database.open('pps');

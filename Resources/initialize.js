@@ -16,7 +16,19 @@ exports.init = function(startApp){
 	globalVariables.GV.loggedIn = Ti.App.Properties.getBool('loggedIn',false);
 	globalVariables.GV.sm_id = Ti.App.Properties.getString("sm_id");
 	globalVariables.GV.tm_id = Ti.App.Properties.getString("tm_id");
+	globalVariables.GV.team_id = Ti.App.Properties.getString("team_id");
+	globalVariables.GV.team_name = Ti.App.Properties.getString("team_name");
 	globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
+	// db.getProposalCount(function(e){
+        // if(e.success){
+            // if(e.total>0){
+                // globalVariables.GV.proposalsViewFirstTime = false;
+            // }
+            // else{
+                // globalVariables.GV.proposalsViewFirstTime = true;
+            // }
+        // }
+    // });
 	globalVariables.GV.proposalsViewFirstTime = true;
 	globalVariables.GV.libraryViewFirstTime = true;
 	globalVariables.GV.acl_id = Ti.App.Properties.getString("acl_id");
@@ -48,8 +60,20 @@ exports.init = function(startApp){
 		globalVariables.GV.loggedIn = Ti.App.Properties.getBool('loggedIn',false);
 		globalVariables.GV.sm_id = Ti.App.Properties.getString("sm_id");
 		globalVariables.GV.tm_id = Ti.App.Properties.getString("tm_id");
+		globalVariables.GV.team_id = Ti.App.Properties.getString("team_id");
+        globalVariables.GV.team_name = Ti.App.Properties.getString("team_name");
 		globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
-		globalVariables.GV.proposalsViewFirstTime = true;
+		// db.getProposalCount(function(e){
+		    // if(e.success){
+		        // if(e.total>0){
+		            // globalVariables.GV.proposalsViewFirstTime = false;
+		        // }
+		        // else{
+		            // globalVariables.GV.proposalsViewFirstTime = true;
+		        // }
+		    // }
+		// });
+		
 		globalVariables.GV.libraryViewFirstTime=true;
 		globalVariables.GV.acl_id = Ti.App.Properties.getString("acl_id");
 		globalVariables.GV.lastFileSyncDate = Ti.App.Properties.getString("lastFileSyncDate");
@@ -58,7 +82,7 @@ exports.init = function(startApp){
 		//load charge rates
 		// db.LoadBusinessTypes(function(e){
 			// db.LoadReferralPartners(function(f){
-				if(globalVariables.GV.sessionId!=null)
+				if(globalVariables.GV.sessionId!==null)
 				{
 					if(Ti.Network.online)
 					{
@@ -69,7 +93,7 @@ exports.init = function(startApp){
 										// alert("Roxie's proposals Updated");
 									// }
 								// });
-								sync.syncDialog();
+								//sync.syncDialog();
 								acs.getPartners(function(f){
                                     if(f.success){
                                         db.FillReferralPartners(f.results);
@@ -80,20 +104,32 @@ exports.init = function(startApp){
                                             db.FillBusinessType(g.results);
                                             //globalVariables.GV.SetRates(g.results);
                                             //db.LoadBusinessTypes(function(e){});
-                                        }
+                                            acs.getUsers(globalVariables.GV.userRole,function(n){
+                                                if(n.success){
+                                                    //startApp({loggedIn: true});
+                                                }
+                                            }); 
+                                         }           
                                     });
                                 });
 							}
 							else{
-								alert("You are logged out. Please Login again to continue");
+								//alert("You are logged out. Please Login again to continue");
 								globalVariables.GV.loginScreen = new LoginScreen();
 								globalVariables.GV.loginScreen.open();
-								globalVariables.GV.navGroup.close();
-								Ti.App.fireEvent("closeHomeWindow");
+								//globalVariables.GV.navGroup.close();
+								//Ti.App.fireEvent("closeHomeWindow");
 							}
 						});
 					}
 						
+				}
+				else{
+				    globalVariables.GV.loginScreen = new LoginScreen();
+                    globalVariables.GV.loginScreen.open();
+                    //globalVariables.GV.navGroup.close();
+                    Ti.App.fireEvent("closeHomeWindow");
+				    //startApp(loggedIn: true)
 				}
 		// db.LoadBusinessTypes(function(e){
             // db.LoadReferralPartners(function(f){
@@ -152,6 +188,8 @@ exports.init = function(startApp){
     // {
         if(Ti.Network.online)
         {
+            if(globalVariables.GV.sessionId!==null)
+            {
             acs.isLoggedIn(function(g){
                 if(g.loggedIn){
                     // acs.updateTmid(function(h){
@@ -165,12 +203,16 @@ exports.init = function(startApp){
                             db.FillReferralPartners(f.results);
                             db.LoadReferralPartners(function(f){});
                         }
-                        acs.getRates(function(g){
-                            if(g.success){
-                                db.FillBusinessType(g.results);
+                        acs.getRates(function(h){
+                            if(h.success){
+                                db.FillBusinessType(h.results);
                                 //globalVariables.GV.SetRates(g.results);
                                 //db.LoadBusinessTypes(function(e){});
-                                startApp({loggedIn: true});
+                                acs.getUsers(globalVariables.GV.userRole,function(n){
+                                    if(n.success){
+                                        startApp({loggedIn: true});
+                                    }
+                                }); 
                             }
                         });
                     });
@@ -184,6 +226,7 @@ exports.init = function(startApp){
                     startApp({loggedIn: false});
                 }
             });
+            }
         }
         else{
             startApp({loggedIn: false});

@@ -3,7 +3,7 @@ exports.GV = {
 	// proposal ID created by ACS
 	ProposalId: 0,
 	
-	NotesText : '',
+	Notes : '',
 	
 	/////////// Proposed Pricing
 	ProcessingFee : 0,
@@ -91,72 +91,72 @@ exports.GV = {
 	DebitRate: 0,
 	
 	
-	//////////////////////////Debit
-
-	RetailLowDb : 0.00795,
-	RetailHighDb : 0.00596,
-	RestaurantLowDb : 0.0200,
-	RestaurantHighDb : 0.0175,
-	SmallTicketDb : 0.02001,
-	MOTODb : 0.01965,
-	InternetDb : 0.01965,
-	BusinessToBusinessDb : 0.00434,
-	SupermarketDb : 0.0120,
-	HotelLodgingDb : 0.00,
-	UtilitiesDb : 0.0102,
-	/////////////////////////////Discover
-
-	RetailLowDis : .01671,
-	RetailHighDis : .01554,
-	RestaurantLowDis : .01964,
-	RestaurantHighDis : .01642,
-	SmallTicketDis : .01546,
-	MOTODis : .01444,
-	InternetDis : .01444,
-	BusinessToBusinessDis : .01666,
-	SupermarketDis : .0206,
-	HotelLodgingDis : .0219,
-	UtilitiesDis : .0079,
-
-	////////////////////////////////Master card
-
-	RetailLowMcard : .01808,
-	RetailHighMcard : .01676,
-	RestaurantLowMcard : .01995,
-	RestaurantHighMcard : .01738,
-	SmallTicketMcard : .02578,
-	MOTOMcard : .01887,
-	InternetMcard : .01887,
-	BusinessToBusinessMcard : .01868,
-	SupermarketMcard : .0154,
-	HotelLodgingMcard : .0211,
-	UtilitiesMcard : .0046,
-	//////////////////////////////Visa
-	RetailLowVsa : .01724,
-	RetailHighVsa : .01578,
-	RestaurantLowVsa : .01995,
-	RestaurantHighVsa : .01758,
-	SmallTicketVsa : .02267,
-	MOTOVsa : .0204,
-	InternetVsa : .0204,
-	BusinessToBusinessVsa : .01909,
-	SupermarketVsa : .0156,
-	HotelLodgingVsa : .0181,
-	UtilitiesVsa : .0138,
-
-	//////////////////////////////amex
-
-	RetailLowAmex : 0.0289,
-	RetailHighAmex : 0.0289,
-	RestaurantLowAmex : 0.0289,
-	RestaurantHighAmex : 0.0289,
-	SmallTicketAmex : 0.035,
-	MOTOAmex : 0.035,
-	InternetAmex : 0.035,
-	BusinessToBusinessAmex : 0.0289,
-	SupermarketAmex : 0.023,
-	HotelLodgingAmex : 0.035,
-	UtilitiesAmex : 0.0289,
+	// //////////////////////////Debit
+// 
+	// RetailLowDb : 0.00795,
+	// RetailHighDb : 0.00596,
+	// RestaurantLowDb : 0.0200,
+	// RestaurantHighDb : 0.0175,
+	// SmallTicketDb : 0.02001,
+	// MOTODb : 0.01965,
+	// InternetDb : 0.01965,
+	// BusinessToBusinessDb : 0.00434,
+	// SupermarketDb : 0.0120,
+	// HotelLodgingDb : 0.00,
+	// UtilitiesDb : 0.0102,
+	// /////////////////////////////Discover
+// 
+	// RetailLowDis : .01671,
+	// RetailHighDis : .01554,
+	// RestaurantLowDis : .01964,
+	// RestaurantHighDis : .01642,
+	// SmallTicketDis : .01546,
+	// MOTODis : .01444,
+	// InternetDis : .01444,
+	// BusinessToBusinessDis : .01666,
+	// SupermarketDis : .0206,
+	// HotelLodgingDis : .0219,
+	// UtilitiesDis : .0079,
+// 
+	// ////////////////////////////////Master card
+// 
+	// RetailLowMcard : .01808,
+	// RetailHighMcard : .01676,
+	// RestaurantLowMcard : .01995,
+	// RestaurantHighMcard : .01738,
+	// SmallTicketMcard : .02578,
+	// MOTOMcard : .01887,
+	// InternetMcard : .01887,
+	// BusinessToBusinessMcard : .01868,
+	// SupermarketMcard : .0154,
+	// HotelLodgingMcard : .0211,
+	// UtilitiesMcard : .0046,
+	// //////////////////////////////Visa
+	// RetailLowVsa : .01724,
+	// RetailHighVsa : .01578,
+	// RestaurantLowVsa : .01995,
+	// RestaurantHighVsa : .01758,
+	// SmallTicketVsa : .02267,
+	// MOTOVsa : .0204,
+	// InternetVsa : .0204,
+	// BusinessToBusinessVsa : .01909,
+	// SupermarketVsa : .0156,
+	// HotelLodgingVsa : .0181,
+	// UtilitiesVsa : .0138,
+// 
+	// //////////////////////////////amex
+// 
+	// RetailLowAmex : 0.0289,
+	// RetailHighAmex : 0.0289,
+	// RestaurantLowAmex : 0.0289,
+	// RestaurantHighAmex : 0.0289,
+	// SmallTicketAmex : 0.035,
+	// MOTOAmex : 0.035,
+	// InternetAmex : 0.035,
+	// BusinessToBusinessAmex : 0.0289,
+	// SupermarketAmex : 0.023,
+	// HotelLodgingAmex : 0.035,
+	// UtilitiesAmex : 0.0289,
 	////
 	ReferralPartners: {
 		
@@ -184,6 +184,8 @@ exports.GV = {
 	lastName : null,
 	userRole : null,
 	repName: null,
+	team_id: null,
+	team_name: null,
 	
 	firstTimeLogin: null,	//used to determine whether library must be downloaded after first time login when there is 0 items in DB for new user. Using this to avoid extra processing call to DB.
 
@@ -210,7 +212,7 @@ exports.GV = {
 	
 	ResetValues: function(){
 		this.ProposalId=0;
-		this.NotesText = '';
+		this.Notes = '';
 		/////////// Proposed Pricing
 		this.ProcessingFee = 0;
 		this.AuthFee = 0;

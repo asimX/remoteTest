@@ -67,6 +67,7 @@ exports.DollarPercent = function(win) {
 		width : '160dp',
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
 		height : '30dp',
+		tintColor: 'black'
 		
 		//bubbleParent: false
 	});
@@ -134,7 +135,8 @@ exports.DollarPercent = function(win) {
 		right : '20dp',
 		width : '160dp',
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
-		height : '30dp'
+		height : '30dp',
+		tintColor: 'black'
 	});
 	scrollView.add(tfAuthFee);
 	
@@ -195,7 +197,8 @@ exports.DollarPercent = function(win) {
 		keyboardType : Ti.UI.KEYBOARD_NUMBER_PAD,
 		width : '160dp',
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
-		height : '30dp'
+		height : '30dp',
+		tintColor: 'black'
 	});
 	
 	tfPinDebitProcessingFee.addEventListener('return', function(e) {
@@ -249,7 +252,8 @@ exports.DollarPercent = function(win) {
 		textAlign : 'right',
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
 		width : '160dp',
-		height : '30dp'
+		height : '30dp',
+		tintColor: 'black'
 	});
 	scrollView.add(tfPinDebitAuthFee);
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +315,8 @@ exports.DollarPercent = function(win) {
 		right : '20dp',
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
 		width : '160dp',
-		height : '30dp'
+		height : '30dp',
+		tintColor: 'black'
 	});
 	scrollView.add(tfMonthlyServiceFee);
 	var labMonthlyDollarSign = Ti.UI.createLabel({
@@ -370,7 +375,8 @@ exports.DollarPercent = function(win) {
 		right : '20dp',
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
 		width : '160dp',
-		height : '30dp'
+		height : '30dp',
+		tintColor: 'black'
 	});
 	scrollView.add(tfIdustryComplinceFee);
 	var labIndusDollarSign = Ti.UI.createLabel({
@@ -430,7 +436,8 @@ exports.DollarPercent = function(win) {
 		keyboardType : Ti.UI.KEYBOARD_NUMBER_PAD,
 		right : '20dp',
 		width : '160dp',
-		height : '30dp'
+		height : '30dp',
+		tintColor: 'black'
 	});
 	scrollView.add(tfTerminalFee);
 	var labTerDollarSign = Ti.UI.createLabel({
@@ -491,7 +498,8 @@ exports.DollarPercent = function(win) {
 		right : '20dp',
 		width : '160dp',
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
-		height : '30dp'
+		height : '30dp',
+		tintColor: 'black'
 	});
 	scrollView.add(tfMXGatewayFee);
 	var labMXDollarSign = Ti.UI.createLabel({
@@ -550,7 +558,8 @@ exports.DollarPercent = function(win) {
 		keyboardType : Ti.UI.KEYBOARD_NUMBER_PAD,
 		right : '20dp',
 		width : '160dp',
-		height : '30dp'
+		height : '30dp',
+		tintColor: 'black'
 	});
 	scrollView.add(tfDebitAccessFee);
 	var labDebitAccessFeeDollarSign = Ti.UI.createLabel({

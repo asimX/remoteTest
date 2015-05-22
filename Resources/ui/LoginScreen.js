@@ -48,7 +48,8 @@ function LoginScreen() {
 		top : '300dp',
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
 		width : '30%',
-		height : '40dp'
+		height : '40dp',
+		tintColor: 'black'
 	});
 	tfEmail.addEventListener('return', function(e) {
 
@@ -65,7 +66,8 @@ function LoginScreen() {
 		top : '350dp',
 		width : '30%',
 		height : '40dp',
-		passwordMask : true
+		passwordMask : true,
+		tintColor: 'black'
 	});
 	tfPassword.addEventListener('return', function(e) {
 
@@ -110,7 +112,7 @@ function LoginScreen() {
 					Ti.App.fireEvent('closeLoginWindow');
 					loading._hide();
 					//loading=null;
-					sync.syncDialog();
+					//sync.syncDialog();
 				});
 			}
 			else
@@ -150,15 +152,21 @@ function LoginScreen() {
                 acs.getRates(function(g){
                     if(g.success){
                         db.FillBusinessType(g.results);
-                        var HomeScreen = require('ui/HomeScreen');
-                        globalVariables.GV.homeScreen = new HomeScreen({
-                            //indicator: loading
-                        });
-                        globalVariables.GV.navGroup = Titanium.UI.iOS.createNavigationWindow({
-                            window : globalVariables.GV.homeScreen
-                        });
-                        globalVariables.GV.navGroup.open();
-                        callback();
+                        acs.getUsers(globalVariables.GV.userRole,function(n){
+                            if(n.success){
+                                var HomeScreen = require('ui/HomeScreen');
+                                globalVariables.GV.homeScreen = new HomeScreen({
+                                    //indicator: loading
+                                });
+                                globalVariables.GV.navGroup = Titanium.UI.iOS.createNavigationWindow({
+                                    window : globalVariables.GV.homeScreen
+                                });
+                                globalVariables.GV.navGroup.open();
+                                callback();
+                            }
+                        }); 
+                        
+                        
                         //globalVariables.GV.SetRates(g.results);
                         //db.LoadBusinessTypes(function(e){});
                     }

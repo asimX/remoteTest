@@ -19,7 +19,7 @@ function syncProposalsToACS(params,callback){
 	
 	function uploader(i){
 		if(i<dataArray.length){
-			if((dataArray[i].ProposalId=="0"||dataArray[i].IsUploaded==0)){//&&!dataArray[i].IsUpdated){
+			if(dataArray[i].ProposalId=="0"||(dataArray[i].IsUploaded==0 && dataArray[i].IsUpdated==0)){//&&!dataArray[i].IsUpdated){
 				if(dataArray[i].userId == globalVariables.GV.userId ){
     				acs.createProposal({row: dataArray[i]}, function(e){
     					if(e.success==false)	
@@ -29,14 +29,22 @@ function syncProposalsToACS(params,callback){
     						uploader(dataArray.length);
     					}
     					else{
-    						Ti.API.info(e.proposalId+" , "+ e.timeId);
+    						//Ti.API.info(e.proposalId+" , "+ e.timeId);
     						db.InsertProposalID({
-    							proposalId: e.proposalId,
+    							proposal: e,//.id,
     							localPropId: dataArray[i].localPropId
+    							// created_at: e.created_at,
+    							// updated_at: e.updated_at
     						}, function(f){
     							if(f.success)
     							{
     								uploader(i+1);
+    							}
+    							else{
+    							    //loading._hide();
+    							    success=false;
+    							    uploader(dataArray.length);
+    							    alert("Error saving Proposal locally.  \n"+JSON.stringify(f.results));
     							}
     						});	
     					}
@@ -189,43 +197,43 @@ function syncWithACS(callback){
 	if(Ti.Network.online){
 		db.getAllProposalIds(function(f){
 			if(f.results.length==0){    // empty database
-				if(globalVariables.GV.userRole=="Account Executive")
-				{
-					acs.queryProposalsByUid({},function(e){
-						//Ti.API.info("e.results.username: " + e.results[0].user.first_name);
-						Ti.API.info('FOUND ONLINE PROPOSALS BY UID');
-						if(e.success){
-							if(e.results.length>0){
-								Ti.API.info('CALLING DB INSERT PROPOSALS');
-								db.insertProposal(e.results, function(g){
-									Ti.API.info('INSERT PROPOSALS DONE');
-									if(g.success){
-										globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
-										Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
-										callback({success:true,
-												  downloaded: true
-										});
-									}
-								});
-							}
-							else{
-								callback({success: true,
-										  downloaded: true
-								});
-							}
-						}
-						else{
-							callback({
-									success: false,
-									results: "Error:  \n"+JSON.stringify(e.results)
-							});
-							//alert("Error:  \n"+JSON.stringify(e.results));
-						}
-						
-					});
-				}
-				else if(globalVariables.GV.userRole=="Admin")
-				{
+				// if(globalVariables.GV.userRole=="Account Executive")
+				// {
+					// acs.queryProposalsByUid({},function(e){
+						// //Ti.API.info("e.results.username: " + e.results[0].user.first_name);
+						// Ti.API.info('FOUND ONLINE PROPOSALS BY UID');
+						// if(e.success){
+							// if(e.results.length>0){
+								// Ti.API.info('CALLING DB INSERT PROPOSALS');
+								// db.insertProposal(e.results, function(g){
+									// Ti.API.info('INSERT PROPOSALS DONE');
+									// if(g.success){
+										// globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
+										// Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
+										// callback({success:true,
+												  // downloaded: true
+										// });
+									// }
+								// });
+							// }
+							// else{
+								// callback({success: true,
+										  // downloaded: true
+								// });
+							// }
+						// }
+						// else{
+							// callback({
+									// success: false,
+									// results: "Error:  \n"+JSON.stringify(e.results)
+							// });
+							// //alert("Error:  \n"+JSON.stringify(e.results));
+						// }
+// 						
+					// });
+				// }
+				// else if(globalVariables.GV.userRole=="Admin")
+				// {
 					acs.queryAllProposals({},function(e){
 						
 						// currentIndex = e.currentIndex;
@@ -264,69 +272,69 @@ function syncWithACS(callback){
 							//alert("Error:  \n"+JSON.stringify(e.results));
 						}
 					});
-				}
-				else if(globalVariables.GV.userRole=="Sales Manager"){
-					acs.queryProposalsBySmid({},function(e){
-						//Ti.API.info("e.results.usernames: " + e.results);
-						if(e.success)
-						{
-							if(e.results.length>0){
-								db.insertProposal(e.results, function(g){
-									if(g.success){
-										globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
-										Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
-										callback({success:true,
-												  downloaded: true
-										});
-									}
-								});
-							}
-							else{
-								callback({success: true,
-										  downloaded: true
-										});
-							}
-						}
-						else{
-							callback({
-									success: false,
-									results: "Error:  \n"+JSON.stringify(e.results)
-							});
-							//alert("Error:  \n"+JSON.stringify(e.results));
-						}
-					});
-				}
-				else if(globalVariables.GV.userRole=="Territory Manager"){
-					acs.queryProposalsByTmid({},function(e){
-						//Ti.API.info("e.results.usernames: " + e.results);
-						if(e.success)
-						{
-							if(e.results.length>0){
-								db.insertProposal(e.results, function(g){
-									if(g.success){
-										globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
-										Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
-										callback({success:true,
-												  downloaded: true
-										});
-									}
-								});
-							}
-							else{
-								callback({success: true,
-										  downloaded: true
-								});
-							}
-						}
-						else{
-							callback({
-									success: false,
-									results: "Error:  \n"+JSON.stringify(e.results)
-							});
-							//alert("Error:  \n"+JSON.stringify(e.results));
-						}
-					});
-				}
+				// }
+				// else if(globalVariables.GV.userRole=="Sales Manager"){
+					// acs.queryProposalsBySmid({},function(e){
+						// //Ti.API.info("e.results.usernames: " + e.results);
+						// if(e.success)
+						// {
+							// if(e.results.length>0){
+								// db.insertProposal(e.results, function(g){
+									// if(g.success){
+										// globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
+										// Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
+										// callback({success:true,
+												  // downloaded: true
+										// });
+									// }
+								// });
+							// }
+							// else{
+								// callback({success: true,
+										  // downloaded: true
+										// });
+							// }
+						// }
+						// else{
+							// callback({
+									// success: false,
+									// results: "Error:  \n"+JSON.stringify(e.results)
+							// });
+							// //alert("Error:  \n"+JSON.stringify(e.results));
+						// }
+					// });
+				// }
+				// else if(globalVariables.GV.userRole=="Territory Manager"){
+					// acs.queryProposalsByTmid({},function(e){
+						// //Ti.API.info("e.results.usernames: " + e.results);
+						// if(e.success)
+						// {
+							// if(e.results.length>0){
+								// db.insertProposal(e.results, function(g){
+									// if(g.success){
+										// globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
+										// Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
+										// callback({success:true,
+												  // downloaded: true
+										// });
+									// }
+								// });
+							// }
+							// else{
+								// callback({success: true,
+										  // downloaded: true
+								// });
+							// }
+						// }
+						// else{
+							// callback({
+									// success: false,
+									// results: "Error:  \n"+JSON.stringify(e.results)
+							// });
+							// //alert("Error:  \n"+JSON.stringify(e.results));
+						// }
+					// });
+				// }
 			}
 			else{
 				//if(globalVariables.GV.userRole!="Admin")
@@ -336,7 +344,7 @@ function syncWithACS(callback){
 					{
 						propIds.push(f.results[i].ProposalId);
 					}
-					db.getLastCreatedProp(function(g){
+					db.getLastCreatedPropDate(function(g){
 					    
 					
 					   acs.downloadRemoteProposals({
@@ -374,14 +382,15 @@ function syncWithACS(callback){
         									if(arrayToInsert.length>0)
         									{
         									    db.insertProposal(arrayToInsert, function(g){
+        										  
         										  if(g.success){
         										      callback({
         										          success:true,
         												  downloaded: false
         										      });
         										  }
-        										  globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
-                                                  Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
+        										  // globalVariables.GV.lastProposalSyncDate = (new Date).toISOString();
+                                                  // Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
         									   });
         									}
         									else{
@@ -438,44 +447,44 @@ function syncWithACS(callback){
 function syncChanges(callback){
 	if(Ti.Network.online){
 		db.getAllProposalIds(function(f){
-			// if(f.results.length==0){
-				if(globalVariables.GV.userRole=="Account Executive")
-				{
-					acs.queryProposalsByUid({getUpdates: true, localProps: f.results},function(e){
-						//Ti.API.info("e.results.username: " + e.results[0].user.first_name);
-						Ti.API.info('FOUND ONLINE PROPOSALS BY UID');
-						if(e.success){
-							if(e.results.length>0){
-								//Ti.API.info('CALLING DB INSERT PROPOSALS');
-								db.importPropUpdates(e.results, function(g){
-									//Ti.API.info('INSERT PROPOSALS DONE');
-									if(g.success){
-									    globalVariables.GV.lastProposalSyncDate = new Date().toISOString();
-                                        Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
-										callback({success:true,
-												  downloaded: true
-										});
-									}
-								});
-							}
-							else{
-								callback({success: true,
-										  downloaded: false
-								});
-							}
-						}
-						else{
-							callback({
-									success: false,
-									results: "Error:  \n"+JSON.stringify(e.results)
-							});
-							//alert("Error:  \n"+JSON.stringify(e.results));
-						}
-						
-					});
-				}
-				else if(globalVariables.GV.userRole=="Admin")
-				{
+			//if(f.results.length==0){
+				// if(globalVariables.GV.userRole=="Account Executive")
+				// {
+					// acs.queryProposalsByUid({getUpdates: true, localProps: f.results},function(e){
+						// //Ti.API.info("e.results.username: " + e.results[0].user.first_name);
+						// Ti.API.info('FOUND ONLINE PROPOSALS BY UID');
+						// if(e.success){
+							// if(e.results.length>0){
+								// //Ti.API.info('CALLING DB INSERT PROPOSALS');
+								// db.importPropUpdates(e.results, function(g){
+									// //Ti.API.info('INSERT PROPOSALS DONE');
+									// if(g.success){
+									    // globalVariables.GV.lastProposalSyncDate = new Date().toISOString();
+                                        // Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
+										// callback({success:true,
+												  // downloaded: true
+										// });
+									// }
+								// });
+							// }
+							// else{
+								// callback({success: true,
+										  // downloaded: false
+								// });
+							// }
+						// }
+						// else{
+							// callback({
+									// success: false,
+									// results: "Error:  \n"+JSON.stringify(e.results)
+							// });
+							// //alert("Error:  \n"+JSON.stringify(e.results));
+						// }
+// 						
+					// });
+				// }
+				// else if(globalVariables.GV.userRole=="Admin")
+				// {
 					acs.queryAllProposals({getUpdates: true},function(e){
 						//Ti.API.info("e.results.usernames: " + e.results);
 						if(e.success)
@@ -505,71 +514,71 @@ function syncChanges(callback){
 							//alert("Error:  \n"+JSON.stringify(e.results));
 						}
 					});
-				}
-				else if(globalVariables.GV.userRole=="Sales Manager"){
-					acs.queryProposalsBySmid({getUpdates: true},function(e){
-						//Ti.API.info("e.results.usernames: " + e.results);
-						if(e.success)
-						{
-							if(e.results.length>0){
-								db.importPropUpdates(e.results, function(g){
-									if(g.success){
-									    globalVariables.GV.lastProposalSyncDate = new Date().toISOString();
-                                        Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
-										callback({success:true,
-												  downloaded: true
-										});
-									}
-								});
-							}
-							else{
-								callback({success: true,
-										  downloaded: false
-										});
-							}
-						}
-						else{
-							callback({
-									success: false,
-									results: "Error:  \n"+JSON.stringify(e.results)
-							});
-							//alert("Error:  \n"+JSON.stringify(e.results));
-						}
-					});
-				}
-				else if(globalVariables.GV.userRole=="Territory Manager"){
-					acs.queryProposalsByTmid({getUpdates: true},function(e){
-						//Ti.API.info("e.results.usernames: " + e.results);
-						if(e.success)
-						{
-							if(e.results.length>0){
-								db.importPropUpdates(e.results, function(g){
-									if(g.success){
-									    globalVariables.GV.lastProposalSyncDate = new Date().toISOString();
-                                        Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
-										callback({success:true,
-												  downloaded: true
-										});
-									}
-								});
-							}
-							else{
-								callback({success: true,
-										  downloaded: false
-										});
-							}
-						}
-						else{
-							callback({
-									success: false,
-									results: "Error:  \n"+JSON.stringify(e.results)
-							});
-						}
-					});
-				}
-			});
+				// }
+				// else if(globalVariables.GV.userRole=="Sales Manager"){
+					// acs.queryProposalsBySmid({getUpdates: true},function(e){
+						// //Ti.API.info("e.results.usernames: " + e.results);
+						// if(e.success)
+						// {
+							// if(e.results.length>0){
+								// db.importPropUpdates(e.results, function(g){
+									// if(g.success){
+									    // globalVariables.GV.lastProposalSyncDate = new Date().toISOString();
+                                        // Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
+										// callback({success:true,
+												  // downloaded: true
+										// });
+									// }
+								// });
+							// }
+							// else{
+								// callback({success: true,
+										  // downloaded: false
+										// });
+							// }
+						// }
+						// else{
+							// callback({
+									// success: false,
+									// results: "Error:  \n"+JSON.stringify(e.results)
+							// });
+							// //alert("Error:  \n"+JSON.stringify(e.results));
+						// }
+					// });
+				// }
+				// else if(globalVariables.GV.userRole=="Territory Manager"){
+					// acs.queryProposalsByTmid({getUpdates: true},function(e){
+						// //Ti.API.info("e.results.usernames: " + e.results);
+						// if(e.success)
+						// {
+							// if(e.results.length>0){
+								// db.importPropUpdates(e.results, function(g){
+									// if(g.success){
+									    // globalVariables.GV.lastProposalSyncDate = new Date().toISOString();
+                                        // Ti.App.Properties.setString("lastProposalSyncDate", globalVariables.GV.lastProposalSyncDate);
+										// callback({success:true,
+												  // downloaded: true
+										// });
+									// }
+								// });
+							// }
+							// else{
+								// callback({success: true,
+										  // downloaded: false
+										// });
+							// }
+						// }
+						// else{
+							// callback({
+									// success: false,
+									// results: "Error:  \n"+JSON.stringify(e.results)
+							// });
+						// }
+					// });
+				// }
+			// });
 			
-			
+		});	
 	}
 	else{
 		callback({
@@ -658,6 +667,7 @@ function checkForDeleted(callback){
 Ti.App.addEventListener('proposalSync', function(){
     proposalSync(function(f){
         alert("SYNC COMPLETED");
+        Ti.App.fireEvent('reloadProposals');
         // collect analytics stuff from here later.
     });
 });
@@ -699,10 +709,10 @@ function proposalSync(callback){
         				if(f.results.length>0){
         					syncProposalsToACS({dataArray: f.results},function(j){
         					    
-            						Ti.API.info("****************COMPLETE SYNC TO ACS*************************");	
+            					Ti.API.info("****************COMPLETE SYNC TO ACS*************************");	
         						loading._hide();
                                 loadingWin.close();
-        						Ti.App.fireEvent('reloadProposals');
+        						//Ti.App.fireEvent('reloadProposals');
         						callback({
         						    done: true
         						});
@@ -711,7 +721,7 @@ function proposalSync(callback){
     				    else{
         					loading._hide();
         					loadingWin.close();
-        					Ti.App.fireEvent('reloadProposals');
+        					//Ti.App.fireEvent('reloadProposals');
         					callback({
         					    done: true
         					});

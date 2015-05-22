@@ -15,6 +15,35 @@ var loggedIn = false;
 // local utility variables
 //var queryResults = [];
 
+exports.getUsers = function(team_id, callback){
+    var where = null;
+    if(globalVariables.GV.userRole=="Admin"){
+        where = {};
+    }
+    else if(globalVariables.GV.userRole=="Territory Manager"){
+        where = {
+            //sales_team: globalVariables.GV.team_id,
+            tm_id: globalVariables.GV.userId
+        };
+    }
+    else if(globalVariables.GV.userRole=="Sales Manager"){
+        where = {
+            //sales_team: globalVariables.GV.team_id,
+            sm_id: globalVariables.GV.userId
+        };
+    }
+    Cloud.Users.query({
+        limit: 500,
+        where: where
+    }, function(e){
+        if(e.success){
+            db.fillUsers(e.users, function(f){
+                callback({success: true});
+            });
+        }
+    });
+};
+
 exports.loginUser = function(email, password, callback) {
 
 	Cloud.Users.login({
@@ -38,6 +67,10 @@ exports.loginUser = function(email, password, callback) {
 			globalVariables.GV.userRole = user.role;
 			Ti.API.info("SESSION ID IS:  " +Cloud.sessionId);
 			globalVariables.GV.cloudSessionSet=true;
+			globalVariables.GV.team_id = user.sales_team;
+			Ti.App.Properties.setString('team_id', user.sales_team);
+			globalVariables.GV.team_name = user.sales_team_name;
+			Ti.App.Properties.setString('team_name', user.sales_team_name);
 			// Ti.App.Properties.setBool("loggedIn",true);
 			// globalVariables.GV.loggedIn=true;
 			globalVariables.GV.proposalsViewFirstTime=true;
@@ -411,7 +444,7 @@ exports.logoutUser = function(callback){
 			globalVariables.GV.firstName = null;
 			Ti.App.Properties.setString('userId', null);
 			globalVariables.GV.userId =null;
-			Ti.App.Properties.setString('sessionId', null);
+			Ti.App.Properties.setString('sessionId', "none");
 			globalVariables.GV.sessionId=null;
 			Ti.App.Properties.setString('userRole', null);
 			globalVariables.GV.userRole = null;
@@ -432,43 +465,65 @@ exports.logoutUser = function(callback){
 	});
 };
 
-function queryProposals(date,queryResults,callbak){
-	var queryParams=null;
-	if(globalVariables.GV.lastProposalSyncDate==0)
-	{
-		
-	}
-}
+// function queryProposals(date,queryResults,callbak){
+	// var queryParams=null;
+	// if(globalVariables.GV.lastProposalSyncDate==0)
+	// {
+// 		
+	// }
+// }
+
+exports.getProposalById = function(propId, callback){
+     Cloud.Objects.show({
+         classname : 'Proposal',
+         id: propId
+     }, function(e){
+         if(e.success){
+             callback({
+                 success: true,
+                 results: e.Proposal[0]
+             });
+         }
+         else{
+             callback({
+                 success: false,
+                 results: e
+             });
+         }
+     });
+};
 
 exports.queryProposalsByUid = function(params, callback) {
 	
 	var d=null;
 	var searchDate = globalVariables.GV.lastProposalSyncDate;
 	var searchParams = null;
-	if(params.getUpdates){
-	    
-    	if(globalVariables.GV.lastProposalSyncDate==0){
-    		d=new Date("January 1, 2014 00:00:00");
-    		searchDate = d.toISOString();
-    	}
-    	searchParams = {
-	        user_id: globalVariables.GV.userId,
-            updated_at: {"$gt": searchDate},
-            Deleted: 0
-	    };
-	    Ti.API.info("INSIDE OF queryProposalByUid");
-    }
-    else{
+	// if(params.getUpdates){
+// 	    
+    	// if(globalVariables.GV.lastProposalSyncDate==0){
+    		// d=new Date("January 1, 2014 00:00:00");
+    		// searchDate = d.toISOString();
+    	// }
+    	// searchParams = {
+	        // user_id: globalVariables.GV.userId,
+            // updated_at: {"$gt": searchDate},
+            // Deleted: 0
+	    // };
+	    // Ti.API.info("INSIDE OF queryProposalByUid");
+    // }
+    // else{
         searchParams = {
-            user_id: globalVariables.GV.userId,
-            Deleted: 0
+            user_id: params.user_id,
+            Deleted: 0,
+            //order: "updated_at"
         };
-    }
+    //}
     	Cloud.Objects.query({
     		classname : 'Proposal',
     		//page : 1,
     		//per_page : 10,
     	    limit: 1000,
+    	    order: "-updated_at",
     		where: searchParams//{
     			// user_id: globalVariables.GV.userId,
     			// updated_at: {"$gt": searchDate},
@@ -477,39 +532,39 @@ exports.queryProposalsByUid = function(params, callback) {
     	}, function(e) {
     		Ti.API.debug("queryProposal by UID Results: " + JSON.stringify(e));
     		if (e.success) {
-    			if(params.getUpdates){
-    				db.getAllLastDates(function(f){
-    					var changedArray = [];
-    					var moment=require("/lib/moment");
-    					for(var i=0;i<f.results.length;i++){
-    						var j=0;
-    						var found=false;
-    						while(!found && j<e.Proposal.length){
-    							if(e.Proposal[j].id==f.results[i].ProposalId){
-    								var remoteDate = moment(e.Proposal[j].updated_at);  ///CHANGE THIS BACK TO LASTUPDATED
-    								var localDate = moment(f.results[i].LastUpdated);
-    								if(remoteDate>localDate)
-    								{
-    									changedArray.push(e.Proposal[j]);
-    								}
-    								found=true;
-    							}
-    							j++;
-    						}
-    					}
-    					moment=null;
-    					callback({
-    						success: true,
-    						results: changedArray
-    					});
-    				});
-    			}
-    			else{
+    			// if(params.getUpdates){
+    				// db.getAllLastDates(function(f){
+    					// var changedArray = [];
+    					// var moment=require("/lib/moment");
+    					// for(var i=0;i<f.results.length;i++){
+    						// var j=0;
+    						// var found=false;
+    						// while(!found && j<e.Proposal.length){
+    							// if(e.Proposal[j].id==f.results[i].ProposalId){
+    								// var remoteDate = moment(e.Proposal[j].updated_at);  ///CHANGE THIS BACK TO LASTUPDATED
+    								// var localDate = moment(f.results[i].LastUpdated);
+    								// if(remoteDate>localDate)
+    								// {
+    									// changedArray.push(e.Proposal[j]);
+    								// }
+    								// found=true;
+    							// }
+    							// j++;
+    						// }
+    					// }
+    					// moment=null;
+    					// callback({
+    						// success: true,
+    						// results: changedArray
+    					// });
+    				// });
+    			// }
+    			// else{
     				callback({
     					success: true,
     					results:e.Proposal
     				});
-    			}
+    			//}
     		} else {
     			callback({
     				success: false,
@@ -721,7 +776,7 @@ exports.queryAllProposals = function(params,callback) {
         //skip : skip || 0,
         //per_page : 100,
         where:{
-            //user_id: value
+            user_id: globalVariables.GV.userId,
             Deleted: 0
         },
         limit: 500
@@ -735,6 +790,7 @@ exports.queryAllProposals = function(params,callback) {
             
     	function recursiveQueryAll(currentIndex)
         {
+            
             if(currentIndex<totalResults)
             { 
                 // var currentIndexBefore = currentIndex;
@@ -745,7 +801,7 @@ exports.queryAllProposals = function(params,callback) {
                     skip: currentIndex,
                     //per_page : 100,
                     where:{
-                        //user_id: value
+                        user_id: globalVariables.GV.userId,
                         Deleted: 0
                     },
                     limit: 500
@@ -953,7 +1009,7 @@ exports.queryAllProposals = function(params,callback) {
 exports.downloadRemoteProposals = function(params, callback){
 	var conditions=null;
 	Ti.API.info("LAST CREATED DATE:  "+params.lastCreatedDate);
-	if(globalVariables.GV.userRole=="Admin"){
+	// if(globalVariables.GV.userRole=="Admin"){
 		Cloud.Objects.query({
 			classname : 'Proposal',
 			limit: 1000,
@@ -961,7 +1017,8 @@ exports.downloadRemoteProposals = function(params, callback){
 			where: {
 				//id: {'$nin':params.localProposals},
 				Deleted: 0,
-				created_at: {"$gt": params.lastCreatedDate}
+				created_at: {"$gt": params.lastCreatedDate},
+				user_id: globalVariables.GV.userId
 				//"order": "-updated_at"
 			}
 		}, function(e){
@@ -981,86 +1038,86 @@ exports.downloadRemoteProposals = function(params, callback){
 					//alert.alert('Error:\n' + ((e.error && e.message) || JSON.stringify(e)));
 				}
 		});
-	}
-	else if(globalVariables.GV.userRole == "Sales Manager"){
-		Cloud.Objects.query({
-			classname : 'Proposal',
-			limit: 1000,
-			//id: {"$nin":params.localProposals},
-			where: {
-				sm_id: globalVariables.GV.userId,
-				Deleted: 0,
-				created_at: {"$gt": params.lastCreatedDate}
-			}
-		}, function(e){
-			Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
-			if (e.success) {
-				Ti.API.info("downloadRemoteProposals Results: " + JSON.stringify(e));
-				//alert.alert('Success:\n' + 'Count: ' + e.Proposal[0].BusinessName);
-				callback({
-					success: e.success,
-					results:e.Proposal
-				});
-			} else {
-				callback({
-					success: false,
-					results: e
-			    });
-			}
-		});
-	}
-	else if (globalVariables.GV.userRole == "Territory Manager"){
-		Cloud.Objects.query({
-			classname : 'Proposal',
-			limit: 1000,
-			where: {
-				tm_id: globalVariables.GV.userId,
-				Deleted: 0,
-				created_at: {"$gt": params.lastCreatedDate}
-			}
-		}, function(e){
-			Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
-			if (e.success) {
-				Ti.API.info("downloadRemoteProposals Results: " + JSON.stringify(e));
-				//alert.alert('Success:\n' + 'Count: ' + e.Proposal[0].BusinessName);
-				callback({
-					success: e.success,
-					results:e.Proposal
-				});
-			} else {
-				callback({
-					success: false,
-					results: e
-			    });
-			}
-		});
-	}
-	else{
-		Cloud.Objects.query({
-		classname : 'Proposal',
-		limit: 1000,
-		where: {
-			user_id: globalVariables.GV.userId,
-			Deleted: 0,
-			created_at: {"$gt": params.lastCreatedDate}
-		}
-		}, function(e){
-			Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
-			if (e.success) {
-				Ti.API.info("downloadRemoteProposals Results: " + JSON.stringify(e));
-				//alert.alert('Success:\n' + 'Count: ' + e.Proposal[0].BusinessName);
-				callback({
-					success: e.success,
-					results:e.Proposal
-				});
-			} else {
-				callback({
-						success: false,
-						results: e
-				});
-			}
-		});
-	}	
+	// }
+	// else if(globalVariables.GV.userRole == "Sales Manager"){
+		// Cloud.Objects.query({
+			// classname : 'Proposal',
+			// limit: 1000,
+			// //id: {"$nin":params.localProposals},
+			// where: {
+				// sm_id: globalVariables.GV.userId,
+				// Deleted: 0,
+				// created_at: {"$gt": params.lastCreatedDate}
+			// }
+		// }, function(e){
+			// Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
+			// if (e.success) {
+				// Ti.API.info("downloadRemoteProposals Results: " + JSON.stringify(e));
+				// //alert.alert('Success:\n' + 'Count: ' + e.Proposal[0].BusinessName);
+				// callback({
+					// success: e.success,
+					// results:e.Proposal
+				// });
+			// } else {
+				// callback({
+					// success: false,
+					// results: e
+			    // });
+			// }
+		// });
+	// }
+	// else if (globalVariables.GV.userRole == "Territory Manager"){
+		// Cloud.Objects.query({
+			// classname : 'Proposal',
+			// limit: 1000,
+			// where: {
+				// tm_id: globalVariables.GV.userId,
+				// Deleted: 0,
+				// created_at: {"$gt": params.lastCreatedDate}
+			// }
+		// }, function(e){
+			// Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
+			// if (e.success) {
+				// Ti.API.info("downloadRemoteProposals Results: " + JSON.stringify(e));
+				// //alert.alert('Success:\n' + 'Count: ' + e.Proposal[0].BusinessName);
+				// callback({
+					// success: e.success,
+					// results:e.Proposal
+				// });
+			// } else {
+				// callback({
+					// success: false,
+					// results: e
+			    // });
+			// }
+		// });
+	// }
+	// else{
+		// Cloud.Objects.query({
+		// classname : 'Proposal',
+		// limit: 1000,
+		// where: {
+			// user_id: globalVariables.GV.userId,
+			// Deleted: 0,
+			// created_at: {"$gt": params.lastCreatedDate}
+		// }
+		// }, function(e){
+			// Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
+			// if (e.success) {
+				// Ti.API.info("downloadRemoteProposals Results: " + JSON.stringify(e));
+				// //alert.alert('Success:\n' + 'Count: ' + e.Proposal[0].BusinessName);
+				// callback({
+					// success: e.success,
+					// results:e.Proposal
+				// });
+			// } else {
+				// callback({
+						// success: false,
+						// results: e
+				// });
+			// }
+		// });
+	// }	
 };
 
 exports.getDeletedIds = function(params, callback){
@@ -1096,20 +1153,20 @@ exports.getDeletedIds = function(params, callback){
 };
 
 exports.createProposal = function(params,callback) {	
-	var smid=" ";
-	var tmid=" ";
-	if(globalVariables.GV.userRole=="Sales Manager"){
-		smid=globalVariables.GV.userId;
-	}
-	else if(globalVariables.GV.userRole=="Territory Manager")
-	{
-		tmid=globalVariables.GV.userId;
-		smid=globalVariables.GV.sm_id;
-	}
-	else if(globalVariables.GV.userRole=="Account Executive"){
-		tmid=globalVariables.GV.tm_id;
-		smid=globalVariables.GV.sm_id;
-	}
+	// var smid=" ";
+	// var tmid=" ";
+	// if(globalVariables.GV.userRole=="Sales Manager"){
+		// smid=globalVariables.GV.userId;
+	// }
+	// else if(globalVariables.GV.userRole=="Territory Manager")
+	// {
+		// tmid=globalVariables.GV.userId;
+		// smid=globalVariables.GV.sm_id;
+	// }
+	// else if(globalVariables.GV.userRole=="Account Executive"){
+		// tmid=globalVariables.GV.tm_id;
+		// smid=globalVariables.GV.sm_id;
+	// }
 	
 	if(params)
 	{
@@ -1177,13 +1234,13 @@ exports.createProposal = function(params,callback) {
                 MXGatewayFee : parseFloat(row.MXGatewayFee),
                 DebitAccessFee : parseFloat(row.DebitAccessFee),
 				//timeId: row.timeId,
-				Notes: row.NotesText,
+				Notes: row.Notes,
 				//LastUpdated: row.LastUpdated,
 				//DateCreated: new Date(row.DateCreated).toISOString(),
 				ProposalStatus: row.ProposalStatus,
 				rpID: row.rpID,
-				sm_id: smid,
-				tm_id: tmid,
+				sm_id: row.sm_id,
+				tm_id: row.tm_id,
 				Deleted: 0
 			}
 
@@ -1194,6 +1251,7 @@ exports.createProposal = function(params,callback) {
 				Ti.API.info("PROPOSAL CUSTOM OBJECT:  \n" + JSON.stringify(e));				
 				callback({success: true, 
 					proposalId: e.Proposal[0].id,
+					proposal: e.Proposal[0]
 					//timeId: e.Proposal[0].timeId
 				});
 			} else {
@@ -1268,13 +1326,13 @@ exports.createProposal = function(params,callback) {
                 MXGatewayFee : parseFloat(globalVariables.GV.MXGatewayFee),
                 DebitAccessFee : parseFloat(globalVariables.GV.DebitAccessFee),
 				//timeId: globalVariables.GV.timeId,
-				Notes: globalVariables.GV.NotesText,
+				Notes: globalVariables.GV.Notes,
 				//LastUpdated: globalVariables.GV.LastUpdated,
 				//DateCreated: new Date(globalVariables.GV.DateCreated).toISOString(),
 				ProposalStatus: globalVariables.GV.ProposalStatus,
 				rpID: globalVariables.GV.rpID,
-				sm_id: smid,
-				tm_id: tmid,
+				sm_id: globalVariables.GV.sm_id,
+				tm_id: globalVariables.GV.tm_id,
 				Deleted: 0
 			}
 
@@ -1284,6 +1342,7 @@ exports.createProposal = function(params,callback) {
 				alert.alert("Success", "Created Successfully");
 				callback({success: true,
 					proposalId: e.Proposal[0].id,
+					proposal: e.Proposal[0]
 					//timeId: e.Proposal[0].timeId
 				});
 			} else {
@@ -1294,6 +1353,40 @@ exports.createProposal = function(params,callback) {
 	}
 };
 
+exports.updateProposalStatus = function(params, callback){
+    Cloud.Objects.update({
+        classname: 'Proposal',
+        id: params.propId,
+        fields:{
+            ProposalStatus: params.status
+        }
+    }, function(e){
+        if(e.success){
+            callback({success: true});
+        }
+        else{
+            callback({success: false});
+        }
+    });
+};
+
+exports.updateProposalRP = function(params, callback){
+    Cloud.Objects.update({
+        classname: 'Proposal',
+        id: params.propId,
+        fields:{
+            rpID: params.rpID
+        }
+    }, function(e){
+        if(e.success){
+            callback({success: true});
+        }
+        else{
+            callback({success: false});
+        }
+    });
+};
+
 exports.updateProposal = function (params,callback){
 	if(params)
 	{
@@ -1302,7 +1395,7 @@ exports.updateProposal = function (params,callback){
 			//session_id: globalVariables.GV.sessionId,
 			classname : 'Proposal',
 			id: row.ProposalId,
-			acl_id: row.acl_id,
+			//acl_id: row.acl_id,
 			fields : {
 				BusinessName : row.BusinessName,
 				StreetAddress : row.StreetAddress,
@@ -1362,7 +1455,7 @@ exports.updateProposal = function (params,callback){
 				MXGatewayFee : parseFloat(row.MXGatewayFee),
 				DebitAccessFee : parseFloat(row.DebitAccessFee),
 				//timeId: row.timeId,
-				Notes: row.NotesText,
+				Notes: row.Notes,
 				//LastUpdated: row.LastUpdated,
 				//DateCreated: row.Date,
 				ProposalStatus: row.ProposalStatus,
@@ -1451,7 +1544,7 @@ exports.updateProposal = function (params,callback){
 					MXGatewayFee : parseFloat(globalVariables.GV.MXGatewayFee),
 					DebitAccessFee : parseFloat(globalVariables.GV.DebitAccessFee),
 					//timeId: globalVariables.GV.timeId,
-					Notes: globalVariables.GV.NotesText,
+					Notes: globalVariables.GV.Notes,
 					//LastUpdated: globalVariables.GV.LastUpdated,
 					//DateCreated: globalVariables.GV.DateCreated,
 					ProposalStatus: globalVariables.GV.ProposalStatus,

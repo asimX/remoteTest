@@ -147,7 +147,8 @@ exports.InterchangeAnalysis = function() {
 		keyboardType : Ti.UI.KEYBOARD_NUMBER_PAD,
 		right : '30dp',
 		width : '110dp',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	
 	tfDebitInterFee.addEventListener('change', function(e) {
@@ -185,7 +186,8 @@ exports.InterchangeAnalysis = function() {
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
 		right : '160dp',
 		width : '110dp',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	
 	tfAeInterFee.addEventListener('return', function(e) {
@@ -227,7 +229,8 @@ exports.InterchangeAnalysis = function() {
 		keyboardType : Ti.UI.KEYBOARD_NUMBER_PAD,
 		right : '290dp',
 		width : '110dp',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 
 	tfDsInterFee.addEventListener('return', function(e) {
@@ -269,7 +272,8 @@ exports.InterchangeAnalysis = function() {
 		keyboardType : Ti.UI.KEYBOARD_NUMBER_PAD,
 		right : '420dp',
 		width : '110dp',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 
 	tfMcInterFee.addEventListener('return', function(e) {
@@ -311,7 +315,8 @@ exports.InterchangeAnalysis = function() {
 		keyboardType : Ti.UI.KEYBOARD_NUMBER_PAD,
 		right : '550dp',
 		width : '110dp',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	
 	tfVisaInterFee.addEventListener('return', function(e) {

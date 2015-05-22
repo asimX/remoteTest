@@ -152,7 +152,8 @@ exports.CurrentScenario = function() {
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
 		right : '30dp',
 		width : '110dp',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	
 	comboView2.add(tfDebitVol);
@@ -194,7 +195,8 @@ exports.CurrentScenario = function() {
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
 		right : '160dp',
 		width : '110dp',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	
 	tfAeVol.addEventListener('return', function(e) {
@@ -235,7 +237,8 @@ exports.CurrentScenario = function() {
 		right : '290dp',
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
 		width : '110dp',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	
 	
@@ -277,7 +280,8 @@ exports.CurrentScenario = function() {
 		returnKeyType : Ti.UI.RETURNKEY_NEXT,
 		right : '420dp',
 		width : '110dp',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	
 	tfMcVol.addEventListener('return', function(e) {
@@ -318,7 +322,8 @@ exports.CurrentScenario = function() {
 		width : '110dp',
 		textAlign : 'right',
 		keyboardType : Ti.UI.KEYBOARD_NUMBER_PAD,
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	
 	tfVisaVol.addEventListener('return', function(e) {
@@ -383,7 +388,8 @@ exports.CurrentScenario = function() {
 		right : '30dp',
 		width : '110dp',
 		keyboardType : Ti.UI.KEYBOARD_NUMBER_PAD,
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 
 	});
 	tfDebitTransactions.addEventListener('focus', function(e) {
@@ -417,7 +423,8 @@ exports.CurrentScenario = function() {
 		width : '110dp',
 		textAlign : 'right',
 		keyboardType : Ti.UI.KEYBOARD_NUMBER_PAD,
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	tfAeTransactions.addEventListener('return', function(e) {
 		tfDebitTransactions.focus();
@@ -450,7 +457,8 @@ exports.CurrentScenario = function() {
 		right : '290dp',
 		width : '110dp',
 		textAlign : 'right',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	tfDsTransactions.addEventListener('return', function(e) {
 		tfAeTransactions.focus();
@@ -484,7 +492,8 @@ exports.CurrentScenario = function() {
 		right : '420dp',
 		textAlign : 'right',
 		width : '110dp',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	tfMcTransactions.addEventListener('return', function(e) {
 		tfDsTransactions.focus();
@@ -515,7 +524,8 @@ exports.CurrentScenario = function() {
 		keyboardType : Ti.UI.KEYBOARD_NUMBER_PAD,
 		width : '110dp',
 		textAlign : 'right',
-		height : '35dp'
+		height : '35dp',
+		tintColor: 'black'
 	});
 	tfVisaTransactions.addEventListener('return', function(e) {
 		tfMcTransactions.focus();
@@ -670,7 +680,8 @@ exports.CurrentScenario = function() {
 		left : '260dp',
 		textAlign : 'right',
 		width : '350dp',
-		height : '35'
+		height : '35',
+		tintColor: 'black'
 	});
 	
 	tfTotalNewField.addEventListener('return', function(e) {

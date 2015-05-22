@@ -223,95 +223,102 @@ function HomeScreen(params) {
 			LibraryView.animate(SlideOutLibraryFull);
 			MenuProposalView.animate(slideInPropsalNormal, function(){
 				selfW.title="Proposals";
-				if(globalVariables.GV.proposalsViewFirstTime)
-				{
-					loading._show({
-						message:"Downloading Proposals from backend"
-					});
+				
+				if(globalVariables.GV.proposalsViewFirstTime){
+				// {
+					// loading._show({
+						// message:"Downloading Proposals from backend"
+					// });
 					globalVariables.GV.proposalsViewFirstTime=false;
-					loading._hide();
+					// loading._hide();
 					sync.proposalSync(function(g){
                         if(g.done){
-                            
-                            //do something
+                            Ti.App.fireEvent('reloadProposals');                        
                         }
                     });
-					// sync.syncWithACS(function(g){
-						// if(g.success){
-							// loading._hide();
-							// if(!g.downloaded)
-							// {
-								// loading._show({
-									// message: "Looking for changes"
-								// });
-								// sync.syncChanges(function(f){
-									// if(f.success){
-										// loading._hide();
-										// Ti.App.fireEvent("reloadProposals");
-									// }
-									// else{
-										// alert("Error downloading updated proposals from back end. Try again later by pressing the sync button on the bottom right \n"+e.results);
-									// }
-								// });
-							// }
-							// else{
-								// Ti.App.fireEvent("reloadProposals");
-							// }
-						// }
-						// else{
-							// alert("Error downloading new proposals from back-end. Try again by pressing the sync button on the bottom right \n"+ e.results);
-							// loading._hide();
-						// }
-					// });
+					// // sync.syncWithACS(function(g){
+						// // if(g.success){
+							// // loading._hide();
+							// // if(!g.downloaded)
+							// // {
+								// // loading._show({
+									// // message: "Looking for changes"
+								// // });
+								// // sync.syncChanges(function(f){
+									// // if(f.success){
+										// // loading._hide();
+										// // Ti.App.fireEvent("reloadProposals");
+									// // }
+									// // else{
+										// // alert("Error downloading updated proposals from back end. Try again later by pressing the sync button on the bottom right \n"+e.results);
+									// // }
+								// // });
+							// // }
+							// // else{
+								// // Ti.App.fireEvent("reloadProposals");
+							// // }
+						// // }
+						// // else{
+							// // alert("Error downloading new proposals from back-end. Try again by pressing the sync button on the bottom right \n"+ e.results);
+							// // loading._hide();
+						// // }
+					// // });
 				}
+				// else{
+                    // Ti.App.fireEvent('reloadProposals');
+                // }
 			});
 		} else {
 			sliderPosition = 6;
 			self.animate(slideOutScrollableFull);
 			MenuProposalView.animate(slideInPropsalNormal, function(){
 				selfW.title="Proposals";
-				if(globalVariables.GV.proposalsViewFirstTime)
-				{
-					loading._show({
-						message:"Downloading Proposals from backend"
-					});
+				
+				if(globalVariables.GV.proposalsViewFirstTime){
+				// {
+					// loading._show({
+						// message:"Downloading Proposals from backend"
+					// });
 					globalVariables.GV.proposalsViewFirstTime=false;
-					loading._hide();
+					// loading._hide();
 					sync.proposalSync(function(g){
 					    if(g.done){
-					        
-					        //do something
+					        Ti.App.fireEvent('reloadProposals');
+					        // //do something
 					    }
 					});
-					// sync.syncWithACS(function(g){
-						// if(g.success){
-							// loading._hide();
-							// if(!g.downloaded)  //this is only true when db is empty, so here if it's not empty we're looking for changes to current proposals
-							// {
-								// loading._show({
-									// message: "Looking for changes"
-								// });
-								// sync.syncChanges(function(f){
-									// if(f.success){
-										// loading._hide();
-										// Ti.App.fireEvent("reloadProposals");
-									// }
-									// else{
-										// alert("Error downloading updated proposals from back end. Try again later by pressing the sync button on the bottom right \n"+f.results);
-									// }
-								// });
-							// }
-							// else{
-								// Ti.App.fireEvent("reloadProposals");
-							// }
-						// }
-						// else{
-							// alert("Error downloading proposals from back-end. Try again by pressing the sync button on the bottom right \n"+ e.results);
-							// loading._hide();
-						// }
-					// });
+					// // sync.syncWithACS(function(g){
+						// // if(g.success){
+							// // loading._hide();
+							// // if(!g.downloaded)  //this is only true when db is empty, so here if it's not empty we're looking for changes to current proposals
+							// // {
+								// // loading._show({
+									// // message: "Looking for changes"
+								// // });
+								// // sync.syncChanges(function(f){
+									// // if(f.success){
+										// // loading._hide();
+										// // Ti.App.fireEvent("reloadProposals");
+									// // }
+									// // else{
+										// // alert("Error downloading updated proposals from back end. Try again later by pressing the sync button on the bottom right \n"+f.results);
+									// // }
+								// // });
+							// // }
+							// // else{
+								// // Ti.App.fireEvent("reloadProposals");
+							// // }
+						// // }
+						// // else{
+							// // alert("Error downloading proposals from back-end. Try again by pressing the sync button on the bottom right \n"+ e.results);
+							// // loading._hide();
+						// // }
+					// // });
+				//}
+				// else{
+				    // Ti.App.fireEvent('reloadProposals');
+				// }
 				}
-				
 			});
 		}
 

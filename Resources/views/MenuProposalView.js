@@ -5,7 +5,9 @@ var loading = require('lib/loading').loading();
 var moment = require('/lib/moment');
 exports.MenuProposalView = function() {
 	
-	///////////////////////// ANIMATIONS /////////////////////////////////
+	///////////////////////// Variables /////////////////////////////////
+	
+	//var myArray = [];
 	
 	var self = Ti.UI.createView({
 		backgroundColor : 'Transparent',
@@ -18,15 +20,165 @@ exports.MenuProposalView = function() {
 	self.add(loading);
 	
 	var tvContainer = Ti.UI.createView({
-		//top: "2%",
 		height: Ti.UI.FILL,
-		width: Ti.UI.FILL,//"86.4%",
-		//bottom: "2%",
-		//borderColor: "#a9a9a9",
-		//borderWidth: 2.5
+		width: "80%",//Ti.UI.FILL,//"86.4%",
+		right: 0
 	});
 	
 	self.add(tvContainer);
+	
+	var tableView = Ti.UI.createTableView({
+        backgroundColor : 'white',
+        separatorInsets:{
+            left: 0
+        },
+        borderColor: "#a9a9a9",
+        borderWidth: 1
+        
+    });
+    
+    tvContainer.add(tableView);
+    
+	var menuContainer = Ti.UI.createView({
+	    height: Ti.UI.FILL,
+	    width:"20%",
+	    left: 0
+	});
+	
+	self.add(menuContainer);
+	
+	var myPropsView = Ti.UI.createView({
+	    backgroundColor: "#fff",
+	    top: 0,
+	    height: 50,
+	    width: Ti.UI.FILL,
+	    borderColor: "#a9a9a9",
+        borderWidth: 1
+	});
+	
+	var menuLastSelectedIndex = -1;
+	
+	myPropsView.addEventListener("click", function(e){
+	    if(menuLastSelectedIndex>=0 && menuLastSelectedIndex!=e.index){
+                menuTableView.data[0].rows[menuLastSelectedIndex].backgroundColor="white";
+                menuTableView.data[0].rows[menuLastSelectedIndex].children[0].color="#000";
+        }
+        myPropsLbl.color = "#fff";
+        myPropsView.backgroundColor = "#0082b4";
+	    menuLastSelectedIndex=-1;
+	    db.ShowProposal({},function(e){
+	       //myArray = e.results;
+	       loadData(e.results);
+	    });
+	});
+	
+	menuContainer.add(myPropsView);
+	
+	var myPropsLbl = Ti.UI.createLabel({
+	    color : '#0082b4',
+        font : {
+            //fontFamily : 'GillSans-Light',
+            fontSize : 20,
+            fontWeight : 'bold'
+        },
+        textAlign : "center",
+        text : "My Proposals",
+        width : Ti.UI.FILL,
+        height : '30dp',
+	});
+	
+	myPropsView.add(myPropsLbl);
+	
+	if(globalVariables.GV.userRole != "Account Executive"){
+            
+            var menuTableView = Ti.UI.createTableView({
+                backgroundColor : 'white',
+                separatorInsets:{
+                    left: 0,
+                    right: 0
+                },
+                top: 50,
+                borderColor: "#a9a9a9",
+                borderWidth: 1
+            });
+        
+            menuTableView.addEventListener('click', function(e) {
+                //loadData(e.index);
+                e.rowData.backgroundColor = "#0082b4";
+                e.row.children[0].color = "white";
+                //e.rowData.name
+                if(menuLastSelectedIndex>=0 && menuLastSelectedIndex!=e.index){
+                    menuTableView.data[0].rows[menuLastSelectedIndex].backgroundColor="white";
+                    menuTableView.data[0].rows[menuLastSelectedIndex].children[0].color="#000";
+                }
+                else{
+                    myPropsView.backgroundColor="#fff";
+                    myPropsLbl.color = "#0082b4";
+                }
+                menuLastSelectedIndex = e.index; 
+                //alert(e.row.user_id);
+                acs.queryProposalsByUid({
+                    user_id: e.row.user_id
+                }, function(f){
+                    loadData(f.results);
+                });
+            });
+                    
+            menuContainer.add(menuTableView);
+    }
+    else{
+        var blankMenuView = Ti.UI.createView({
+            backgroundColor: "white",
+            top: 50,
+            borderColor: "#a9a9a9",
+            borderWidth: 1
+        });
+        
+        menuContainer.add(blankMenuView);
+    }
+	
+	function loadUsers(){
+        
+            db.getUsers(function(e){
+                //if(e.success){
+                    var data = e.results;
+                    var userData = [];
+                    for(var i=0;i<data.length;i++){
+                        
+                        if(data[i].user_id!=globalVariables.GV.userId){
+                            var row = Ti.UI.createTableViewRow({
+                                className : 'user', 
+                                //selectedBackgroundColor : '#0082b4',
+                                rowIndex : i, 
+                                height : 50,
+                                user_id: data[i].user_id,
+                                //selectedColor: 'white'
+                            });
+                            var nameLbl = Ti.UI.createLabel({
+                                color : '#000',
+                                font : {
+                                    //fontFamily : 'GillSans-Light',
+                                    fontSize : 20,
+                                    //fontWeight : 'bold'
+                                },
+                                textAlign : "center",
+                                text : data[i].first_name+" "+data[i].last_name,
+                                width : Ti.UI.SIZE,
+                                height : '30dp',
+                                
+                            });
+                            row.add(nameLbl);
+                            userData.push(row);
+                        }
+                    }
+                    
+                    menuTableView.setData(userData);
+                //}
+            });
+    }
+    
+    self.add(menuContainer);
+
 	
 	var syncBtn = Ti.UI.createImageView({
 		image : '/images/PPS-South_Icons-Refresh.png',
@@ -47,192 +199,44 @@ exports.MenuProposalView = function() {
 		//,{ai: loading});
 	});
 	
-	//var myArray = [];
-	
-	var headerView = Titanium.UI.createView({
-		//borderRadius : 10,
-		backgroundColor : '#FFF',//'#d0d0d0',
-		top : 0,
-		layout : 'horizontal',
-		width : '100%',
-		height : '60dp',
-	});
-	//tvContainer.add(headerView);
-	var viewLine = Titanium.UI.createView({
-		//borderRadius : 10,
-		backgroundColor : '#6c6c6c',
-		top : '60dp',
-		//layout : 'horizontal',
-		width : '100%',
-		height : '2dp',
-		zIndex : 1
-	});
-	//tvContainer.add(viewLine);
-	
-	///////////////////////////////////////////////////////////////////////
-	
-	var labBname = Ti.UI.createLabel({
-		color : '#0082b4',
-		font : {
-			fontFamily : 'Arial',
-			fontSize : 25,
-			//fontWeight : 'bold'
-		},
-		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
-		text : 'BUSINESS NAME',
-		left : 20,
-		//top : '22dp',
-		//backgroundColor: "blue",
-		//left: "35%",
-		//width : "55%"
-		//		height : 30,
-	});
-	var bnameContainer = Ti.UI.createView({
-		width: "50%",
-		backgroundColor: "#ffffff"
-	});
-	bnameContainer.add(labBname);
-	headerView.add(bnameContainer);
-	
-	///////////////////////////////////////////////////////////////////////
-	
-	var labStatus = Ti.UI.createLabel({
-		color : '#0082b4',
-		font : {
-			fontFamily : 'Arial',
-			fontSize : 25,
-			//fontWeight : 'bold'
-		},
-		textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-		text : 'STATUS',
-		//left : '30',
-		//top : '22dp',
-		//left: "60%",
-		//width: "20%"
-		//backgroundColor: "green",
-		//	height : 30,
-	});
-	
-	var statusContainer = Ti.UI.createView({
-		width: "15%",
-		backgroundColor: "#ffffff"
-	});
-	
-	statusContainer.add(labStatus);
-	headerView.add(statusContainer);
-	
-	var labRP = Ti.UI.createLabel({
-		color : '#0082b4',
-		font : {
-			fontFamily : 'Arial',
-			fontSize : 25,
-			//fontWeight : 'bold'
-		},
-		textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-		text : 'REFERRAL PARTNER',
-		//left : '30',
-		//top : '22dp',
-		//left: "75%",
-		//width : "25%"
-		//backgroundColor: "blue",
-	});
-	
-	var rpContainer = Ti.UI.createView({
-		width: "34.9%",
-		backgroundColor: "#ffffff"
-	});
-	
-	rpContainer.add(labRP);
-	headerView.add(rpContainer);
-
-	var myArray = [];
-	
-	// function GetRpName(id, callback){
-		// for(var i=0;i<globalVariables.GV.ReferralPartners.length;i++){
-			// if(globalVariables.GV.ReferralPartners[i].id==id){
-				// callback({name: globalVariables.GV.ReferralPartners[i].title});
-			// }
-		// }
-	// }
 	var updating = false;
 	var dynamicIndex=0;
 	var scrollToIndex = 0;
 	
-	function loadData(skip){
-		var tableData = [];
-		if(skip==0){
-		    tableView.setData(tableData);
+	function loadData(myArray){//(skip){
+		if(menuLastSelectedIndex==-1){
+		    myPropsLbl.color="#fff";
+		    myPropsView.backgroundColor="#0082b4";
 		}
-	    //var skip = params.skip;
-	    //myArray=[];
-	    var results=null;
-		db.ShowProposal({skip: skip},function(f){
-			//myArray = f.results;
-			results = f.results;
-			scrollToIndex = results.length;
-			// if(globalVariables.GV.userRole=="Admin"){
-				// data.sort(function (x, y) {
-   	 				// var n = x.repName - y.repName;
-				    // if (n != 0) {
-				        // return n;
-				    // }
-// 
-    				// return x.year - y.year;
-				// });
-			// }
-			
-			// myArray.sort(function(a, b) {
-// 			    
-			    // return a>b ? -1 : a<b ? 1 : 0;
+		
+		var tableData = [];
+		tableView.setData(tableData);
+		// var users = [];
+		
+		
+		
+		// if(skip==0){
+		    // tableView.setData(tableData);
+		// }
+	    
+	    //var results=null;
+		
+		// db.ShowProposal({skip: skip},function(f){
+			// results = f.results;
+			// scrollToIndex = results.length;
 			// });
-			
-			// myArray.sort(function(a, b){
-			    // aDate = new Date(a.LastUpdated);
-			    // bDate = new Date(b.LastUpdated);
-			    // // return  (a.repName - b.repName) || (bDate - aDate);
-// 			    
-			    // if(bDate < aDate){
-			        // return -1;  
-			    // }else if(bDate > aDate){
-			        // return 1;
-			    // }else{
-			        // if(a.repName < b.repName){
-			           // return 1;
-			        // }else if(a.repName > b.repName){
-			          // return -1;
-			        // }else{
-			          // return 0;
-			        // }
-			    // }
-			    
-			    // if(a.repName===b.repName){
-			    	// return bDate - aDate;
-			    // }
-			    // else if(b.repName>a.repName){
-			    	// return 
-			    // }
-			    // if(a.repName && !b.repName) {return -1;}
-      			// if(!a.repName && b.repName) {return 1;}
-      			// return bDate - aDate;
-      			
-      			// var dName = a.repName - b.repName;
-    			// if(dName) return dName;
-// // 
-    			// // If there is a tie, sort by year
-			    // var dDate = bDate - aDate;
-			    // return dDate;
-			});
 			
 			var sections=[];
 			var j=0;
-			if(results.length>0){
-    			for (var i = 0; i < results.length; i++) {
-    			    myArray.push(results[i]);
+			if(myArray.length>0)//(results.length>0){
+    			for (var i = 0; i < myArray.length; i++) {
+    			    //myArray.push(results[i]);
     				var row = Ti.UI.createTableViewRow({
     					className : 'proposalRow', // used to improve table performance
     					selectedBackgroundColor : 'white',
     					rowIndex : i, // custom property, useful for determining the row during events
     					height : 70,
+    					proposalId: myArray[i].ProposalId || myArray[i].id
     					//layout: "horizontal"
     				});
     	
@@ -245,6 +249,8 @@ exports.MenuProposalView = function() {
     					//backgroundColor: "yellow"
     				});
                     
+                    var updatedDate = myArray[i].updated_at || myArray[i].LastUpdated;
+                    
                     var labLastDate = Ti.UI.createLabel({
                         color : '#B8B8B8',//d0d0d0',
                         font : {
@@ -252,7 +258,7 @@ exports.MenuProposalView = function() {
                             fontSize : 15,
                             fontWeight : 'bold'
                         },
-                        text : moment(results[i].LastUpdated).local().format('LLLL'),//new Date(myArray[i].LastUpdated).toLocaleString(),
+                        text : moment(updatedDate).local().format('LLLL'),//new Date(myArray[i].LastUpdated).toLocaleString(),
                         left : 30,//5,
                         bottom: 10,
                         top: 47,
@@ -263,23 +269,6 @@ exports.MenuProposalView = function() {
                         //backgroundColor: "blue"
                     });
                     			
-    				// var labLastDate = Ti.UI.createLabel({
-    					// color : '#0082b4',//'#B8B8B8',//d0d0d0',
-    					// font : {
-    						// fontFamily : 'Arial',
-    						// //	fontSize : defaultFontSize + 6,
-    					    // fontWeight : 'bold'
-    					// },
-    					// text : new Date(myArray[i].LastUpdated).toLocaleString(),
-    					// left : 10,//5,
-    					// //top: 5,
-    					// textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
-    					// width : Ti.UI.SIZE,
-    					// //height : 8,
-    					// //zIndex: 1
-    					// backgroundColor: "blue"
-    				// });
-    				
     				//Ti.API.error(myArray[i].Date);
     				var busName = Ti.UI.createLabel({
     					color : '#222',
@@ -288,7 +277,7 @@ exports.MenuProposalView = function() {
     						fontSize : 22,
     						//fontWeight : 'normal'
     					},
-    					text : results[i].BusinessName,
+    					text : myArray[i].BusinessName,
     					left : 30,
     					top : 12,
     					verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER,
@@ -326,9 +315,9 @@ exports.MenuProposalView = function() {
     				});
     				
     				//check to fix bug with status being date
-    				if(results[i].ProposalStatus==null){// || myArray[i].ProposalStatus!="Appointment" || myArray[i].ProposalStatus!="Presented" || myArray[i].ProposalStatus!="Signed"){
-    					results[i].ProposalStatus="Appointment";
-    					results[i].IsUpdated=1;
+    				if(myArray[i].ProposalStatus==null){// || myArray[i].ProposalStatus!="Appointment" || myArray[i].ProposalStatus!="Presented" || myArray[i].ProposalStatus!="Signed"){
+    					myArray[i].ProposalStatus="Appointment";
+    					myArray[i].IsUpdated=1;
     				}
     				
     				var labStat = Ti.UI.createLabel({
@@ -353,7 +342,7 @@ exports.MenuProposalView = function() {
     						fontSize : 15,
     						//fontWeight : 'normal'
     					},
-    					text : results[i].ProposalStatus,
+    					text : myArray[i].ProposalStatus,
     					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
     					//right : 20,
     					//bottom : 15,
@@ -413,87 +402,81 @@ exports.MenuProposalView = function() {
     					//backgroundColor: "green"
     				});
     				
-    				if(results[i].rpID==null){
+    				if(myArray[i].rpID==null){
     					labRPName.text='None';
     				}
-    				else if(!(results[i].rpID.valueOf() in globalVariables.GV.ReferralPartners)){
+    				else if(!(myArray[i].rpID.valueOf() in globalVariables.GV.ReferralPartners)){
     				    labRPName.text='None';
     				}
     				else{
-    					labRPName.text=globalVariables.GV.ReferralPartners[(results[i].rpID).valueOf()].title;
+    					labRPName.text=globalVariables.GV.ReferralPartners[(myArray[i].rpID).valueOf()].title;
     				}
     				
     				rpClickArea.add(labRP);
     				rpClickArea.add(labRPName);
     				rightParentView.add(rpClickArea);
     				row.add(rightParentView);
-    				//row.add(rpClickArea);
-    				//var moment=require("/lib/moment");
-    				var curr = results[i].repName;//moment(results[i].LastUpdated);
-    				// sections[j]= Ti.UI.createTableViewSection({
-                                // headerTitle: "     "+curr.toLocaleString()//myArray[i].repName
-                    //});
+    				tableData.push(row);
+    				//var curr = results[i].repName;//moment(results[i].LastUpdated);
     				
-    				if(skip==0 && i==0)
-    				{
-    					sections[j] = Ti.UI.createTableViewSection({
-    						headerTitle: "     "+curr //curr.local().format('LLLL')//
-    					});
-    					sections[j].add(row);
-    					tableView.appendSection(sections[j]);
-    				}
-    				else
-    				{
-    					if(i==0){
-    					    var prev = myArray[scrollToIndex].repName;//moment(myArray[scrollToIndex].repName);//LastUpdated);
-    					}
-    					else{
-    					   var prev = results[i-1].repName;//moment();//LastUpdated);    
-    					}
-    					
-    					var changeHeading = false;
-    					//if(curr.local().date() < prev.local().date() && curr.month()==prev.month()&&curr.year()==prev.year()){
-    					if(curr !== prev){
-    					   changeHeading = true;
-    					// if(myArray[i].repName !== myArray[i-1].repName){
-    						//tableData.push(sections[j]);
-    					}
-    					// else if(/*(curr.getDate() > prev.getDate()||curr.getDate() < prev.getDate()) && */curr.month()<prev.month()&&curr.year()==prev.year()){eeeeeeeeeeeeeeeeeeeeeeeq
-    					   // changeHeading=true;
+    				// if(skip==0 && i==0)
+    				// {
+    					// sections[j] = Ti.UI.createTableViewSection({
+    						// headerTitle: "     "+curr //curr.local().format('LLLL')//
+    					// });
+    					// sections[j].add(row);
+    					// tableView.appendSection(sections[j]);
+    				// }
+    				// else
+    				// {
+    					// if(i==0){
+    					    // var prev = myArray[scrollToIndex].repName;//moment(myArray[scrollToIndex].repName);//LastUpdated);
     					// }
-    					// else if(/*curr.getDate > prev.getDate && curr.getMonth>prev.getMonth && */curr.year() < prev.year()){
-    					    // changeHeading = true;
+    					// else{
+    					   // var prev = results[i-1].repName;//moment();//LastUpdated);    
     					// }
-    					if(changeHeading){
-    						j++;
-    						sections[j]= Ti.UI.createTableViewSection({
-    							headerTitle: "     "+curr//.local().format('LLLL')//myArray[i].repName
-    						});	
-    						sections[j].add(row);
-    						tableView.appendSection(sections[j]);
-    					}
-    					else{
-    						//sections[j].add(row);
-    						tableView.appendRow(row);
-    					}
-    				}
-    				
-    			}
+//     					
+    					// var changeHeading = false;
+    					// //if(curr.local().date() < prev.local().date() && curr.month()==prev.month()&&curr.year()==prev.year()){
+    					// if(curr !== prev){
+    					   // changeHeading = true;
+    					// // if(myArray[i].repName !== myArray[i-1].repName){
+    						// //tableData.push(sections[j]);
+    					// }
+    					// // else if(/*(curr.getDate() > prev.getDate()||curr.getDate() < prev.getDate()) && */curr.month()<prev.month()&&curr.year()==prev.year()){eeeeeeeeeeeeeeeeeeeeeeeq
+    					   // // changeHeading=true;
+    					// // }
+    					// // else if(/*curr.getDate > prev.getDate && curr.getMonth>prev.getMonth && */curr.year() < prev.year()){
+    					    // // changeHeading = true;
+    					// // }
+    					// if(changeHeading){
+    						// j++;
+    						// sections[j]= Ti.UI.createTableViewSection({
+    							// headerTitle: "     "+curr//.local().format('LLLL')//myArray[i].repName
+    						// });	
+    						// sections[j].add(row);
+    						// tableView.appendSection(sections[j]);
+    					// }
+    					// else{
+    						// //sections[j].add(row);
+    						// tableView.appendRow(row);
+    					// }
+    				// }
+//     				
+    			// }
     		}
-			updating=false;
-			dynamicIndex = skip + results.length;
-			//tableView.setData(sections);
+			//updating=false;
+			//dynamicIndex = skip + results.length;
+			tableView.setData(tableData);
 		//});
-	}
+	};
 	
-	var tableView = Ti.UI.createTableView({
-		backgroundColor : 'white',
-		//top : '61dp',
-		separatorInsets:{
-			left: 0
-		}
-		//data : tableData
-	});
+	// var tableView = Ti.UI.createTableView({
+		// backgroundColor : 'white',
+		// separatorInsets:{
+			// left: 0
+		// }
+	// });
 	
 	// sync.syncWithACS(function(e){
 		// if(e.success)
@@ -507,9 +490,11 @@ exports.MenuProposalView = function() {
 // 		
 	// });
 
-	tvContainer.add(tableView);
+	// tvContainer.add(tableView);
 	
 	tableView.addEventListener('click', function(e) {
+		
+		var clickedPropId = e.row.proposalId;
 		
 		if(e.source.name=="status"){
 			var statusData = [
@@ -531,114 +516,53 @@ exports.MenuProposalView = function() {
 	
 			statusTV.addEventListener("click", function(f){
 				var updatedProposal = null;
-				db.updateStatus({
-					status: f.row.title,
-					proposalId: myArray[f.row.rownum].ProposalId
-				}, function(g){
-					alert("Local Status Updated");
-					loading._show({
-						message: "Updating Status in back office."
-					});
-					myArray[f.row.rownum].ProposalStatus=f.row.title;
-					
-					if(Ti.Network.online)
-					{
-						if(!globalVariables.GV.cloudSessionSet){
-							acs.isLoggedIn(function(h){
-								if(h.loggedIn){
-									acs.updateProposal({row: myArray[f.row.rownum]},function(i){
-										if(i.success==false)	
-										{
-											loading._hide();
-											alert('Problem Updating on backend. Try again later');
-										}
-										else
-										{
-											db.setUpdateOff({proposalId: myArray[f.row.rownum].ProposalId}, function(j){
-												if(j.success){
-													db.setUploadedOn({
-													    proposalId: myArray[f.row.rownum].ProposalId,
-													    //LastUpdated: i.LastUpdated
-													}, function(k){
-													    if(k.success){
-													       db.setLastUpdated({
-													           LastUpdated: i.LastUpdated,
-													           proposalId: myArray[f.row.rownum].ProposalId,}, function(l){
-                                                               if(l.success){
-                                                                   loading._hide();
-                                                                   alert('Updated on back end');
-                                                               }
-                                                               else{
-                                                                   alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
-                                                               }
-                                                           });
-													    }
-													    else{
-													        alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
-													    }
-													});	
-												}
-												else{
-													alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
-												}
-											});
-										}
-									});
-								}
-							});
-						}
-						else{
-							acs.updateProposal({row: myArray[f.row.rownum]},function(h){
-								if(h.success==false)	
-								{
-									loading._hide();
-									alert('Problem Updating on backend. Try again later');
-								}
-								else
-								{
-									db.setUpdateOff({proposalId: myArray[f.row.rownum].ProposalId}, function(j){
-										if(j.success){
-											db.setUploadedOn({
-                                                proposalId: myArray[f.row.rownum].ProposalId,
-                                                LastUpdated: h.LastUpdated
-                                            }, function(k){
-                                                if(k.success){
-                                                   db.setLastUpdated({LastUpdated: h.LastUpdated}, function(l){
-                                                       if(l.success){
-                                                           loading._hide();
-                                                           alert('Updated on back end');
-                                                       }
-                                                       else{
-                                                           alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
-                                                       }
-                                                   });
-                                                   
-                                                }
-                                                else{
-                                                    alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
-                                                }
-                                            }); 
-										}
-										else{
-											alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
-										}
-									});
-								}
-							});
-						}
-					}
-					else{
-						loading._hide();
-						alert("iPad is currently not online. Sync later using sync button.");
-					}
-						
-					e.source.text=f.row.title;
-					statusPopover.hide();
-					statusTV=null;
-					statusPopover=null;
-					statusData=null;
-				});
-			});
+				if(menuLastSelectedIndex==-1){
+				    
+    				db.updateStatus({
+    					status: f.row.title,
+    					proposalId: e.row.proposalId
+    				}, function(g){
+    					alert("Local Status Updated");
+    					// myArray[f.row.rownum].ProposalStatus=f.row.title;
+    					db.ShowProposal({
+    					    proposalId: clickedPropId
+    					}, function(q){
+    					    
+    					   //updatedProposal = q.results;
+    					   //updateCloudStatus(e.row.proposalId, f.row.title);
+    					});
+    			    });
+    		    }
+    		    
+    		    loading._show({
+                    message: "Updating Status in back office."
+                });
+    		    updateCloudStatus(e.row.proposalId, f.row.title, function(g){
+    		        if(g.success){
+    		            e.source.text=f.row.title;
+                        statusPopover.hide();
+                        statusTV=null;
+                        statusPopover=null;
+                        statusData=null;
+                        loading._hide();
+                        if(menuLastSelectedIndex==-1){
+                            Ti.App.fireEvent('proposalSync');
+                        }
+                        else{
+                            Ti.App.fireEvent('reloadProposals');
+                        }
+    		            alert('Updated on back end');
+    		        }
+    		        else{
+    		            loading._hide();
+    		            alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+    		        }
+    		        
+    		    });
+    		});
+			
+			
+    					
 			
 			var statusPopover = Ti.UI.iPad.createPopover({//require('lib/popover').getPopover({
 				title: "Proposal Status",
@@ -653,11 +577,13 @@ exports.MenuProposalView = function() {
 			statusPopover.show({ view: e.source });
 			
 		}
-		
 		else if(e.source.name=="rp"){
 			//alert("referral partner field clicked");
 			//for(var i=0;i<Object.keys(globalVariables.GV.ReferralPartners).length;i++){
 			var refTableData = [];
+			//var updatedProposal = null;
+			//var clickedPropId = e.row.proposalId;
+			
 			for(var key in globalVariables.GV.ReferralPartners)
 			{
 				globalVariables.GV.ReferralPartners[key].rownum = e.index;
@@ -678,105 +604,58 @@ exports.MenuProposalView = function() {
 			});
 			
 			rpTV.addEventListener("click", function(f){
-				// if(f.row.title!='None')
-				// {
-					myArray[f.row.rownum].rpID=f.row.id;
+			 if(menuLastSelectedIndex==-1){	
 					db.updateRp({
 						rpid: f.row.id,
-						proposalId: myArray[f.row.rownum].ProposalId
+						proposalId: clickedPropId
 					}, function(g){
 						alert("Local Referral Partner added Updated");
-						loading._show({
-							message: "Updating Referral Partner in back office."
-						});
-						myArray[f.row.rownum].rpID=f.row.id;
-						if(Ti.Network.online)
-						{
-							if(!globalVariables.GV.cloudSessionSet){
-								acs.isLoggedIn(function(h){
-									if(h.loggedIn){
-										acs.updateProposal({row: myArray[f.row.rownum]},function(i){
-											if(i.success===false)	
-											{
-												loading._hide();
-												alert('Problem Updating on backend. Try again later');
-											}
-											else
-											{
-												db.setUpdateOff({proposalId: myArray[f.row.rownum].ProposalId}, function(j){
-													if(j.success){
-														db.setUploadedOn({
-                                                            proposalId: myArray[f.row.rownum].ProposalId
-                                                        }, function(k){
-                                                            if(k.success){
-                                                               loading._hide();
-                                                               alert('Updated on back end');
-                                                            }
-                                                            else{
-                                                                alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
-                                                            }
-                                                        }); 
-													}
-													else{
-														alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
-													}
-												});
-											}
-											e.source.text=f.row.title;
-											rpPopover.hide();
-											rpTV=null;
-											rpPopover=null;
-											rpData=null;
-										});
-									}
-								});
-							}
-							else{
-								acs.updateProposal({row: myArray[f.row.rownum]},function(i){
-									if(i.success===false)	
-									{
-										loading._hide();
-										alert('Problem Updating on backend. Try again later');
-									}
-									else
-									{
-										db.setUpdateOff({proposalId: myArray[f.row.rownum].ProposalId}, function(j){
-											if(j.success){
-												db.setUploadedOn({
-                                                    proposalId: myArray[f.row.rownum].ProposalId
-                                                }, function(k){
-                                                    if(k.success){
-                                                       loading._hide();
-                                                       alert('Updated on back end');
-                                                    }
-                                                    else{
-                                                        alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
-                                                    }
-                                                }); 
-											}
-											else{
-												alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
-											}
-										});
-									}
-									e.source.text=f.row.title;
-									rpPopover.hide();
-									rpTV=null;
-									rpPopover=null;
-									rpData=null;
-								});
-							}
-						}
-						else{
-							loading._hide();
-							alert("iPad is currently not online. Sync later using sync button.");
-							e.source.text=f.row.title;
-							rpPopover.hide();
-							rpTV=null;
-							rpPopover=null;
-							rpData=null;
-						}	
+						
+						db.ShowProposal({
+                            proposalId: clickedPropId
+                        }, function(q){
+                            
+                           //updatedProposal = q.results;
+						//myArray[f.row.rownum].rpID=f.row.id;
+    							
 					});
+					});
+				}
+				
+				loading._show({
+                            message: "Updating Referral Partner in back office."
+                });
+                
+                 updateCloudRP(e.row.proposalId, f.row.id, function(g){
+                    if(g.success){
+                        e.source.text=f.row.title;
+                        rpPopover.hide();
+                        rpTV=null;
+                        rpPopover=null;
+                        rpData=null;
+                        loading.hide();
+                        if(menuLastSelectedIndex==-1){
+                            Ti.App.fireEvent('proposalSync');
+                        }
+                        else{
+                            Ti.App.fireEvent('reloadProposals');
+                        }
+                        
+                        alert(g.message);
+                    }
+                    else{
+                        rpPopover.hide();
+                        rpTV=null;
+                        rpPopover=null;
+                        rpData=null;
+                        loading.hide();
+                        alert(g.message);
+                        // loading._hide();
+                        // alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                    }
+                    
+                });
+				
 				//}
 				// else
 				// {
@@ -801,86 +680,378 @@ exports.MenuProposalView = function() {
 		}
 		
 		else{
-		
-			globalVariables.GV.requestedUpdate = true;
-			
-			globalVariables.GV.repName = myArray[e.index].repName;
-			globalVariables.GV.BusinessName = myArray[e.index].BusinessName;
-			globalVariables.GV.StreetAddress = myArray[e.index].StreetAddress;
-			globalVariables.GV.State = myArray[e.index].State;
-			globalVariables.GV.City = myArray[e.index].City;
-			globalVariables.GV.Zip = myArray[e.index].Zip;
-			globalVariables.GV.Contact = myArray[e.index].Contact;
-			globalVariables.GV.Phone = myArray[e.index].Phone;
-			globalVariables.GV.BusinessType = myArray[e.index].BusinessType;
-			globalVariables.GV.ProcessingMonths = myArray[e.index].ProcessingMonths;
-			globalVariables.GV.debitVol = myArray[e.index].debitVol;
-			globalVariables.GV.aeVol = myArray[e.index].aeVol;
-			globalVariables.GV.dsVol = myArray[e.index].dsVol;
-			globalVariables.GV.mcVol = myArray[e.index].mcVol;
-			globalVariables.GV.visaVol = myArray[e.index].visaVol;
-			globalVariables.GV.debitTransactions = myArray[e.index].debitTransactions;
-			globalVariables.GV.aeTransactions = myArray[e.index].aeTransactions;
-			globalVariables.GV.dsTransactions = myArray[e.index].dsTransactions;
-			globalVariables.GV.mcTransactions = myArray[e.index].mcTransactions;
-			globalVariables.GV.visaTransactions = myArray[e.index].visaTransactions;
-			globalVariables.GV.debitAverageTicket = myArray[e.index].debitAverageTicket;
-			globalVariables.GV.aeAverageTicket = myArray[e.index].aeAverageTicket;
-			globalVariables.GV.dsAverageTicket = myArray[e.index].dsAverageTicket;
-			globalVariables.GV.mcAverageTicket = myArray[e.index].mcAverageTicket;
-			globalVariables.GV.visaAverageTicket = myArray[e.index].visaAverageTicket;
-			globalVariables.GV.TotalCurrentFees = myArray[e.index].TotalCurrentFees;
-			globalVariables.GV.CurrentEffectiveRate = myArray[e.index].CurrentEffectiveRate;
-			globalVariables.GV.debitInterchangeFees = myArray[e.index].debitInterchangeFees;
-			globalVariables.GV.aeInterchangeFees = myArray[e.index].aeInterchangeFees;
-			globalVariables.GV.dsInterchangeFees = myArray[e.index].dsInterchangeFees;
-			globalVariables.GV.mcInterchangeFees = myArray[e.index].mcInterchangeFees;
-			globalVariables.GV.visaInterchangeFees = myArray[e.index].visaInterchangeFees;
-			globalVariables.GV.debitProcessingFees = myArray[e.index].debitProcessingFees;
-			globalVariables.GV.aeProcessingFees = myArray[e.index].aeProcessingFees;
-			globalVariables.GV.dsProcessingFees = myArray[e.index].dsProcessingFees;
-			globalVariables.GV.mcProcessingFees = myArray[e.index].mcProcessingFees;
-			globalVariables.GV.visaProcessingFees = myArray[e.index].visaProcessingFees;
-			globalVariables.GV.debitCardFees = myArray[e.index].debitCardFees;
-			globalVariables.GV.aeCardFees = myArray[e.index].aeCardFees;
-			globalVariables.GV.dsCardFees = myArray[e.index].dsCardFees;
-			globalVariables.GV.mcCardFees = myArray[e.index].mcCardFees;
-			globalVariables.GV.visaCardFees = myArray[e.index].visaCardFees;
-			globalVariables.GV.TotalNewFees = myArray[e.index].TotalNewFees;
-			globalVariables.GV.NewEffectiveRate = myArray[e.index].NewEffectiveRate;
-			//globalVariables.GV.NewEffectiveRate =myArray[e.index].TotalCurrentFees;
-	
-			globalVariables.GV.MonthlySavings = myArray[e.index].MonthlySavings;
-			globalVariables.GV.Year1Savings = myArray[e.index].Year1Savings;
-			globalVariables.GV.Year2Savings = myArray[e.index].Year2Savings;
-			globalVariables.GV.Year3Savings = myArray[e.index].Year3Savings;
-			globalVariables.GV.Year4Savings = myArray[e.index].Year4Savings;
-			//globalVariables.GV.Year5Savings = myArray[e.index].Year5Saving;
-	
-			globalVariables.GV.ProcessingFee = myArray[e.index].ProcessingFee;
-			globalVariables.GV.AuthFee = myArray[e.index].AuthFee;
-			globalVariables.GV.PinDebitProcessingFee = myArray[e.index].PinDebitProcessingFee;
-			globalVariables.GV.PinDebitAuthFee = myArray[e.index].PinDebitAuthFee;
-			globalVariables.GV.MonthlyServiceFee = myArray[e.index].MonthlyServiceFee;
-			globalVariables.GV.IndustryComplinceFee = myArray[e.index].IndustryComplinceFee;
-			globalVariables.GV.TerminalFee = myArray[e.index].TerminalFee;
-			globalVariables.GV.MXGatewayFee = myArray[e.index].MXGatewayFee;
-			globalVariables.GV.DebitAccessFee = myArray[e.index].DebitAccessFee;
-			globalVariables.GV.ProposalId = myArray[e.index].ProposalId;
-			globalVariables.GV.timeId = myArray[e.index].timeId;
-			globalVariables.GV.NotesText = myArray[e.index].NotesText;
-			globalVariables.GV.LastUpdated = myArray[e.index].LastUpdated;
-			globalVariables.GV.DateCreated = myArray[e.index].DateCreated;
-			globalVariables.GV.tfInterFeeChange=false;
-			globalVariables.GV.currentLocalId = myArray[e.index].localPropID;
-			globalVariables.GV.acl_id = myArray[e.index].acl_id;
-			//globalVariables.GV.sm_id = myArray[e.index].sm_id;
-			
-			Ti.API.info(JSON.stringify(myArray[e.index]));
-			Ti.App.fireEvent("propTableClicked");
-		}
-
+		    
+		    if(menuLastSelectedIndex==-1){
+		        db.ShowProposal({
+                    proposalId: clickedPropId
+                }, function(q){
+                    loadProposal(q.results[0]);
+		        });
+	        }
+	        else{
+	            acs.getProposalById(clickedPropId, function(q){
+	                loadProposal(q.results);
+	            });
+	        }
+	    }
 	});
+    
+    function loadProposal(propToUpdate){
+        globalVariables.GV.requestedUpdate = true;
+            
+            globalVariables.GV.repName = propToUpdate.repName;
+            
+            globalVariables.GV.BusinessName = propToUpdate.BusinessName;
+            globalVariables.GV.StreetAddress = propToUpdate.StreetAddress;
+            globalVariables.GV.State = propToUpdate.State;
+            globalVariables.GV.City = propToUpdate.City;
+            globalVariables.GV.Zip = propToUpdate.Zip;
+            globalVariables.GV.Contact = propToUpdate.Contact;
+            globalVariables.GV.Phone = propToUpdate.Phone;
+            globalVariables.GV.BusinessType = propToUpdate.BusinessType;
+            globalVariables.GV.ProcessingMonths = propToUpdate.ProcessingMonths;
+            globalVariables.GV.debitVol = propToUpdate.debitVol;
+            globalVariables.GV.aeVol = propToUpdate.aeVol;
+            globalVariables.GV.dsVol = propToUpdate.dsVol;
+            globalVariables.GV.mcVol = propToUpdate.mcVol;
+            globalVariables.GV.visaVol = propToUpdate.visaVol;
+            globalVariables.GV.debitTransactions = propToUpdate.debitTransactions;
+            globalVariables.GV.aeTransactions = propToUpdate.aeTransactions;
+            globalVariables.GV.dsTransactions = propToUpdate.dsTransactions;
+            globalVariables.GV.mcTransactions = propToUpdate.mcTransactions;
+            globalVariables.GV.visaTransactions = propToUpdate.visaTransactions;
+            globalVariables.GV.debitAverageTicket = propToUpdate.debitAverageTicket;
+            globalVariables.GV.aeAverageTicket = propToUpdate.aeAverageTicket;
+            globalVariables.GV.dsAverageTicket = propToUpdate.dsAverageTicket;
+            globalVariables.GV.mcAverageTicket = propToUpdate.mcAverageTicket;
+            globalVariables.GV.visaAverageTicket = propToUpdate.visaAverageTicket;
+            globalVariables.GV.TotalCurrentFees = propToUpdate.TotalCurrentFees;
+            globalVariables.GV.CurrentEffectiveRate = propToUpdate.CurrentEffectiveRate;
+            globalVariables.GV.debitInterchangeFees = propToUpdate.debitInterchangeFees;
+            globalVariables.GV.aeInterchangeFees = propToUpdate.aeInterchangeFees;
+            globalVariables.GV.dsInterchangeFees = propToUpdate.dsInterchangeFees;
+            globalVariables.GV.mcInterchangeFees = propToUpdate.mcInterchangeFees;
+            globalVariables.GV.visaInterchangeFees = propToUpdate.visaInterchangeFees;
+            globalVariables.GV.debitProcessingFees = propToUpdate.debitProcessingFees;
+            globalVariables.GV.aeProcessingFees = propToUpdate.aeProcessingFees;
+            globalVariables.GV.dsProcessingFees = propToUpdate.dsProcessingFees;
+            globalVariables.GV.mcProcessingFees = propToUpdate.mcProcessingFees;
+            globalVariables.GV.visaProcessingFees = propToUpdate.visaProcessingFees;
+            globalVariables.GV.debitCardFees = propToUpdate.debitCardFees;
+            globalVariables.GV.aeCardFees = propToUpdate.aeCardFees;
+            globalVariables.GV.dsCardFees = propToUpdate.dsCardFees;
+            globalVariables.GV.mcCardFees = propToUpdate.mcCardFees;
+            globalVariables.GV.visaCardFees = propToUpdate.visaCardFees;
+            globalVariables.GV.TotalNewFees = propToUpdate.TotalNewFees;
+            globalVariables.GV.NewEffectiveRate = propToUpdate.NewEffectiveRate;
+            //globalVariables.GV.NewEffectiveRate =propToUpdate.TotalCurrentFees;
+    
+            globalVariables.GV.MonthlySavings = propToUpdate.MonthlySavings;
+            globalVariables.GV.Year1Savings = propToUpdate.Year1Savings;
+            globalVariables.GV.Year2Savings = propToUpdate.Year2Savings;
+            globalVariables.GV.Year3Savings = propToUpdate.Year3Savings;
+            globalVariables.GV.Year4Savings = propToUpdate.Year4Savings;
+            //globalVariables.GV.Year5Savings = propToUpdate.Year5Saving;
+    
+            globalVariables.GV.ProcessingFee = propToUpdate.ProcessingFee;
+            globalVariables.GV.AuthFee = propToUpdate.AuthFee;
+            globalVariables.GV.PinDebitProcessingFee = propToUpdate.PinDebitProcessingFee;
+            globalVariables.GV.PinDebitAuthFee = propToUpdate.PinDebitAuthFee;
+            globalVariables.GV.MonthlyServiceFee = propToUpdate.MonthlyServiceFee;
+            globalVariables.GV.IndustryComplinceFee = propToUpdate.IndustryComplinceFee;
+            globalVariables.GV.TerminalFee = propToUpdate.TerminalFee;
+            globalVariables.GV.MXGatewayFee = propToUpdate.MXGatewayFee;
+            globalVariables.GV.DebitAccessFee = propToUpdate.DebitAccessFee;
+            //globalVariables.GV.ProposalId = propToUpdate.ProposalId;
+            globalVariables.GV.ProposalStatus = propToUpdate.ProposalStatus;
+            globalVariables.GV.timeId = propToUpdate.timeId;
+            globalVariables.GV.Notes = propToUpdate.Notes;
+            
+            globalVariables.GV.LastUpdated = propToUpdate.updated_at || propToUpdate.LastUpdated;
+            globalVariables.GV.DateCreated = propToUpdate.created_at || propToUpdate.DateCreated;
+            
+            globalVariables.GV.tfInterFeeChange=false;
+            
+            //globalVariables.GV.currentLocalId = propToUpdate.localPropID;
+            
+            //globalVariables.GV.acl_id = propToUpdate.acl_id;
+            //globalVariables.GV.sm_id = propToUpdate.sm_id;
+            globalVariables.GV.ProposalId = propToUpdate.ProposalId || propToUpdate.id;
+            
+            Ti.API.info(JSON.stringify(propToUpdate));
+            Ti.App.fireEvent("propTableClicked");
+    }
+    
+    function updateCloudRP(propId,rpID, callback){
+    
+        if(Ti.Network.online)
+            {
+                if(!globalVariables.GV.cloudSessionSet){
+                    acs.isLoggedIn(function(h){
+                        if(h.loggedIn){
+                            acs.updateProposalRP({propId: propId, rpID: rpID},function(i){
+                                if(i.success===false)   
+                                {
+                                    //loading._hide();
+                                    callback({
+                                        success: false,
+                                        message: 'Problem Updating on backend. Try again later'
+                                    });
+                                    //alert('Problem Updating on backend. Try again later');
+                                }
+                                else
+                                {
+                                    if(menuLastSelectedIndex==-1){
+                                        db.setUpdateOff({proposalId: propId}, function(j){
+                                            if(j.success){
+                                                db.setUploadedOn({
+                                                    proposalId: propId
+                                                }, function(k){
+                                                    if(k.success){
+                                                       //loading._hide();
+                                                       callback({
+                                                           success: true,
+                                                           message: 'Updated on back end'
+                                                       });
+                                                       //alert('Updated on back end');
+                                                    }
+                                                    else{
+                                                        callback({
+                                                            success: false, 
+                                                            message: 'Updated on back end, but error syncing local db. Hit Sync button to fix.'
+                                                        });
+                                                        //alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                                    }
+                                                }); 
+                                            }
+                                            else{
+                                                callback({
+                                                    success: false,
+                                                    message: 'Updated on back end, but error syncing local db. Hit Sync button to fix.'
+                                                });
+                                                //alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                            }
+                                        });
+                                    }
+                                }
+                                
+                            });
+                        }
+                    });
+                }
+                else{
+                    acs.updateProposalRP({propId: propId, rpID: rpID},function(i){
+                        if(i.success===false)   
+                        {
+                            callback({
+                                success: false,
+                                message: 'Problem Updating on backend. Try again later'
+                            });
+                            // loading._hide();
+                            // alert('Problem Updating on backend. Try again later');
+                        }
+                        else
+                        {
+                            db.setUpdateOff({proposalId: propId}, function(j){
+                                if(j.success){
+                                    db.setUploadedOn({
+                                        proposalId: propId
+                                    }, function(k){
+                                        if(k.success){
+                                           callback({
+                                               success: true,
+                                               message: 'Updated on back end'
+                                           });
+                                           // loading._hide();
+                                           // alert('Updated on back end');
+                                        }
+                                        else{
+                                            callback({
+                                                success: false,
+                                                message: 'Updated on back end, but error syncing local db. Hit Sync button to fix.'
+                                            });
+                                            //alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                        }
+                                    }); 
+                                }
+                                else{
+                                    callback({
+                                        success: false,
+                                        message: 'Updated on back end, but error syncing local db. Hit Sync button to fix.'
+                                    });
+                                    //alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                }
+                            });
+                        }
+                        // e.source.text=f.row.title;
+                        // rpPopover.hide();
+                        // rpTV=null;
+                        // rpPopover=null;
+                        // rpData=null;
+                    });
+                }
+            
+          }
+        else{
+            callback({
+                success: false,
+                message: "iPad is currently not online. Sync later using sync button."
+            });
+            // loading._hide();
+            // alert("iPad is currently not online. Sync later using sync button.");
+            // e.source.text=f.row.title;
+            // rpPopover.hide();
+            // rpTV=null;
+            // rpPopover=null;
+            // rpData=null;
+        }
+    
+    }
+    
+    function updateCloudStatus(propId, status, callback){
+        
+        if(Ti.Network.online)
+            {
+                if(!globalVariables.GV.cloudSessionSet){
+                    acs.isLoggedIn(function(h){
+                        if(h.loggedIn){
+                            acs.updateProposalStatus({propId: propId, status: status}, function(i){//myArray[f.row.rownum]},function(i){
+                                if(i.success==false)    
+                                {
+                                    callback({
+                                success: false,
+                                message: 'Problem Updating on backend. Try again later'
+                            });
+                                }
+                                else
+                                {
+                                    if(menuLastSelectedIndex==-1){
+                                        
+                                        db.setUpdateOff({proposalId: propId}, function(j){
+                                            if(j.success){
+                                                db.setUploadedOn({
+                                                    proposalId: propId,
+                                                    //LastUpdated: i.LastUpdated
+                                                }, function(k){
+                                                    if(k.success){
+                                                       db.setLastUpdated({
+                                                           LastUpdated: i.updated_at,
+                                                           proposalId: propId}, function(l){
+                                                           if(l.success){
+                                                               
+                                                               callback({success: true});
+                                                           }
+                                                           else{
+                                                               callback({
+                                success: false,
+                                message: 'Updated on back end, but error syncing local db. Hit Sync button to fix.'
+                            });
+                                                           }
+                                                       });
+                                                    }
+                                                    else{
+                                                        callback({
+                                success: false,
+                                message: 'Updated on back end, but error syncing local db. Hit Sync button to fix.'
+                            });
+                                                    }
+                                                }); 
+                                            }
+                                            else{
+                                                callback({
+                                success: false,
+                                message: 'Updated on back end, but error syncing local db. Hit Sync button to fix.'
+                            });
+                                            }
+                                        });
+                                    }
+                                    else{
+                                        callback({success: true});
+                                        
+                                        
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+                else{
+                    
+                    acs.updateProposalStatus({propId: propId, status: status},function(h){
+                        if(h.success==false)    
+                        {
+                            callback({
+                                success: false,
+                                message: 'Problem Updating on backend. Try again later'
+                            });
+                            //loading._hide();
+                            //alert('Problem Updating on backend. Try again later');
+                        }
+                        else
+                        {
+                            if(menuLastSelectedIndex==-1){
+                                
+                                db.setUpdateOff({proposalId: propId}, function(j){
+                                    if(j.success){
+                                        db.setUploadedOn({
+                                            proposalId: propId,
+                                            //LastUpdated: h.LastUpdated
+                                        }, function(k){
+                                            if(k.success){
+                                               db.setLastUpdated({LastUpdated: h.updated_at}, function(l){
+                                                   if(l.success){
+                                                       
+                                                       callback({success: true});
+                                                       
+                                                   }
+                                                   else{
+                                                       callback({
+                                            success: false,
+                                            message: 'Updated on back end, but error syncing local db. Hit Sync button to fix.'
+                                        });
+                                                       //alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                                   }
+                                               });
+                                               
+                                            }
+                                            else{
+                                                callback({
+                                            success: false,
+                                            message: 'Updated on back end, but error syncing local db. Hit Sync button to fix.'
+                                        });
+                                                //alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                            }
+                                        }); 
+                                    }
+                                    else{
+                                        callback({
+                                            success: false,
+                                            message: 'Updated on back end, but error syncing local db. Hit Sync button to fix.'
+                                        });
+                                        //alert('Updated on back end, but error syncing local db. Hit Sync button to fix.');
+                                    }
+                                });
+                            }
+                            else{
+                                //loading._hide();
+                                callback({success: true});
+                                //alert('Updated on back end');
+                            }
+                        }
+                    });
+                }
+        }
+               
+        
+        else{
+            //loading._hide();
+            callback({
+                success: false,
+                message: "iPad is currently not online. Sync later using sync button." 
+            });
+            //alert();
+        }
+    }
     
     var loadingRow = Ti.UI.createTableViewRow({title:"Loading..."});
     var lastRow = 0;//dynamicIndex;
@@ -912,32 +1083,56 @@ exports.MenuProposalView = function() {
     
     var lastDistance=0;
     
-    tableView.addEventListener("scroll", function(e){
-        var offset = e.contentOffset.y;
-        var height = e.size.height;
-        var total = offset + height;
-        var theEnd = e.contentSize.height;
-        var distance = theEnd - total;
+    //tableView.addEventListener("scroll", function(e){
+        // var offset = e.contentOffset.y;
+        // var height = e.size.height;
+        // var total = offset + height;
+        // var theEnd = e.contentSize.height;
+        // var distance = theEnd - total;
+//     
+        // // going down is the only time we dynamically load,
+        // // going up we can safely ignore -- note here that
+        // // the values will be negative so we do the opposite
+        // if (distance < lastDistance)
+        // {
+            // // adjust the % of rows scrolled before we decide to start fetching
+            // var nearEnd = theEnd * .95;
+//     
+            // if (!updating && (total >= nearEnd))
+            // {
+                // beginUpdate();
+            // }
+        // }
+        // lastDistance = distance; 
+    //});
     
-        // going down is the only time we dynamically load,
-        // going up we can safely ignore -- note here that
-        // the values will be negative so we do the opposite
-        if (distance < lastDistance)
-        {
-            // adjust the % of rows scrolled before we decide to start fetching
-            var nearEnd = theEnd * .95;
-    
-            if (!updating && (total >= nearEnd))
-            {
-                beginUpdate();
-            }
-        }
-        lastDistance = distance; 
-    });
 	Ti.App.addEventListener('reloadProposals', function(e){
-		loadData(0);
+		//loadData(0);
+		if(globalVariables.GV.userRole!=="Account Executive"){
+		    loadUsers();
+		}
+		if(menuLastSelectedIndex==-1){
+            myPropsLbl.color = "#fff";
+            myPropsView.backgroundColor = "#0082b4";
+            db.ShowProposal({},function(f){
+               //myArray = e.results;
+               loadData(f.results);
+            });
+        }
+        else{
+            
+            menuTableView.data[0].rows[menuLastSelectedIndex].backgroundColor="#0082b4";
+            menuTableView.data[0].rows[menuLastSelectedIndex].children[0].color="#fff";
+            acs.queryProposalsByUid({
+                   user_id: menuTableView.data[0].rows[menuLastSelectedIndex].user_id
+                }, function(f){
+                    loadData(f.results);
+                });
+        }
+		
 	});
-
+    
+    
 	return self;
 
 };
