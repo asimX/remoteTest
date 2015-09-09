@@ -444,7 +444,7 @@ exports.logoutUser = function(callback){
 			globalVariables.GV.firstName = null;
 			Ti.App.Properties.setString('userId', null);
 			globalVariables.GV.userId =null;
-			Ti.App.Properties.setString('sessionId', "none");
+			Ti.App.Properties.setString('sessionId', null	);
 			globalVariables.GV.sessionId=null;
 			Ti.App.Properties.setString('userRole', null);
 			globalVariables.GV.userRole = null;
@@ -1120,6 +1120,23 @@ exports.downloadRemoteProposals = function(params, callback){
 	// }	
 };
 
+exports.getDeletedFileIds = function(callback){
+	Cloud.Objects.query({
+		classname: "deletedLibraryFiles",
+		skip: 0,
+		limit: 1000,
+		where: {
+			created_at: {"$gt": globalVariables.GV.lastFileSyncDate}
+		}},
+		function(e){		
+			if(e.success){
+				callback({
+					results: e.deletedLibraryFiles	
+				});
+			}
+	});
+};
+
 exports.getDeletedIds = function(params, callback){
     Ti.API.info("entering getDeletedIds");
     Cloud.Objects.query({
@@ -1139,11 +1156,50 @@ exports.getDeletedIds = function(params, callback){
                     propIds.push(e.Proposal[i].id);
                 }
                 callback({
-                    success: propIds,
+                    success: true,
                     results:e.Proposal
                 }); 
             }else {
                 Ti.API.error(JSON.stringify(e));
+                callback({
+                        success: false,
+                        results: e
+                });
+            }
+    });
+};
+
+exports.getReassignedIds = function(params, callback){
+	Ti.API.info("ENTERING  getReassignedIDs");
+	var localProps = params.localProposals;
+	Cloud.Objects.query({
+        classname : 'Proposal',
+        skip: 0,
+        limit: 1000,
+        where: {
+            //Deleted: 1
+            id: {"$in": localProps}
+        }
+        },function(e){
+            if(e.success){
+                //Ti.API.info(JSON.stringify(e));
+                var propIds = [];
+                var returnIds = [];
+                for(var i=0;i<e.Proposal.length;i++){
+                	propIds.push(e.Proposal[i].id);
+                }
+                for(var i=0;i<localProps.length;i++)
+                {
+                    if(propIds.indexOf(localProps[i])==-1){
+                    	returnIds.push(localProps[i]);
+                    }
+                }
+                callback({
+                    success: true,
+                    results:returnIds
+                }); 
+            }else {
+                Ti.API.info(JSON.stringify(e));
                 callback({
                         success: false,
                         results: e
@@ -1570,22 +1626,26 @@ exports.updateProposal = function (params,callback){
 		}
 };
 
-function queryFiles(pageNum, queryResults, callback){
+function queryFiles(skip, queryResults, callback){
 	var queryParams = null;
 	//var requestURL = null;
-	
+	Ti.API.info('QUERY FILES FUNCTION LASTFILESYNCDATE:  '+ globalVariables.GV.lastFileSyncDate);
 	if(globalVariables.GV.lastFileSyncDate==0)//||globalVariables.GV.localFileIds.length==0)
 	{
 		queryParams={
-			per_page: 20,
-			page: pageNum||1
+			// per_page: 20,
+			// page: pageNum||1
+			limit: 20,
+			skip: skip||0
 		};
 		// requestURL = 'https://api.cloud.appcelerator.com/v1/files/query.json?key=ZjxblkhEN42zd6WdS2XML4cwLJi8xCn0&pretty_json=true&count=true&where={"folder":"Pitch Book"}';//queryParams={};
 	}
 	else{
 		//requestURL = 'https://api.cloud.appcelerator.com/v1/files/query.json?key=ZjxblkhEN42zd6WdS2XML4cwLJi8xCn0&pretty_json=true&count=true&where="$gt":'+globalVariables.GV.lastFileSyncDate;
 		queryParams={
-			page: pageNum||1,
+			limit: 20,
+			skip: skip||0,
+			//page: pageNum||1,
 			where: {
 				updated_at: {"$gt": globalVariables.GV.lastFileSyncDate}
 			}
@@ -1595,14 +1655,14 @@ function queryFiles(pageNum, queryResults, callback){
 		//callback(e);
 		if (e.success) {
 			var results = [];
-				
+			Ti.API.info('FILES RESULT:  ' + JSON.stringify(e));
 			for(var i=0; i<e.files.length;i++){
 				//var localFolder = e.files[i].custom_fields.folder;
 				//localFolder.replace(" ","");
 				Ti.API.info("FILE:  "+JSON.stringify(e.files[i]));
 				
 				queryResults.push({
-					filepath: Ti.Filesystem.applicationDataDirectory+e.files[i].id+".pdf",
+					filepath: e.files[i].id+".pdf",//Ti.Filesystem.applicationDataDirectory+e.files[i].id+".pdf",
 					url: e.files[i].url,
 					id: e.files[i].id,
 					updated_at: e.files[i].updated_at,
@@ -1611,9 +1671,11 @@ function queryFiles(pageNum, queryResults, callback){
 				});
 			}
 			
-			if(pageNum < e.meta.total_pages){
-				pageNum=pageNum+1;
-				queryFiles(pageNum, queryResults, callback);
+			var newSkip = skip+e.files.length;
+			
+			if(newSkip < e.meta.total_results){
+				//pageNum=pageNum+1;
+				queryFiles(newSkip, queryResults, callback);
 			}
 			else
 			{
@@ -1626,89 +1688,8 @@ function queryFiles(pageNum, queryResults, callback){
 }
 
 exports.getFiles = function(callback) {
-	//db.getFileIDs(function(localFiles){
-	
-	
-	//var requestURL = 'https://api.cloud.appcelerator.com/v1/files/query.json?key=ZjxblkhEN42zd6WdS2XML4cwLJi8xCn0&pretty_json=true&count=true&where="$gt":'+globalVariables.GV.lastFileSyncDate;
-	
-	// var filesRequest = Ti.Network.createHTTPClient({
-		// onload: function(f){
-			// var e = JSON.parse(this.responseText);
-			// if (f.success) {
-				// var downloadQueue = [];
-				// Ti.API.info("RESPONSE:  "+JSON.stringify(e));
-				// for(var i=0; i<e.meta.count;i++){
-					// //var localFolder = e.files[i].custom_fields.folder;
-					// //localFolder.replace(" ","");
-					// //Ti.API.info("FILE:  "+JSON.stringify(e.files[i]));
-					// downloadQueue.push({
-						// filepath: Ti.Filesystem.applicationDataDirectory+e.response.files[i].id+".pdf",
-						// url: e.response.files[i].getUrl,
-						// id: e.response.files[i].id,
-						// updated_at: e.response.files[i].updated_at,
-						// folder: e.response.files[i].custom_fields.folder,
-						// name: e.response.files[i].name
-					// });
-				// }
-// 				
-				// if(downloadQueue.length>0){
-// 					
-					// var _callBack_DownloadOneFileFinished = function(download_result) {
-						// // if( typeof (download_result) !== 'undefined') {
-							// // _image.image = Titanium.Filesystem.getFile(download_result.path);
-							// // Ti.API.info('View this image: ' + download_result.path);
-						// // }
-					// };
-// 					
-					// var _callBack_DownloadMultipleFileFinished = function() {
-						// callback({
-							// success: true,
-							// results: downloadQueue
-						// });
-					// };
-// 					
-					// utility.downloadMultiFile(downloadQueue, _callBack_DownloadOneFileFinished, _callBack_DownloadMultipleFileFinished);
-				// }
-				// else{
-					// callback({
-						// success: true,
-						// results: downloadQueue
-					// });
-				// }
-			// }
-		// },
-		// onerror: function(e){
-			// callback({
-				// success: false,
-				// msg: e.message
-			// });
-		// },
-		// timeout: 10000
-	// });
-// 	
-	// filesRequest.open("GET", requestURL);
-	// filesRequest.send();
-	
-	// Cloud.Files.query(queryParams, function(e) {
-		// //callback(e);
-		// if (e.success) {
-			// var downloadQueue = [];
-// 				
-			// for(var i=0; i<e.files.length;i++){
-				// //var localFolder = e.files[i].custom_fields.folder;
-				// //localFolder.replace(" ","");
-				// Ti.API.info("FILE:  "+JSON.stringify(e.files[i]));
-// 				
-				// downloadQueue.push({
-					// filepath: Ti.Filesystem.applicationDataDirectory+e.files[i].id+".pdf",
-					// url: e.files[i].url,
-					// id: e.files[i].id,
-					// updated_at: e.files[i].updated_at,
-					// folder: e.files[i].custom_fields.folder,
-					// name: e.files[i].name
-				// });
-			// }					
-	queryFiles(1,[],function(e){
+					
+	queryFiles(0,[],function(e){
 		var downloadQueue = e.results;
 		if(downloadQueue.length>0){
 				
@@ -1717,16 +1698,24 @@ exports.getFiles = function(callback) {
 					// _image.image = Titanium.Filesystem.getFile(download_result.path);
 					// Ti.API.info('View this image: ' + download_result.path);
 				// }
-			};
-				
-			var _callBack_DownloadMultipleFileFinished = function() {
 				callback({
 					success: true,
 					results: downloadQueue
 				});
 			};
 				
-			utility.downloadMultiFile(downloadQueue, _callBack_DownloadOneFileFinished, _callBack_DownloadMultipleFileFinished);
+			//var _callBack_DownloadMultipleFileFinished = function() {
+				//callback({
+					//success: true,
+					//results: downloadQueue
+				//});
+			//};
+				
+			//utility.downloadMultiFile(downloadQueue, _callBack_DownloadOneFileFinished, _callBack_DownloadMultipleFileFinished);
+			callback({
+				success: true,
+				results: downloadQueue
+			});
 		}
 		else{
 			callback({

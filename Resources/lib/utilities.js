@@ -36,6 +36,7 @@ function downloadOneFile(url, localFilepath, callBack_DownloadOneFileFinished) {
 
 		c.onload = function(e) {
 
+
 			if(Titanium.Platform.name === 'android') {
 
 				// On android HTTPClient will not save the file to disk. So have to hack around it
@@ -50,15 +51,19 @@ function downloadOneFile(url, localFilepath, callBack_DownloadOneFileFinished) {
 			});
 		};
 	}
+	
+	Ti.API.info('LOCALPATH IS:' + localFilepath);
+	
+	if(!Titanium.Filesystem.getFile(localFilepath).exists()){
+		c.open('GET', url);
 
-	c.open('GET', url);
-
-	if(null != localFilepath && Titanium.Platform.name !== 'android') {
-		Ti.API.info('MyApp:  (iOS) Downloaded this file from server:.' + localFilepath);
-		c.file = Titanium.Filesystem.getFile(localFilepath);
+		if(null != localFilepath && Titanium.Platform.name !== 'android') {
+			Ti.API.info('MyApp:  (iOS) Downloaded this file from server:.' + localFilepath);
+			c.file = Titanium.Filesystem.getFile(localFilepath);
+		}
+	
+		c.send();
 	}
-
-	c.send();
 };
 
 /**
@@ -101,3 +106,5 @@ exports.downloadMultiFile = function(downloadQueue, callBack_DownloadOneFileFini
 	};
 	processQueue();
 };
+
+exports.DownloadOneFile = downloadOneFile;

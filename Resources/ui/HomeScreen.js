@@ -168,6 +168,7 @@ function HomeScreen(params) {
 						loading.hide();
 						globalVariables.GV.libraryViewFirstTime=false;
 						if(!e.success){
+							Ti.App.fireEvent("reloadLibrary");
 							alert(e.msg);
 						}
 					});
@@ -190,6 +191,7 @@ function HomeScreen(params) {
 						globalVariables.GV.libraryViewFirstTime=false;
 						
 						if(!e.success){
+							Ti.App.fireEvent("reloadLibrary");
 							alert(e.msg);
 						}
 					});
@@ -369,7 +371,7 @@ function HomeScreen(params) {
 	});
 
 	selfW.rightNavButton = btnMenu;
-	btnMenu.addEventListener('click', function(e) {
+-	btnMenu.addEventListener('click', function(e) {
 		if (sliderPosition == 0) {
 			sliderPosition = 2;
 			self.animate(slideOutScrollAblePar);

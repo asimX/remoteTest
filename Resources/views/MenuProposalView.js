@@ -77,7 +77,7 @@ exports.MenuProposalView = function() {
 	var myPropsLbl = Ti.UI.createLabel({
 	    color : '#0082b4',
         font : {
-            //fontFamily : 'GillSans-Light',
+            fontFamily : 'GillSans-Light',
             fontSize : 20,
             fontWeight : 'bold'
         },
@@ -157,9 +157,9 @@ exports.MenuProposalView = function() {
                             var nameLbl = Ti.UI.createLabel({
                                 color : '#000',
                                 font : {
-                                    //fontFamily : 'GillSans-Light',
+                                    fontFamily : 'GillSans-Light',
                                     fontSize : 20,
-                                    //fontWeight : 'bold'
+                                    fontWeight : 'bold'
                                 },
                                 textAlign : "center",
                                 text : data[i].first_name+" "+data[i].last_name,

@@ -1,6 +1,7 @@
 var GetPdfNumbers = require('lib/GetPdfNumbers');
 var sync = require('lib/sync');
 var db = require('db/db');
+var loading = require('lib/loading').loading();
 
 exports.LibraryView = function() {
 	var fontStyle = 'gillsanslight.ttf';
@@ -21,6 +22,7 @@ exports.LibraryView = function() {
 		borderWidth: 2.5
 	});
 	
+	self.add(loading);
 	self.add(tvContainer);
 	
 	var docViewer = null; 
@@ -66,12 +68,38 @@ exports.LibraryView = function() {
 	
 	detailsTV.addEventListener('click',function(e){
 			docViewer=null;
-			docViewer = Ti.UI.iOS.createDocumentViewer({
-				url: e.rowData.localPath
-			});
-			docViewer.show({
-				animated : true
-			});
+			
+			if(!Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory+e.rowData.localPath).exists()){
+				//h09q8h4nwepasd ; k,;;;;;;; ,;u1039n 
+				loading._show({
+					message: "Downloading.."
+				});
+				var utility = require("lib/utilities");
+				utility.DownloadOneFile(e.rowData.url, Ti.Filesystem.applicationDataDirectory+e.rowData.localPath, function(f){
+					loading._hide();
+					if(f.status==200){
+						docViewer = Ti.UI.iOS.createDocumentViewer({
+							url: Ti.Filesystem.applicationDataDirectory+e.rowData.localPath
+						});
+						docViewer.show({
+							animated : true
+						});
+					}
+					else{
+						alert("Error downloading file try again later. \n"+"ERROR CODE: \n"+f.status);
+					}
+				});
+					//downloadOneFile(downloadQueue[queueIndex].url, downloadQueue[queueIndex].filepath, processQueue);
+			}
+			else{
+				docViewer = Ti.UI.iOS.createDocumentViewer({
+					url: Ti.Filesystem.applicationDataDirectory+e.rowData.localPath
+				});
+				docViewer.show({
+					animated : true
+				});
+			}
+			
 	});
 
 	tvContainer.add(detailsView);
@@ -88,20 +116,38 @@ exports.LibraryView = function() {
 		borderColor: "#a9a9a9",
 		borderWidth: 1
 	});
-
+	
+	var menuLastSelectedFile = -1;
+	
 	menuTableView.addEventListener('click', function(e) {
-		loadData(e.index);
+		
+        if(menuLastSelectedFile>=0 && menuLastSelectedFile!=e.index){
+			menuTableView.data[0].rows[menuLastSelectedFile].children[0].backgroundColor="#fff";
+	        menuTableView.data[0].rows[menuLastSelectedFile].children[0].color="#000";
+       	}
+       	
+		
+		loadData(e.index, false);
+		e.row.children[0].backgroundColor = "#0082b4";
+		e.rowData.backgroundColor = "#0082b4";
+        e.row.children[0].color = "white";
+        menuLastSelectedFile=e.index;
+		
 	});
 			
 	tvContainer.add(menuTableView);
 	
-	function loadData(folderNum){
+	var filesArray = [];
+	
+	function loadData(folderNum, init){
 		
 		
 		//Initialize vars
 		foldersTableData = [];
 		data = []; 
 		detailsTableData = [];
+		
+		detailsTV.setData(detailsTableData);
 		
 		db.getLibraryFolders(function(e){
 			data = e.folders;
@@ -121,7 +167,8 @@ exports.LibraryView = function() {
 			var viewPlaceHolder = Ti.UI.createTableViewRow({
 				
 				height : '90dp',
-				localPath: filesArr[i].localPath
+				localPath: filesArr[i].localPath,
+				url: filesArr[i].url
 			});
 			//viewMarketing.add(viewPlaceHolder[i]);
 			var imgView = Ti.UI.createImageView({
@@ -151,40 +198,60 @@ exports.LibraryView = function() {
 			detailsTableData.push(viewPlaceHolder);
 		}
 		
-		detailsTV.setData(detailsTableData);
+			detailsTV.setData(detailsTableData);
 		
-	
-		for (var i = 0; i < data.length; i++) {
-			var row = Ti.UI.createTableViewRow({
-				className : 'forumEvent', 
-				selectedBackgroundColor : 'white',
-				rowIndex : i, 
-				height : 75
-			});
-			var labelPlanName = Ti.UI.createLabel({
-				color : '#000',
-				font : {
-					fontFamily : 'GillSans-Light',
-					fontSize : defaultFontSize + 6,
-					fontWeight : 'bold'
-				},
-				textAlign : "center",
-				text : data[i].title,
-				width : Ti.UI.SIZE,
-				height : '30dp',
-			});
-			row.add(labelPlanName);
-		    foldersTableData.push(row);
+		if(init==true){
+			
+			menuTableView.setData(foldersTableData);
+			
+			for (var i = 0; i < data.length; i++) {
+				var row = Ti.UI.createTableViewRow({
+					className : 'forumEvent', 
+					//selectedBackgroundColor : '#0082b4',
+					//backgroundSelectedColor: '#0082b4',
+					//backgroundFocusedColor: '#0082b4',
+					rowIndex : i, 
+					height : 75
+				});
+				
+				var labelPlanName = Ti.UI.createLabel({
+					color : '#000',
+					font : {
+						fontFamily : 'GillSans-Light',
+						fontSize : defaultFontSize + 6,
+						fontWeight : 'bold'
+					},
+					textAlign : "center",
+					text : data[i].title,
+					width : Ti.UI.FILL,
+					height: Ti.UI.FILL,
+					//height : '30dp',
+				});
+				row.add(labelPlanName);
+			    foldersTableData.push(row);
+			}
+			
+			menuTableView.setData(foldersTableData);
+			
+			if(foldersTableData.length>0){
+				menuTableView.data[0].rows[0].children[0].backgroundColor="#0082b4";
+		    	menuTableView.data[0].rows[0].children[0].color="#fff";
+		    	menuLastSelectedFile=0;
+			}
+			
 		}
-		
-		menuTableView.setData(foldersTableData);
+		// else{
+			// menuTableView.data[0].rows[folderNum].children[0].backgroundColor="#0082b4";
+		    // menuTableView.data[0].rows[folderNum].children[0].color="#fff";
+		// }
+		//menuTableView.selectRow(0);
 	}
 	
 		
-	loadData(0);
+	loadData(0, true);
 	
 	Ti.App.addEventListener('reloadLibrary', function(e){
-		loadData(0);
+		loadData(0, true);
 	});
 	
 	syncBtn.addEventListener("click", function(){
@@ -195,6 +262,7 @@ exports.LibraryView = function() {
 		});
 		sync.syncLibrary(function(e){
 			loading.hide();
+			loadData(0, true);
 			if(!e.success){
 				alert(e.msg);
 			}

@@ -668,7 +668,7 @@ exports.InterchangeAnalysis = function() {
 			if(!globalVariables.GV.tfInterFeeChange)
 			{
 				tfDebitInterFee.value = globalVariables.GV.debitVol * parseFloat(globalVariables.GV.DebitRate);
-                tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.AmexRate)) + (globalVariables.GV.AmexTrRate * 0.1);
+                tfAeInterFee.value = (globalVariables.GV.aeVol * parseFloat(globalVariables.GV.AmexRate)) + (globalVariables.GV.AmexTrRate * globalVariables.GV.aeTransactions);
                 tfDsInterFee.value = globalVariables.GV.dsVol * parseFloat(globalVariables.GV.DsRate);
                 tfMcInterFee.value = globalVariables.GV.mcVol * parseFloat(globalVariables.GV.McRate);
                 tfVisaInterFee.value = globalVariables.GV.visaVol * parseFloat(globalVariables.GV.VisaRate); 

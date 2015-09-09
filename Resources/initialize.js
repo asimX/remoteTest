@@ -32,7 +32,7 @@ exports.init = function(startApp){
 	globalVariables.GV.proposalsViewFirstTime = true;
 	globalVariables.GV.libraryViewFirstTime = true;
 	globalVariables.GV.acl_id = Ti.App.Properties.getString("acl_id");
-	globalVariables.GV.lastFileSyncDate = Ti.App.Properties.getString("lastFileSyncDate");
+	globalVariables.GV.lastFileSyncDate = Ti.App.Properties.getString("lastFileSyncDate", 0);
 	globalVariables.GV.lastProposalSyncDate = Ti.App.Properties.getString("lastProposalSyncDate");
 	
 	db.init();
@@ -76,7 +76,8 @@ exports.init = function(startApp){
 		
 		globalVariables.GV.libraryViewFirstTime=true;
 		globalVariables.GV.acl_id = Ti.App.Properties.getString("acl_id");
-		globalVariables.GV.lastFileSyncDate = Ti.App.Properties.getString("lastFileSyncDate");
+		globalVariables.GV.lastFileSyncDate = Ti.App.Properties.getString("lastFileSyncDate",0);
+		Ti.API.info("INITIALIZED LASTFILE SYNC DATE:   "+globalVariables.GV.lastFileSyncDate);
 		globalVariables.GV.lastProposalSyncDate = Ti.App.Properties.getString("lastProposalSyncDate");
 		
 		//load charge rates
@@ -190,42 +191,45 @@ exports.init = function(startApp){
         {
             if(globalVariables.GV.sessionId!==null)
             {
-            acs.isLoggedIn(function(g){
-                if(g.loggedIn){
-                    // acs.updateTmid(function(h){
-                        // if(h.success){
-                            // alert("Roxie's proposals Updated");
-                        // }
-                    // });
-                    //sync.syncDialog();
-                    acs.getPartners(function(f){
-                        if(f.success){
-                            db.FillReferralPartners(f.results);
-                            db.LoadReferralPartners(function(f){});
-                        }
-                        acs.getRates(function(h){
-                            if(h.success){
-                                db.FillBusinessType(h.results);
-                                //globalVariables.GV.SetRates(g.results);
-                                //db.LoadBusinessTypes(function(e){});
-                                acs.getUsers(globalVariables.GV.userRole,function(n){
-                                    if(n.success){
-                                        startApp({loggedIn: true});
-                                    }
-                                }); 
-                            }
-                        });
-                    });
-                }
-                else{
-                    // alert("You are logged out. Please Login again to continue");
-                    // globalVariables.GV.loginScreen = new LoginScreen();
-                    // globalVariables.GV.loginScreen.open();
-                    // globalVariables.GV.navGroup.close();
-                    // Ti.App.fireEvent("closeHomeWindow");
-                    startApp({loggedIn: false});
-                }
-            });
+	            acs.isLoggedIn(function(g){
+	                if(g.loggedIn){
+	                    // acs.updateTmid(function(h){
+	                        // if(h.success){
+	                            // alert("Roxie's proposals Updated");
+	                        // }
+	                    // });
+	                    //sync.syncDialog();
+	                    acs.getPartners(function(f){
+	                        if(f.success){
+	                            db.FillReferralPartners(f.results);
+	                            db.LoadReferralPartners(function(f){});
+	                        }
+	                        acs.getRates(function(h){
+	                            if(h.success){
+	                                db.FillBusinessType(h.results);
+	                                //globalVariables.GV.SetRates(g.results);
+	                                //db.LoadBusinessTypes(function(e){});
+	                                acs.getUsers(globalVariables.GV.userRole,function(n){
+	                                    if(n.success){
+	                                        startApp({loggedIn: true});
+	                                    }
+	                                }); 
+	                            }
+	                        });
+	                    });
+	                }
+	                else{
+	                    // alert("You are logged out. Please Login again to continue");
+	                    // globalVariables.GV.loginScreen = new LoginScreen();
+	                    // globalVariables.GV.loginScreen.open();
+	                    // globalVariables.GV.navGroup.close();
+	                    // Ti.App.fireEvent("closeHomeWindow");
+	                    startApp({loggedIn: false});
+	                }
+	            });
+            }
+            else{
+            	startApp({loggedIn: false});
             }
         }
         else{

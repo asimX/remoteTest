@@ -410,9 +410,7 @@ exports.getAllProposalIds = function(callback){
 		var SPTable = db.execute(sqlStatement);//('select * from Proposal');
 		var i = 0;
 		while (SPTable.isValidRow()) {	
-			dataArray.push({
-				ProposalId: SPTable.fieldByName('proposalId'),
-			});
+			dataArray.push(SPTable.fieldByName('proposalId'));
 			i++;
 			SPTable.next();
 		};
@@ -1157,6 +1155,61 @@ exports.getAllLastDates = function (callback){
 	callback({results:dataArray});
 };
 
+exports.deleteFiles = function(params, callback){
+	var sqlStatement1 = "Select local_path from Library where file_id = ?";
+	var sqlStatement2 = "Delete from Library where file_id = ?";
+	var dataset = params;
+	try{
+		var db = Ti.Database.open('pps');
+        for (var i=0;i<dataset.length;i++)
+        {
+            var SPTable = db.execute(sqlStatement1, dataset[i]);
+            var f = null;
+            while (SPTable.isValidRow()) {	
+				var local_path = SPTable.fieldByName('local_path');
+				//var file_id = SPTable.fieldByName('file_id');
+				// dataArray.push({
+					// local_path: SPTable.fieldByName('local_path'),
+					// file_id: SPTable.fieldByName('file_id')
+				// });
+				//if(file_id)
+				f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory+local_path);
+				if(f.exists()) {
+					var success = f.deleteFile();
+					if(success){
+						db.execute(sqlStatement2,dataset[i]);
+					}
+				}
+				else{
+					db.execute(sqlStatement2,dataset[i]);
+				}
+				//Ti.filesystem.deleteFile(local_path);
+				//i++;
+				SPTable.next();
+			};
+			
+			
+			// db.close();
+			// sqlStatement=null;
+        }
+        
+        //db.execute(sqlStatement,params.ids);
+        db.close();
+        dataset=null;
+        sqlStatement=null;
+        callback({
+            success: true
+        });
+	}
+	catch(err){
+	    callback({
+	        success: false,
+	        message: err
+	    });
+        
+    }
+};
+
 exports.deleteProposals = function(params, callback){
     var sqlStatement = "Delete from Proposal where proposalId = ?";
     var dataset = params.ids;
@@ -1220,6 +1273,7 @@ exports.getFolderFiles = function(folderName){
 			returnData.push({
 				name: SPTable.fieldByName('file_name'),
 				localPath: SPTable.fieldByName('local_path'),
+				url: SPTable.fieldByName('url')
 			});
 			SPTable.next();
 		}
