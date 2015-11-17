@@ -12,10 +12,10 @@
     name="acs-api-key-development" type="string">Q8j2efLgKn7QYqPyUuRCyQ9GX852axKp</property>!-->
     <id>com.bwa.interchangeGenius</id>
     <name>pps</name>
-    <version>1.3.1</version>
+    <version>1.3.3</version>
     <publisher>BWA</publisher>
     <url>http://</url>
-    <description>undefined</description>
+    <description/>
     <copyright>2013 by BWA</copyright>
     <icon>appicon.png</icon>
     <persistent-wifi>false</persistent-wifi>
@@ -57,7 +57,7 @@
         <target device="mobileweb">false</target>
         <target device="tizen">false</target>
     </deployment-targets>
-    <sdk-version>4.1.0.GA</sdk-version>
+    <sdk-version>5.0.2.GA</sdk-version>
     <property name="appc-app-id" type="string">55622a03f3defdde2b5a1d18</property>
     <property name="acs-authbase-url-development" type="string">https://secure-identity.cloud.appcelerator.com</property>
     <property name="acs-base-url-development" type="string">https://api.cloud.appcelerator.com</property>

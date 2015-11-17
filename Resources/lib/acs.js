@@ -23,7 +23,8 @@ exports.getUsers = function(team_id, callback){
     else if(globalVariables.GV.userRole=="Territory Manager"){
         where = {
             //sales_team: globalVariables.GV.team_id,
-            tm_id: globalVariables.GV.userId
+            tm_id: globalVariables.GV.userId,
+            role: {$nin: ["Sales Manager", "Admin"]}
         };
     }
     else if(globalVariables.GV.userRole=="Sales Manager"){
@@ -328,100 +329,6 @@ function aclsmUpdate(params, callback){
     }
 	    
 };
-	
-// else{
-	// var aclFixed=null;
-    // var smtmFixed=null;
-//     
-    // if(user.custom_fields.aclBugFixed==false||user.custom_fields.aclBugFixed==null)
-    // {
-        // db.insertAclBugFix(function(f){
-//             
-            // if(!f.success){
-                // alert(f.message+"\n Permissions were not patched due to error in Database. Please logout and login in again.");
-            // }
-            // else{
-                // aclFixed=true;
-                // Cloud.Users.update({
-                    // custom_fields:{
-                        // aclBugFixed: true
-                    // }
-                // }, function(g){
-                    // if(g.success)
-                    // {
-                        // if(user.custom_fields.smtmBugFixed==false||user.custom_fields.smtmBugFixed==null)
-                        // {
-                            // db.insertSmTmBugFix(function(h){
-                                // if(!h.success){
-                                    // alert(h.message+"\n Sales Manager Permissions were not patched due to error in Database. Please logout and login in again.");
-                                // }
-                                // else{
-                                    // smtmFixed=true;
-                                    // Cloud.Users.update({
-                                        // custom_fields:{
-                                            // smtmBugFixed: true
-                                        // }
-                                    // }, function(j){
-                                        // if(j.success)
-                                        // {
-                                            // aclFixed=null;
-                                            // smtmFixed=null;
-                                            // callback({
-                                                // success: true
-                                            // });
-                                        // }
-                                        // else{
-                                            // alert(j.message+"\n SMTM Patch confirmation was not applied in ACS. Please logout and login in again.");
-                                        // }
-                                    // });
-                                // }
-                            // });
-                        // }
-                        // else{
-                            // callback(g);
-                        // }
-                    // }
-                    // else{
-                        // alert(g.message+"\n ACL Patch confirmation was not applied in ACS. Please logout and login in again.");
-                    // }
-                // });
-            // }
-        // });
-    // }
-    // else if(user.custom_fields.smtmBugFixed==false||user.custom_fields.smtmBugFixed==null)
-    // {
-        // db.insertSmTmBugFix(function(f){
-            // if(!f.success){
-                // alert(f.message+"\n Sales Manager Permissions were not patched due to error in Database. Please logout and login in again.");
-            // }
-            // else{
-                // smtmFixed=true;
-                // //if(user.custom_fields.smtmBugFixed==null)
-                // Cloud.Users.update({
-                    // custom_fields:{
-                        // smtmBugFixed: true
-                    // }
-                // }, function(g){
-                    // if(g.success)
-                    // {
-                        // callback({
-                            // success: true
-                        // });
-                    // }
-                    // else{
-                        // alert(g.message+"\n SMTM Patch confirmation was not applied in ACS. Please logout and login in again.");
-                        // }
-                    // });
-                // }
-            // });
-        // }
-        // else{
-            // callback(e);
-        // }
-  // }
-
-		
-		
 
 function changePwd(params,callback){
 	Cloud.Users.update({
@@ -465,14 +372,6 @@ exports.logoutUser = function(callback){
 	});
 };
 
-// function queryProposals(date,queryResults,callbak){
-	// var queryParams=null;
-	// if(globalVariables.GV.lastProposalSyncDate==0)
-	// {
-// 		
-	// }
-// }
-
 exports.getProposalById = function(propId, callback){
      Cloud.Objects.show({
          classname : 'Proposal',
@@ -498,88 +397,33 @@ exports.queryProposalsByUid = function(params, callback) {
 	var d=null;
 	var searchDate = globalVariables.GV.lastProposalSyncDate;
 	var searchParams = null;
-	// if(params.getUpdates){
-// 	    
-    	// if(globalVariables.GV.lastProposalSyncDate==0){
-    		// d=new Date("January 1, 2014 00:00:00");
-    		// searchDate = d.toISOString();
-    	// }
-    	// searchParams = {
-	        // user_id: globalVariables.GV.userId,
-            // updated_at: {"$gt": searchDate},
-            // Deleted: 0
-	    // };
-	    // Ti.API.info("INSIDE OF queryProposalByUid");
-    // }
-    // else{
-        searchParams = {
-            user_id: params.user_id,
-            Deleted: 0,
-            //order: "updated_at"
-        };
-    //}
-    	Cloud.Objects.query({
-    		classname : 'Proposal',
-    		//page : 1,
-    		//per_page : 10,
-    	    limit: 1000,
-    	    order: "-updated_at",
-    		where: searchParams//{
-    			// user_id: globalVariables.GV.userId,
-    			// updated_at: {"$gt": searchDate},
-    			// Deleted: 0
-    		// }
-    	}, function(e) {
-    		Ti.API.debug("queryProposal by UID Results: " + JSON.stringify(e));
-    		if (e.success) {
-    			// if(params.getUpdates){
-    				// db.getAllLastDates(function(f){
-    					// var changedArray = [];
-    					// var moment=require("/lib/moment");
-    					// for(var i=0;i<f.results.length;i++){
-    						// var j=0;
-    						// var found=false;
-    						// while(!found && j<e.Proposal.length){
-    							// if(e.Proposal[j].id==f.results[i].ProposalId){
-    								// var remoteDate = moment(e.Proposal[j].updated_at);  ///CHANGE THIS BACK TO LASTUPDATED
-    								// var localDate = moment(f.results[i].LastUpdated);
-    								// if(remoteDate>localDate)
-    								// {
-    									// changedArray.push(e.Proposal[j]);
-    								// }
-    								// found=true;
-    							// }
-    							// j++;
-    						// }
-    					// }
-    					// moment=null;
-    					// callback({
-    						// success: true,
-    						// results: changedArray
-    					// });
-    				// });
-    			// }
-    			// else{
-    				callback({
-    					success: true,
-    					results:e.Proposal
-    				});
-    			//}
-    		} else {
-    			callback({
-    				success: false,
-    				results: e
-    			});
-    			// alert.alert('Error:\n' + ((e.error && e.message) || JSON.stringify(e)));
-    		}
-    	});
+    searchParams = {
+        user_id: params.user_id,
+        Deleted: 0,
+    };
+	Cloud.Objects.query({
+		classname : 'Proposal',
+	    limit: 1000,
+	    order: "-updated_at",
+		where: searchParams
+	}, function(e) {
+		Ti.API.debug("queryProposal by UID Results: " + JSON.stringify(e));
+		if (e.success) {
+			callback({
+				success: true,
+				results:e.Proposal
+			});
+    	} else {
+			callback({
+				success: false,
+				results: e
+			});
+    	}
+    });
                                                                                
 };
 
 exports.queryProposalsBySmid = function(params,callback) {
-	//var key=params.key.valueOf();
-	//var value=params.value;
-	//Ti.API.info(key+": "+value);
 	var d=null;
     var searchDate = globalVariables.GV.lastProposalSyncDate;
 	var searchParams = null;
@@ -606,13 +450,8 @@ exports.queryProposalsBySmid = function(params,callback) {
 	
 	Cloud.Objects.query({
 		classname : 'Proposal',
-		//page : 1,
-		//per_page : 10,
 		limit: 1000,
-		where: searchParams,//{
-			// sm_id: globalVariables.GV.userId,
-			// Deleted: 0
-		// }
+		where: searchParams,
 	}, function(e) {
 		Ti.API.info("queryProposal by sm_ID Results: " + JSON.stringify(e));
 		if (e.success) {
@@ -653,15 +492,11 @@ exports.queryProposalsBySmid = function(params,callback) {
 				success: false,
 				results: e
 			});
-			// alert.alert('Error:\n' + ((e.error && e.message) || JSON.stringify(e)));
 		}
 	});
 };
 
 exports.queryProposalsByTmid = function(params, callback) {
-	//var key=params.key.valueOf();
-	//var value=params.value;
-	//Ti.API.info(key+": "+value);
 	var d=null;
     var searchDate = globalVariables.GV.lastProposalSyncDate;
 	var searchParams = null;
@@ -688,13 +523,8 @@ exports.queryProposalsByTmid = function(params, callback) {
     
 	Cloud.Objects.query({
 		classname : 'Proposal',
-		//page : 1,
-		//per_page : 10,
 		limit: 1000,
-		where:searchParams,//{
-			// tm_id: globalVariables.GV.userId,
-			// Deleted: 0
-		// }
+		where:searchParams,
 	}, function(e) {
 		Ti.API.debug("queryProposal by tm_ID Results: " + JSON.stringify(e));
 		if (e.success) {
@@ -735,7 +565,6 @@ exports.queryProposalsByTmid = function(params, callback) {
 				success: false,
 				results: e
 			});
-			// alert.alert('Error:\n' + ((e.error && e.message) || JSON.stringify(e)));
 		}
 	});
 };
@@ -760,21 +589,13 @@ exports.getPartners = function(callback){
 };
 
 exports.queryAllProposals = function(params,callback) {
-	//var key=params.key.valueOf();
-	//var value=params.value;
-	//Ti.API.info(key+": "+value);
 	var queryResults=[];
-	//var currentIndex = 0;
-	//var dataReturned = false;
 	var changedArray = [];
 	var totalResults=0;
 	var failedACS=false;
-	//var skip = 0;
 	
 	Cloud.Objects.query({
         classname : 'Proposal',
-        //skip : skip || 0,
-        //per_page : 100,
         where:{
             user_id: globalVariables.GV.userId,
             Deleted: 0
@@ -782,24 +603,16 @@ exports.queryAllProposals = function(params,callback) {
         limit: 500
     }, function(f){
         queryResults = queryResults.concat(f.Proposal);
-        //currentIndex=currentIndex+f.Proposal.length;
-        //dataReturned=true;
         totalResults=f.meta.total_results;
-        // while(currentIndex<f.meta.total_results&&!failedACS)
-        // {
             
     	function recursiveQueryAll(currentIndex)
         {
             
             if(currentIndex<totalResults)
             { 
-                // var currentIndexBefore = currentIndex;
-                // if(dataReturned)
-                // {
                 Cloud.Objects.query({
                     classname : 'Proposal',
                     skip: currentIndex,
-                    //per_page : 100,
                     where:{
                         user_id: globalVariables.GV.userId,
                         Deleted: 0
@@ -810,15 +623,13 @@ exports.queryAllProposals = function(params,callback) {
                     {
                         queryResults = queryResults.concat(e.Proposal);
                         currentIndex=currentIndex+e.Proposal.length;
-                        //dataReturned=true;
-                        // if(currentIndex<e.meta.total_results){
+                        
                         recursiveQueryAll(currentIndex);
-                        // }
-                        // else{
+                        
                     }
                     else{
                         failedACS=true;
-                        //dataReturned=false;
+                        
                         recursiveQueryAll(totalResults);
                     }
                 });
@@ -832,7 +643,6 @@ exports.queryAllProposals = function(params,callback) {
                 }
                 else if(params.getUpdates){
                     db.getAllLastDates(function(g){
-                    // var changedArray = [];
                         var moment=require("/lib/moment");
                         for(var i=0;i<g.results.length;i++){
                             var j=0;
@@ -858,33 +668,27 @@ exports.queryAllProposals = function(params,callback) {
                     });
                 }
                 else{
-                    //total=e.meta.total_results;
+                    
                     callback({
                         success: true,
                         results:queryResults,
-                        //currentIndex: currentIndex,
+                        
                         total: f.meta.total_results
                     });
                  
                 }
             }
-            // if(currentIndexBefore==currentIndex){
-                // dataReturned=false;
-            // }
-            // else{
-                // dataReturned=true;
-            // }
         }
         
         if(totalResults>queryResults.length){
             recursiveQueryAll(500);    
         }
         else{
-            //total=e.meta.total_results;
+         
             callback({
                 success: true,
                 results:queryResults,
-                //currentIndex: currentIndex,
+                
                 total: f.meta.total_results
             });
          
@@ -893,118 +697,9 @@ exports.queryAllProposals = function(params,callback) {
         
         
     });
-            // }
-            // else {
-                // failedACS = {
-                    // success: true,
-                    // results: e
-                // };
-                // // callback({
-                    // // success: false,
-                    // // results: e
-                // // });
-                // //alert.alert('Error:\n' + ((e.error && e.message) || JSON.stringify(e)));
-            // }
-        // });
-    // }
-//     
-    // recursiveQueryAll(0);
-//     
-    // if(failedACS.success){
-        // callback({
-            // success: false,
-            // results: e
-        // });
-    // }
-    // else if(params.getUpdates){
-        // callback({
-            // success: true,
-            // results: changedArray
-        // });   
-    // }
-    // else{
-        // callback({
-            // success: true,
-            // results: queryResults,
-            // total: total
-        // });
-    // }
     
 };
-        // }
-        // else{
-            // alert("Error:  \\n"+ ((e.error && e.message) || JSON.stringify(e)));
-        // }
-    // });
-// }
-	// Cloud.Objects.query({
-		// classname : 'Proposal',
-		// skip : currentIndex,
-		// //per_page : 100,
-		// // where:{
-			// // user_id: value
-		// // }
-		// limit: 500
-	// }, function(e) {
-		// if (e.success)
-		 // {
-			// if(params.getUpdates){
-				// db.getAllLastDates(function(f){
-					// var changedArray = [];
-					// var moment=require("/lib/moment");
-					// for(var i=0;i<f.results.length;i++){
-						// var j=0;
-						// var found=false;
-						// while(!found && j<e.Proposal.length){
-							// if(e.Proposal[j].id==f.results[i].ProposalId){
-								// var remoteDate = moment(e.Proposal[j].updated_at);
-                                // var localDate = moment(f.results[i].LastUpdated);
-								// if(remoteDate>localDate)
-								// {
-									// changedArray.push(e.Proposal[j]);
-								// }
-								// found=true;
-							// }
-							// j++;
-						// }
-					// }
-// 					
-					// callback({
-						// success: true,
-						// results: changedArray
-					// });
-				// });
-			// }
-			// else{
-			    // currentIndex = e.currentIndex;
-                        // total = e.total;
-                        // while(currentIndex<total){
-                              // acs.queryAllProposals({
-                                  // skip: e.currentIndex
-                              // },function(d){
-                                  // currentIndex=d.currentIndex;
-                              // });
-                        // }
-				// currentIndex = currentIndex + e.Proposal.length;
-				// callback({
-					// success: true,
-					// results:e.Proposal,
-					// currentIndex: currentIndex,
-					// total: e.meta.total_results
-				// });
-			// }
-		// } else {
-			// callback({
-				// success: false,
-				// results: e
-			// });
-			// //alert.alert('Error:\n' + ((e.error && e.message) || JSON.stringify(e)));
-		// }
-	// });
-// };
-
-
-
+       
 
 exports.downloadRemoteProposals = function(params, callback){
 	var conditions=null;
@@ -1013,12 +708,15 @@ exports.downloadRemoteProposals = function(params, callback){
 		Cloud.Objects.query({
 			classname : 'Proposal',
 			limit: 1000,
+			//user_id: globalVariables.GV.userId,
 			//id: {'$nin':params.localProposals},
 			where: {
 				//id: {'$nin':params.localProposals},
-				Deleted: 0,
-				created_at: {"$gt": params.lastCreatedDate},
-				user_id: globalVariables.GV.userId
+				"$and":[
+				{created_at: {"$gt": params.lastCreatedDate}},
+				//Deleted: 0,
+				{user_id: globalVariables.GV.userId},
+				{Deleted: 0}]
 				//"order": "-updated_at"
 			}
 		}, function(e){
@@ -1038,86 +736,7 @@ exports.downloadRemoteProposals = function(params, callback){
 					//alert.alert('Error:\n' + ((e.error && e.message) || JSON.stringify(e)));
 				}
 		});
-	// }
-	// else if(globalVariables.GV.userRole == "Sales Manager"){
-		// Cloud.Objects.query({
-			// classname : 'Proposal',
-			// limit: 1000,
-			// //id: {"$nin":params.localProposals},
-			// where: {
-				// sm_id: globalVariables.GV.userId,
-				// Deleted: 0,
-				// created_at: {"$gt": params.lastCreatedDate}
-			// }
-		// }, function(e){
-			// Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
-			// if (e.success) {
-				// Ti.API.info("downloadRemoteProposals Results: " + JSON.stringify(e));
-				// //alert.alert('Success:\n' + 'Count: ' + e.Proposal[0].BusinessName);
-				// callback({
-					// success: e.success,
-					// results:e.Proposal
-				// });
-			// } else {
-				// callback({
-					// success: false,
-					// results: e
-			    // });
-			// }
-		// });
-	// }
-	// else if (globalVariables.GV.userRole == "Territory Manager"){
-		// Cloud.Objects.query({
-			// classname : 'Proposal',
-			// limit: 1000,
-			// where: {
-				// tm_id: globalVariables.GV.userId,
-				// Deleted: 0,
-				// created_at: {"$gt": params.lastCreatedDate}
-			// }
-		// }, function(e){
-			// Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
-			// if (e.success) {
-				// Ti.API.info("downloadRemoteProposals Results: " + JSON.stringify(e));
-				// //alert.alert('Success:\n' + 'Count: ' + e.Proposal[0].BusinessName);
-				// callback({
-					// success: e.success,
-					// results:e.Proposal
-				// });
-			// } else {
-				// callback({
-					// success: false,
-					// results: e
-			    // });
-			// }
-		// });
-	// }
-	// else{
-		// Cloud.Objects.query({
-		// classname : 'Proposal',
-		// limit: 1000,
-		// where: {
-			// user_id: globalVariables.GV.userId,
-			// Deleted: 0,
-			// created_at: {"$gt": params.lastCreatedDate}
-		// }
-		// }, function(e){
-			// Ti.API.debug("queryProposal Results: " + JSON.stringify(e));
-			// if (e.success) {
-				// Ti.API.info("downloadRemoteProposals Results: " + JSON.stringify(e));
-				// //alert.alert('Success:\n' + 'Count: ' + e.Proposal[0].BusinessName);
-				// callback({
-					// success: e.success,
-					// results:e.Proposal
-				// });
-			// } else {
-				// callback({
-						// success: false,
-						// results: e
-				// });
-			// }
-		// });
-	// }	
+	
 };
 
 exports.getDeletedFileIds = function(callback){
@@ -1177,15 +796,18 @@ exports.getReassignedIds = function(params, callback){
         skip: 0,
         limit: 1000,
         where: {
-            //Deleted: 1
-            id: {"$in": localProps}
-        }
+            // //Deleted: 1
+            //"id": {"$nin": localProps},
+           	"user_id": globalVariables.GV.userId
+        
+        },
         },function(e){
             if(e.success){
                 //Ti.API.info(JSON.stringify(e));
                 var propIds = [];
                 var returnIds = [];
                 for(var i=0;i<e.Proposal.length;i++){
+                	//if()
                 	propIds.push(e.Proposal[i].id);
                 }
                 for(var i=0;i<localProps.length;i++)
@@ -1209,20 +831,6 @@ exports.getReassignedIds = function(params, callback){
 };
 
 exports.createProposal = function(params,callback) {	
-	// var smid=" ";
-	// var tmid=" ";
-	// if(globalVariables.GV.userRole=="Sales Manager"){
-		// smid=globalVariables.GV.userId;
-	// }
-	// else if(globalVariables.GV.userRole=="Territory Manager")
-	// {
-		// tmid=globalVariables.GV.userId;
-		// smid=globalVariables.GV.sm_id;
-	// }
-	// else if(globalVariables.GV.userRole=="Account Executive"){
-		// tmid=globalVariables.GV.tm_id;
-		// smid=globalVariables.GV.sm_id;
-	// }
 	
 	if(params)
 	{
@@ -1626,10 +1234,13 @@ exports.updateProposal = function (params,callback){
 		}
 };
 
+var totalFiles = null;
+
 function queryFiles(skip, queryResults, callback){
 	var queryParams = null;
 	//var requestURL = null;
 	Ti.API.info('QUERY FILES FUNCTION LASTFILESYNCDATE:  '+ globalVariables.GV.lastFileSyncDate);
+	//var totalResults = 0;
 	if(globalVariables.GV.lastFileSyncDate==0)//||globalVariables.GV.localFileIds.length==0)
 	{
 		queryParams={
@@ -1656,6 +1267,10 @@ function queryFiles(skip, queryResults, callback){
 		if (e.success) {
 			var results = [];
 			Ti.API.info('FILES RESULT:  ' + JSON.stringify(e));
+			if(skip==0)
+			{
+				totalFiles = e.meta.total_results;
+			}
 			for(var i=0; i<e.files.length;i++){
 				//var localFolder = e.files[i].custom_fields.folder;
 				//localFolder.replace(" ","");
@@ -1673,7 +1288,7 @@ function queryFiles(skip, queryResults, callback){
 			
 			var newSkip = skip+e.files.length;
 			
-			if(newSkip < e.meta.total_results){
+			if(newSkip < totalFiles){
 				//pageNum=pageNum+1;
 				queryFiles(newSkip, queryResults, callback);
 			}

@@ -199,12 +199,12 @@ function syncWithACS(callback){
 			}
 			else{
 				
-				var propIds = [];
-				for(var i=0;i<f.results.length;i++)
-				{
-					propIds.push(f.results[i].ProposalId);
-				}
-				
+				var propIds = f.results;//[];
+				// for(var i=0;i<f.results.length;i++)
+				// {
+					// propIds.push(f.results[i].ProposalId);
+				// }
+				Ti.API.info("LOCAL PROPIDS: " + propIds);
 				db.getLastCreatedPropDate(function(g){	    
 					acs.downloadRemoteProposals({
     					lastCreatedDate: g.lastCreatedDate
@@ -236,13 +236,13 @@ function syncWithACS(callback){
 							        }
 	        					}
 							    
-							    var localPropsToDelete = arr_diff(matchedProps,propIds);
-							    
-							    db.deleteProposals({ids: localPropsToDelete}, function(g){
-							    	if(g.success){
-							    		j = matchFound = propIds= null;
-							    	}
-							    });
+							    // var localPropsToDelete = arr_diff(matchedProps,propIds);
+// 							    
+							    // db.deleteProposals({ids: localPropsToDelete}, function(g){
+							    	// if(g.success){
+							    		// j = matchFound = propIds= null;
+							    	// }
+							    // });
 							    
 							    //j = matchFound = propIds= null;
 								
@@ -393,7 +393,6 @@ function checkForDeleted(callback){
                                 propsToDelete.push(e.results[i].id);
                             }
                             Ti.API.info("TO DELETE:  "+propsToDelete);
-                            
                             
                             // if(propsToDelete.length>0){  
                                 // db.deleteProposals({ids: propsToDelete}, function(g){
