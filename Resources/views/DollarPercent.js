@@ -160,11 +160,11 @@ exports.DollarPercent = function(win) {
 	});
 	tfAuthFee.addEventListener('blur', function(e) {
 
-		globalVariables.GV.AuthFee = parseFloat(tfAuthFee.value);
+		//globalVariables.GV.AuthFee = parseFloat(tfAuthFee.value);
 		if (tfAuthFee.value == '') {
-			tfAuthFee.value = '0.00';
+			tfAuthFee.value = globalVariables.GV.AuthFee = '0.00';
 		} else {
-			var result = parseFloat(tfAuthFee.value);
+			var result = globalVariables.GV.AuthFee = parseFloat(tfAuthFee.value);
 			result = result.toFixed(2);
 			tfAuthFee.value = result;
 		}
@@ -210,20 +210,22 @@ exports.DollarPercent = function(win) {
 
 	tfPinDebitProcessingFee.addEventListener('blur', function(e) {
 
-		globalVariables.GV.PinDebitProcessingFee = parseFloat(tfPinDebitProcessingFee.value).toFixed(2) / 100;
+		
+		
+		if (tfPinDebitProcessingFee.value == '') {
+			tfPinDebitProcessingFee.value = globalVariables.GV.PinDebitProcessingFee = '0.00';
+		} else {
+			var result = parseFloat(tfPinDebitProcessingFee.value);
+			globalVariables.GV.PinDebitProcessingFee = parseFloat(tfPinDebitProcessingFee.value).toFixed(2) / 100;
+			result = result.toFixed(2) + '%';
+			tfPinDebitProcessingFee.value = result;
+		}
 		if(globalVariables.GV.PinDebitProcessingFee<1)
 		{
 			globalVariables.GV.PinDebitProcessingFee = parseFloat(globalVariables.GV.PinDebitProcessingFee).toFixed(4);
 		}
 		else{
 			globalVariables.GV.PinDebitProcessingFee = parseFloat(globalVariables.GV.PinDebitProcessingFee).toFixed(2);
-		}
-		if (tfPinDebitProcessingFee.value == '') {
-			tfPinDebitProcessingFee.value = '0.00';
-		} else {
-			var result = parseFloat(tfPinDebitProcessingFee.value);
-			result = result.toFixed(2) + '%';
-			tfPinDebitProcessingFee.value = result;
 		}
 		//	labPDPFDollarSign.setText('%');
 	});
@@ -278,12 +280,12 @@ exports.DollarPercent = function(win) {
 	});
 	tfPinDebitAuthFee.addEventListener('blur', function(e) {
 
-		globalVariables.GV.PinDebitAuthFee = parseFloat(tfPinDebitAuthFee.value).toFixed(2);
+		//globalVariables.GV.PinDebitAuthFee = parseFloat(tfPinDebitAuthFee.value).toFixed(2);
 		if (tfPinDebitAuthFee.value == '') {
-			tfPinDebitAuthFee.value = '0.00';
+			tfPinDebitAuthFee.value = globalVariables.GV.PinDebitAuthFee= '0.00';
 		} else {
 			var result = parseFloat(tfPinDebitAuthFee.value);
-			result = result.toFixed(2);
+			result = globalVariables.GV.PinDebitAuthFee = result.toFixed(2);
 			tfPinDebitAuthFee.value = result;
 		}
 		labPinDebitAuthFeeDollarSign.setText('$');
@@ -463,10 +465,10 @@ exports.DollarPercent = function(win) {
 		globalVariables.GV.TerminalFee = parseFloat(tfTerminalFee.value).toFixed(2);
 
 		if (tfTerminalFee.value == '') {
-			tfTerminalFee.value = '0.00';
+			tfTerminalFee.value = globalVariables.GV.TerminalFee = '0.00';
 		} else {
 			var result = parseFloat(tfTerminalFee.value);
-			result = result.toFixed(2);
+			result = globalVariables.GV.TerminalFee = result.toFixed(2);
 			tfTerminalFee.value = result;
 		}
 		labTerDollarSign.setText('$');

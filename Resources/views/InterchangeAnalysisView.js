@@ -758,6 +758,17 @@ exports.InterchangeAnalysis = function() {
 			labDebitCardFees.setText(parseFloat(tfDebitInterFee.value) + parseFloat(labDebitProcFees.getText()));
 
 			var sumTnf = parseFloat(labVisaCardFees.getText()) + parseFloat(labMcCardFees.getText()) + parseFloat(labDsCardFees.getText()) + parseFloat(labAeCardFees.getText()) + parseFloat(labDebitCardFees.getText()) + parseFloat(globalVariables.GV.MonthlyServiceFee) + parseFloat(globalVariables.GV.IndustryComplinceFee) + parseFloat(globalVariables.GV.TerminalFee) + parseFloat(globalVariables.GV.MXGatewayFee) + parseFloat(globalVariables.GV.DebitAccessFee) + (parseFloat(globalVariables.GV.AuthFee) * 25);
+			Ti.API.info("labVisaCardFees:  " + parseFloat(labVisaCardFees.getText()) + 
+						"\nlabMcCardFees:  " + parseFloat(labMcCardFees.getText()) + 
+						"\nlabDsCardFees:  " + parseFloat(labDsCardFees.getText()) + 
+						"\nlabAeCardFees:  " + parseFloat(labAeCardFees.getText()) + 
+						"\nlabDebitCardFees:  " + parseFloat(labDebitCardFees.getText()) + 
+						"\nMonthlyServiceFee:  " + parseFloat(globalVariables.GV.MonthlyServiceFee) + 
+						"\nIndustryComplinceFee:  " + parseFloat(globalVariables.GV.IndustryComplinceFee) + 
+						"\nTerminalFee:  " + parseFloat(globalVariables.GV.TerminalFee) + 
+						"\nMXGatewayFee:  " + parseFloat(globalVariables.GV.MXGatewayFee) + 
+						"\nDebitAccessFee:  " + parseFloat(globalVariables.GV.DebitAccessFee) + 
+						"\nAuthFee:  " + parseFloat(globalVariables.GV.AuthFee));
 			globalVariables.GV.TotalNewFees = sumTnf.toFixed(2);
 			labTotalNewField.setText(utility.formatCurrency(globalVariables.GV.TotalNewFees,"$"));
 			

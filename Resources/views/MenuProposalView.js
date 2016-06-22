@@ -89,9 +89,12 @@ exports.MenuProposalView = function() {
 	
 	myPropsView.add(myPropsLbl);
 	
-	if(globalVariables.GV.userRole != "Account Executive"){
+	var menuTableView = null;
+	function loadUsers(){
+        
+            if(globalVariables.GV.userRole != "Account Executive"){
             
-            var menuTableView = Ti.UI.createTableView({
+            menuTableView = Ti.UI.createTableView({
                 backgroundColor : 'white',
                 separatorInsets:{
                     left: 0,
@@ -137,8 +140,7 @@ exports.MenuProposalView = function() {
         menuContainer.add(blankMenuView);
     }
 	
-	function loadUsers(){
-        
+            
             db.getUsers(function(e){
                 //if(e.success){
                     var data = e.results;
