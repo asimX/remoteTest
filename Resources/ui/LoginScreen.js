@@ -11,11 +11,11 @@ function LoginScreen() {
 	});
 	////////////////////Priority
 	var imagePriority = Ti.UI.createImageView({
-		image : '/images/iconPriorityWhite.png',
-		top : '2%',
-		left : '2%',
-		height : '12%',
-		width : '37%'
+		image : '/images/companyLogo.png',
+		top : '7%',
+		//left : '2%',
+		//height : '12%',
+		//width : '37%'
 	});
 	self.add(imagePriority);
 	//////////////////////////////////////////////////////////
@@ -33,13 +33,13 @@ function LoginScreen() {
 
 	self.add(labInterchangeGenius);
 
-	var viewLogo = Ti.UI.createView({
-		backgroundImage : 'images/companyLogo.png',
-		left : '0dp',
-		top : 0,
-		height : Ti.UI.SIZE,
-		width : Ti.UI.SIZE
-	});
+	// var viewLogo = Ti.UI.createView({
+		// backgroundImage : 'images/companyLogo.png',
+		// left : '0dp',
+		// top : 0,
+		// height : Ti.UI.SIZE,
+		// width : Ti.UI.SIZE
+	// });
 	var tfEmail = Ti.UI.createTextField({
 		hintText : 'Email',
 		borderStyle : Ti.UI.INPUT_BORDERSTYLE_ROUNDED,

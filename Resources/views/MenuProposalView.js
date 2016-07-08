@@ -701,8 +701,14 @@ exports.MenuProposalView = function() {
     function loadProposal(propToUpdate){
         globalVariables.GV.requestedUpdate = true;
             
-            globalVariables.GV.repName = propToUpdate.repName;
-            
+            globalVariables.GV.firstName = propToUpdate.user.first_name;
+            globalVariables.GV.lastName = propToUpdate.user.last_name;
+            globalVariables.GV.email = propToUpdate.user.email;
+            globalVariables.GV.companyName = propToUpdate.user.custom_fields.companyName;
+            globalVariables.GV.addressLine1 = propToUpdate.user.custom_fields.addressLine1;
+            globalVariables.GV.addressLine2 = propToUpdate.user.custom_fields.addressLine2;
+            globalVariables.GV.phone = propToUpdate.user.custom_fields.phone;
+            globalVariables.GV.website = propToUpdate.user.custom_fields.website;
             globalVariables.GV.BusinessName = propToUpdate.BusinessName;
             globalVariables.GV.StreetAddress = propToUpdate.StreetAddress;
             globalVariables.GV.State = propToUpdate.State;

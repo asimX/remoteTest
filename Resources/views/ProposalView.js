@@ -19,15 +19,15 @@ exports.Proposal = function() {
 	var converters = PDF.createConverters();
 	
 	//////////////////////////
-	var img = Ti.UI.createImageView({
-		image : '/images/iconPriority.png',
-		top : '5dp',
-		left : '5dp',
-		width : '150dp',
-		height : '32dp',
-
-	});
-	self.add(img);
+	// var img = Ti.UI.createImageView({
+		// image : '/images/iconPriority.png',
+		// top : '5dp',
+		// left : '5dp',
+		// width : '150dp', //120dp
+		// height : '32dp', //120dp
+// 
+	// });
+	//self.add(img);
 	
 	var labProposal = Ti.UI.createLabel({
 		color : '#0082b4',
@@ -391,7 +391,7 @@ exports.Proposal = function() {
 		},
 		text : 'Monthly Savings',
 		textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-		top : 400,
+		top : 350,
 		left : '6%',
 		width : 430,
 		height : Ti.UI.SIZE
@@ -406,7 +406,7 @@ exports.Proposal = function() {
 		},
 		text : '$ xxxxx.xx',
 		textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-		top : 460,
+		top : 410,
 		left : '6%',
 		width : 430,
 		height : Ti.UI.SIZE
@@ -567,12 +567,17 @@ exports.Proposal = function() {
 	var labPreparedBy = Ti.UI.createLabel({
 		color : '#0082b4',
 		font : {
-			fontSize : '22dp',
+			fontSize : '20dp',
 			fontweight : 'bold'
 		},
-		text : 'Prepared By: \n' + globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName,
+		text : /*'Prepared By: \n\n' + */globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName+'\n\n'+ 
+		       globalVariables.GV.companyName+'\n'+
+		       globalVariables.GV.addressLine1+'\n'+
+		       globalVariables.GV.addressLine2+'\n'+
+		       globalVariables.GV.phone+'\n'+
+		       globalVariables.GV.email,
 
-		top : '90%',
+		top : '73%',//'90%',
 		left : '5%',
 		width : Ti.UI.SIZE,
 		height : Ti.UI.SIZE,
@@ -933,11 +938,17 @@ exports.Proposal = function() {
 				fontSize : '22dp',
 				fontweight : 'bold'
 			},
-			text : 'Prepared By: \n' + globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName+
-					'\n\nPriority Payment System South'+
-					'\n(866) 648-6449 option 2'+
-					'\nwww.ppssouth.com'+
-					'\nsales@prioritypays.com'
+			text : /*'Prepared By: \n\n' + */globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName+'\n\n'+ 
+		       globalVariables.GV.companyName+'\n'+
+		       globalVariables.GV.addressLine1+'\n'+
+		       globalVariables.GV.addressLine2+'\n'+
+		       globalVariables.GV.phone+'\n'+
+		       globalVariables.GV.email
+			// text : 'Prepared By: \n' + globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName+
+					// '\n\nPriority Payment System South'+
+					// '\n(866) 648-6449 option 2'+
+					// '\nwww.ppssouth.com'+
+					// '\nsales@prioritypays.com'
 		});
 		self.add(footerText1);
 		
@@ -1036,7 +1047,13 @@ exports.Proposal = function() {
             labProposedEffectiveRate2.setText(propEffRate+' %');
     			
     		labProposal.setText('Proposal For ' + globalVariables.GV.BusinessName);
-    		labPreparedBy.setText('Prepared By:\n' + globalVariables.GV.repName);
+    		labPreparedBy.setText(globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName+'\n\n'+ 
+		       globalVariables.GV.companyName+'\n'+
+		       globalVariables.GV.addressLine1+'\n'+
+		       globalVariables.GV.addressLine2+'\n'+
+		       globalVariables.GV.phone+'\n'+
+		       globalVariables.GV.email);
+		    //'Prepared By:\n' + globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName);//globalVariables.GV.repName);
     		if(globalVariables.GV.requestedUpdate && e.alert){
     			
     			alert("SAVINGS UPDATED");
@@ -1056,7 +1073,7 @@ exports.Proposal = function() {
 			labYear4Savingsii.setText("");
 			
 			labProposal.setText('Proposal For ');
-			labPreparedBy.setText('Prepared By :   ');
+			labPreparedBy.setText("");//'Prepared By :   ');
 		}
 	});
 	return self;

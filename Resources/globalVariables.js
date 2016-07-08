@@ -186,6 +186,12 @@ exports.GV = {
 	repName: null,
 	team_id: null,
 	team_name: null,
+	addressLine1: null,
+	companyName: null,
+	addressLine2: null,
+	phone: null,
+	website: null,
+	email: null,
 	
 	firstTimeLogin: null,	//used to determine whether library must be downloaded after first time login when there is 0 items in DB for new user. Using this to avoid extra processing call to DB.
 

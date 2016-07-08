@@ -403,13 +403,10 @@ exports.CurrentScenario = function() {
 	});
 
 	tfDebitTransactions.addEventListener('blur', function(e) {
-		globalVariables.GV.debitTransactions = parseInt(tfDebitTransactions.value);
 		if (tfDebitTransactions.value == '') {
 			tfDebitTransactions.value = '0.00';
-
-		} else {
-			tfDebitTransactions.value = globalVariables.GV.debitTransactions;
 		}
+		globalVariables.GV.debitTransactions = parseInt(tfDebitTransactions.value);
 	});
 	comboView3.add(tfDebitTransactions);
 	
@@ -438,13 +435,12 @@ exports.CurrentScenario = function() {
 	});
 
 	tfAeTransactions.addEventListener('blur', function(e) {
-		globalVariables.GV.aeTransactions = parseInt(tfAeTransactions.value);
+		
 		if (tfAeTransactions.value == '') {
 			tfAeTransactions.value = '0.00';
 
-		} else {
-			tfAeTransactions.value = globalVariables.GV.aeTransactions;
 		}
+		globalVariables.GV.aeTransactions = parseInt(tfAeTransactions.value);
 	});
 
 	//textfield transacrion3
@@ -474,12 +470,12 @@ exports.CurrentScenario = function() {
 	});
 
 	tfDsTransactions.addEventListener('blur', function(e) {
-		globalVariables.GV.dsTransactions = parseInt(tfDsTransactions.value);
+		
 		if (tfDsTransactions.value == '') {
 			tfDsTransactions.value = '0.00';
-		} else {
-			tfDsTransactions.value = globalVariables.GV.dsTransactions;
 		}
+		
+		globalVariables.GV.dsTransactions = parseInt(tfDsTransactions.value);
 	});
 
 	//textfield transacrion4
@@ -502,18 +498,20 @@ exports.CurrentScenario = function() {
 
 	
 	tfMcTransactions.addEventListener('focus', function(e) {
-
-		tfMcTransactions.addEventListener('blur', function(e) {
-			globalVariables.GV.mcTransactions = parseInt(tfMcTransactions.value);
-			if (tfMcTransactions.value == '') {
-
-				tfMcTransactions.value = '0.00';
-			} else {
-				tfMcTransactions.value = globalVariables.GV.mcTransactions;
-				//Math.round();
-			}
-		});
+		if (tfDsVol.value == '') {
+			alert.alert('Invalid Value', 'Plz Enter Some Value');
+		}
 	});
+	
+	tfMcTransactions.addEventListener('blur', function(e) {
+		
+		if (tfMcTransactions.value == '') {
+
+			tfMcTransactions.value = '0.00';
+		}
+		globalVariables.GV.mcTransactions = parseInt(tfMcTransactions.value);
+	});
+
 	//textfield transacrion5
 	var tfVisaTransactions = Ti.UI.createTextField({
 		borderStyle : Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
@@ -540,13 +538,11 @@ exports.CurrentScenario = function() {
 	
 
 	tfVisaTransactions.addEventListener('blur', function(e) {
-		globalVariables.GV.visaTransactions = parseInt(tfVisaTransactions.value);
 		if (tfVisaTransactions.value == '') {
 			tfVisaTransactions.value = '0.00';
 
-		} else {
-			tfVisaTransactions.value = globalVariables.GV.visaTransactions;
-		}
+		} 
+		globalVariables.GV.visaTransactions = parseInt(tfVisaTransactions.value);
 	});
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	var comboView4 = Ti.UI.createView({

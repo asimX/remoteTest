@@ -59,7 +59,7 @@ exports.loginUser = function(email, password, callback) {
 			globalVariables.GV.lastName = user.last_name;
 			Ti.App.Properties.setString('firstname', user.first_name);
 			globalVariables.GV.firstName = user.first_name;
-			globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
+			//globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
 			Ti.App.Properties.setString('userId', user.id);
 			globalVariables.GV.userId = user.id;
 			Ti.App.Properties.setString('sessionId', Cloud.sessionId);
@@ -80,6 +80,19 @@ exports.loginUser = function(email, password, callback) {
 			Ti.App.Properties.setString("sm_id", globalVariables.GV.sm_id);
 			globalVariables.GV.tm_id = user.custom_fields.tm_id;
 			Ti.App.Properties.setString("tm_id", globalVariables.GV.tm_id);
+			globalVariables.GV.companyName = user.custom_fields.companyName;
+			Ti.App.Properties.setString("companyName", globalVariables.GV.companyName);
+			globalVariables.GV.addressLine1 = user.custom_fields.addressLine1;
+			Ti.App.Properties.setString("addressLine1", globalVariables.GV.addressLine1);
+			globalVariables.GV.addressLine2 = user.custom_fields.addressLine2;
+			Ti.App.Properties.setString("addressLine2", globalVariables.GV.addressLine2);
+			globalVariables.GV.phone = user.custom_fields.phone;
+			Ti.App.Properties.setString("phone", globalVariables.GV.phone);
+			globalVariables.GV.website = user.custom_fields.website;
+			Ti.App.Properties.setString("website", globalVariables.GV.website);
+			globalVariables.GV.email = user.email;
+			Ti.App.Properties.setString("email", globalVariables.GV.email);
+			
 			if(globalVariables.GV.userRole=="Admin")
 			{
 				globalVariables.GV.acl_id = null;
