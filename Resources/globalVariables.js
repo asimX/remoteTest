@@ -189,7 +189,7 @@ exports.GV = {
 	addressLine1: null,
 	companyName: null,
 	addressLine2: null,
-	phone: null,
+	empPhone: null,
 	website: null,
 	email: null,
 	

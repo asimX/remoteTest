@@ -701,14 +701,27 @@ exports.MenuProposalView = function() {
     function loadProposal(propToUpdate){
         globalVariables.GV.requestedUpdate = true;
             
-            globalVariables.GV.firstName = propToUpdate.user.first_name;
-            globalVariables.GV.lastName = propToUpdate.user.last_name;
-            globalVariables.GV.email = propToUpdate.user.email;
-            globalVariables.GV.companyName = propToUpdate.user.custom_fields.companyName;
-            globalVariables.GV.addressLine1 = propToUpdate.user.custom_fields.addressLine1;
-            globalVariables.GV.addressLine2 = propToUpdate.user.custom_fields.addressLine2;
-            globalVariables.GV.phone = propToUpdate.user.custom_fields.phone;
-            globalVariables.GV.website = propToUpdate.user.custom_fields.website;
+            if(propToUpdate.repName){
+            	globalVariables.GV.firstName = propToUpdate.repName.substr(0,propToUpdate.repName.indexOf(' '));
+            	globalVariables.GV.lastName = propToUpdate.repName.substr(propToUpdate.repName.indexOf(' ')+1);
+            	globalVariables.GV.email = propToUpdate.email;
+	            globalVariables.GV.companyName = propToUpdate.companyName;
+	            globalVariables.GV.addressLine1 = propToUpdate.addressLine1;
+	            globalVariables.GV.addressLine2 = propToUpdate.addressLine2;
+	            globalVariables.GV.empPhone = propToUpdate.empPhone;
+	            globalVariables.GV.website = propToUpdate.website;
+            }
+            else{
+            	globalVariables.GV.firstName = propToUpdate.user.first_name;
+            	globalVariables.GV.lastName = propToUpdate.user.last_name;
+            	globalVariables.GV.email = propToUpdate.user.email;
+	            globalVariables.GV.companyName = propToUpdate.user.custom_fields.companyName;
+	            globalVariables.GV.addressLine1 = propToUpdate.user.custom_fields.addressLine1;
+	            globalVariables.GV.addressLine2 = propToUpdate.user.custom_fields.addressLine2;
+	            globalVariables.GV.empPhone = propToUpdate.user.custom_fields.phone;
+	            globalVariables.GV.website = propToUpdate.user.custom_fields.website;
+            }
+            
             globalVariables.GV.BusinessName = propToUpdate.BusinessName;
             globalVariables.GV.StreetAddress = propToUpdate.StreetAddress;
             globalVariables.GV.State = propToUpdate.State;

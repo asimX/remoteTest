@@ -29,8 +29,8 @@ exports.getUsers = function(team_id, callback){
     }
     else if(globalVariables.GV.userRole=="Sales Manager"){
         where = {
-            //sales_team: globalVariables.GV.team_id,
-            sm_id: globalVariables.GV.userId
+            "$or":[{sales_team: globalVariables.GV.team_id},
+            {sm_id: globalVariables.GV.userId}]
         };
     }
     Cloud.Users.query({
@@ -59,7 +59,7 @@ exports.loginUser = function(email, password, callback) {
 			globalVariables.GV.lastName = user.last_name;
 			Ti.App.Properties.setString('firstname', user.first_name);
 			globalVariables.GV.firstName = user.first_name;
-			//globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
+			globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
 			Ti.App.Properties.setString('userId', user.id);
 			globalVariables.GV.userId = user.id;
 			Ti.App.Properties.setString('sessionId', Cloud.sessionId);
@@ -68,10 +68,10 @@ exports.loginUser = function(email, password, callback) {
 			globalVariables.GV.userRole = user.role;
 			Ti.API.info("SESSION ID IS:  " +Cloud.sessionId);
 			globalVariables.GV.cloudSessionSet=true;
-			globalVariables.GV.team_id = user.sales_team;
-			Ti.App.Properties.setString('team_id', user.sales_team);
-			globalVariables.GV.team_name = user.sales_team_name;
-			Ti.App.Properties.setString('team_name', user.sales_team_name);
+			globalVariables.GV.team_id = user.custom_fields.sales_team;
+			Ti.App.Properties.setString('team_id', user.custom_fields.sales_team);
+			globalVariables.GV.team_name = user.custom_fields.sales_team_name;
+			Ti.App.Properties.setString('team_name', user.custom_fields.sales_team_name);
 			// Ti.App.Properties.setBool("loggedIn",true);
 			// globalVariables.GV.loggedIn=true;
 			globalVariables.GV.proposalsViewFirstTime=true;

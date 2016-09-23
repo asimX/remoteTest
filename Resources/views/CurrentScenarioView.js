@@ -392,11 +392,11 @@ exports.CurrentScenario = function() {
 		tintColor: 'black'
 
 	});
-	tfDebitTransactions.addEventListener('focus', function(e) {
-	   if (tfDebitVol.value == '') {
-	       alert.alert('Invalid Volume', 'Please enter a value for Debit Volume.');
-	   } 
-	});
+	// tfDebitTransactions.addEventListener('focus', function(e) {
+	   // if (tfDebitVol.value == '') {
+	       // alert.alert('Invalid Volume', 'Please enter a value for Debit Volume.');
+	   // } 
+	// });
 
 	tfDebitTransactions.addEventListener('return', function(e) {
 		tfTotalNewField.focus();
@@ -427,12 +427,12 @@ exports.CurrentScenario = function() {
 		tfDebitTransactions.focus();
 	});
 	comboView3.add(tfAeTransactions);
-	tfAeTransactions.addEventListener('focus', function(e) {
-		//Titanium.API.info("You clicked the button");
-		if (tfAeVol.value == '') {
-			alert.alert('Invalid Value', 'Plz Enter Some Value');
-		}
-	});
+	// tfAeTransactions.addEventListener('focus', function(e) {
+		// //Titanium.API.info("You clicked the button");
+		// if (tfAeVol.value == '') {
+			// alert.alert('Invalid Value', 'Plz Enter Some Value');
+		// }
+	// });
 
 	tfAeTransactions.addEventListener('blur', function(e) {
 		
@@ -460,14 +460,14 @@ exports.CurrentScenario = function() {
 		tfAeTransactions.focus();
 	});
 	comboView3.add(tfDsTransactions);
-	tfDsTransactions.addEventListener('focus', function(e) {
-		//Titanium.API.info("You clicked the button");
-		if (tfDsVol.value == '') {
-
-			alert.alert('Invalid Value', 'Plz Enter Some Value');
-
-		}
-	});
+	// tfDsTransactions.addEventListener('focus', function(e) {
+		// //Titanium.API.info("You clicked the button");
+		// if (tfDsVol.value == '') {
+// 
+			// alert.alert('Invalid Value', 'Plz Enter Some Value');
+// 
+		// }
+	// });
 
 	tfDsTransactions.addEventListener('blur', function(e) {
 		
@@ -497,11 +497,11 @@ exports.CurrentScenario = function() {
 	comboView3.add(tfMcTransactions);
 
 	
-	tfMcTransactions.addEventListener('focus', function(e) {
-		if (tfDsVol.value == '') {
-			alert.alert('Invalid Value', 'Plz Enter Some Value');
-		}
-	});
+	// tfMcTransactions.addEventListener('focus', function(e) {
+		// if (tfDsVol.value == '') {
+			// alert.alert('Invalid Value', 'Plz Enter Some Value');
+		// }
+	// });
 	
 	tfMcTransactions.addEventListener('blur', function(e) {
 		
@@ -529,12 +529,12 @@ exports.CurrentScenario = function() {
 		tfMcTransactions.focus();
 	});
 	comboView3.add(tfVisaTransactions);
-	tfVisaTransactions.addEventListener('focus', function(e) {
-		//Titanium.API.info("You clicked the button");
-		if (tfVisaVol.value == '') {
-			alert.alert('Invalid Value', 'Plz Enter Some Value');
-		}
-	});
+	// tfVisaTransactions.addEventListener('focus', function(e) {
+		// //Titanium.API.info("You clicked the button");
+		// if (tfVisaVol.value == '') {
+			// alert.alert('Invalid Value', 'Plz Enter Some Value');
+		// }
+	// });
 	
 
 	tfVisaTransactions.addEventListener('blur', function(e) {

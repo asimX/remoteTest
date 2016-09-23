@@ -20,17 +20,17 @@ exports.Proposal = function() {
 	
 	//////////////////////////
 	// var img = Ti.UI.createImageView({
-		// image : '/images/iconPriority.png',
+		// image : '/images/logo-01.png',
 		// top : '5dp',
 		// left : '5dp',
-		// width : '150dp', //120dp
-		// height : '32dp', //120dp
+		// //width : '150dp', //120dp
+		// //height : '45dp', //120dp
 // 
 	// });
-	//self.add(img);
+	// self.add(img);
 	
 	var labProposal = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '34dp',
 			fontFamily : 'GillSans-Light',
@@ -38,20 +38,20 @@ exports.Proposal = function() {
 		},
 		text : 'Proposal For ' + globalVariables.GV.BusinessName,
 		textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-		top : "45dp",
+		top : "40dp",
 		width : Ti.UI.SIZE,
 		height : Ti.UI.SIZE
 	});
 	self.add(labProposal);
 	//// label CurrentPrice
-	var underline = Ti.UI.createImageView({
-		image : '/images/titleUnderline.png',
-		top : 70
-	});
-	self.add(underline);
+	// var underline = Ti.UI.createImageView({
+		// image : '/images/titleUnderline.png',
+		// top : 70
+	// });
+	// self.add(underline);
 
 	var labCurrentPrice = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '22dp',
 			//fontWeight : 'bold'
@@ -83,11 +83,12 @@ exports.Proposal = function() {
 	var itemLbl = Ti.UI.createLabel({
 		text : 'Item',
 		textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-		backgroundColor : '#e6e6e6',
+		backgroundColor : '#4BC4F1',
 		width : '65%',
 		top : 1,
 		left : 2,
 		height : Ti.UI.SIZE,
+		color: "white"
 		//borderColor: '#999999'
 	});
 
@@ -104,10 +105,12 @@ exports.Proposal = function() {
 	var costLbl = Ti.UI.createLabel({
 		text : 'Cost',
 		textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-		backgroundColor : '#e6e6e6',
+		backgroundColor : '#4BC4F1',
+		color: "white",
 		left : '65%',
 		right : 2,
 		top : 1,
+		color: "white",
 		//width : '34%',
 		height : Ti.UI.SIZE,
 		//borderColor: '#999999'
@@ -178,7 +181,7 @@ exports.Proposal = function() {
 
 	//// label Total Current Fees
 	var labTotalCurrentFees = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '18dp'
 		},
@@ -194,7 +197,7 @@ exports.Proposal = function() {
 
 	//// label Total Current Fees 2
 	var labTotalCurrentFees2 = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '18dp'
 		},
@@ -211,7 +214,7 @@ exports.Proposal = function() {
 
 	//// label Current Effective Rate
 	var labCurrentEffectiveRate = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '18dp'
 		},
@@ -227,7 +230,7 @@ exports.Proposal = function() {
 
 	//// label Current Effective Rate 2
 	var labCurrentEffectiveRate2 = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '18dp'
 		},
@@ -245,7 +248,7 @@ exports.Proposal = function() {
 	//// label Proposd Pricing
 
 	var labProposdPricing = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '22dp',
 			//fontWeight : 'bold'
@@ -275,11 +278,12 @@ exports.Proposal = function() {
 	var itemLbl1 = Ti.UI.createLabel({
 		text : 'Item',
 		textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-		backgroundColor : '#e6e6e6',
+		backgroundColor : '#4BC4F1',
 		width : '65%',
 		top : 1,
 		left : 2,
 		height : Ti.UI.SIZE,
+		color: "white"
 		//borderColor: '#999999'
 	});
 
@@ -296,10 +300,11 @@ exports.Proposal = function() {
 	var costLbl1 = Ti.UI.createLabel({
 		text : 'Cost',
 		textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-		backgroundColor : '#e6e6e6',
+		backgroundColor : '#4BC4F1',
 		left : '65%',
 		right : 2,
 		top : 1,
+		color: "white",
 		//width : '35%',
 		height : Ti.UI.SIZE,
 		//borderColor: '#999999'
@@ -311,7 +316,7 @@ exports.Proposal = function() {
 		//width : Ti.UI.FILL,
 		right : 1,
 		left : 1,
-		top : 20
+		top : 22
 	});
 
 	proposedPricingContainerView.add(itemLbl1);
@@ -323,7 +328,7 @@ exports.Proposal = function() {
 
 	////////Proposed Fees
 	var labProposedFees = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '18dp'
 		},
@@ -337,7 +342,7 @@ exports.Proposal = function() {
 	self.add(labProposedFees);
 	////////Proposed Fees2
 	var labProposedFees2 = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '18dp'
 		},
@@ -353,7 +358,7 @@ exports.Proposal = function() {
 
 	//////// Proposed Effective Rate
 	var labProposedEffectiveRate = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '18dp'
 		},
@@ -368,7 +373,7 @@ exports.Proposal = function() {
 
 	//////// Proposed Effective Rate2
 	var labProposedEffectiveRate2 = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '18dp'
 		},
@@ -383,38 +388,40 @@ exports.Proposal = function() {
 	/////////////////////////////////////////////////////
 	//////// Monthly Savings
 	var labMonthlySavings = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
-			fontFamily : 'gillsans-bold',
+			//fontFamily : 'gillsans-bold',
 			fontSize : '50dp',
-			fontweight : 'bold'
+			//fontweight : 'bold'
 		},
 		text : 'Monthly Savings',
 		textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-		top : 350,
-		left : '6%',
-		width : 430,
+		top : 386,//370,
+		left : '5%',
+		//width : 430,
+		width: "45%",
 		height : Ti.UI.SIZE
 	});
 	self.add(labMonthlySavings);
 	//////// Monthly Savings2
 	var labMonthlySavings2 = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '40dp',
-			fontweight : 'bold'
+			//fontweight : 'bold'
 		},
 		text : '$ xxxxx.xx',
 		textAlign : Ti.UI.TEXT_ALIGNMENT_CENTER,
-		top : 410,
-		left : '6%',
-		width : 430,
+		top : 456,//440,
+		left : '5%',
+		//width : 430,
+		width: "45%",
 		height : Ti.UI.SIZE
 	});
 	self.add(labMonthlySavings2);
 	//////// Year 1 Savings
 	var labYear1Savings = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '22dp',
 			fontweight : 'bold'
@@ -429,7 +436,7 @@ exports.Proposal = function() {
 	self.add(labYear1Savings);
 	//////// Year 1 Savings ii
 	var labYear1Savingsii = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '22dp',
 			fontweight : 'bold'
@@ -445,7 +452,7 @@ exports.Proposal = function() {
 
 	//////// Year 2 Savings
 	var labYear2Savings = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '22dp',
 			fontweight : 'bold'
@@ -460,7 +467,7 @@ exports.Proposal = function() {
 	self.add(labYear2Savings);
 	//////// Year 2 Savings ii
 	var labYear2Savingsii = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '22dp',
 			fontweight : 'bold'
@@ -475,7 +482,7 @@ exports.Proposal = function() {
 	self.add(labYear2Savingsii);
 	//////// Year 3 Savings
 	var labYear3Savings = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '22dp',
 			fontweight : 'bold'
@@ -490,7 +497,7 @@ exports.Proposal = function() {
 	self.add(labYear3Savings);
 	//////// Year 3 Savings ii
 	var labYear3Savingsii = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '22dp',
 			fontweight : 'bold'
@@ -505,7 +512,7 @@ exports.Proposal = function() {
 	self.add(labYear3Savingsii);
 	//////// Year 4 Savings
 	var labYear4Savings = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '22dp',
 			fontweight : 'bold'
@@ -520,7 +527,7 @@ exports.Proposal = function() {
 	self.add(labYear4Savings);
 	//////// Year 4 Savings ii
 	var labYear4Savingsii = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '22dp',
 			fontweight : 'bold'
@@ -535,7 +542,7 @@ exports.Proposal = function() {
 	self.add(labYear4Savingsii);
 	//////// Year 5 Savings
 	/*	var labYear5Savings = Ti.UI.createLabel({
-	color : '#0082b4',
+	color : '#027ebb',
 	font : {
 	fontSize : '22dp',
 	fontweight : 'bold'
@@ -550,7 +557,7 @@ exports.Proposal = function() {
 	self.add(labYear5Savings);
 	//////// Year 5 Savings ii
 	var labYear5Savingsii = Ti.UI.createLabel({
-	color : '#0082b4',
+	color : '#027ebb',
 	font : {
 	fontSize : '22dp',
 	fontweight : 'bold'
@@ -565,19 +572,19 @@ exports.Proposal = function() {
 	self.add(labYear5Savingsii);*/
 	//////// Prepaid By : Asim siddiqui
 	var labPreparedBy = Ti.UI.createLabel({
-		color : '#0082b4',
+		color : '#027ebb',
 		font : {
 			fontSize : '20dp',
 			fontweight : 'bold'
 		},
-		text : /*'Prepared By: \n\n' + */globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName+'\n\n'+ 
-		       globalVariables.GV.companyName+'\n'+
-		       globalVariables.GV.addressLine1+'\n'+
-		       globalVariables.GV.addressLine2+'\n'+
-		       globalVariables.GV.phone+'\n'+
-		       globalVariables.GV.email,
+		text : 'Prepared By: \n\n' + globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName, 
+		       // globalVariables.GV.companyName+'\n'+
+		       // globalVariables.GV.addressLine1+'\n'+
+		       // globalVariables.GV.addressLine2+'\n'+
+		       // globalVariables.GV.phone+'\n'+
+		       // globalVariables.GV.email,
 
-		top : '73%',//'90%',
+		top : '85%', //73
 		left : '5%',
 		width : Ti.UI.SIZE,
 		height : Ti.UI.SIZE,
@@ -878,7 +885,7 @@ exports.Proposal = function() {
     // var testBtn = Ti.UI.createButton({
         // title : 'ADD DEL FIELD',
         // top : '1%',
-        // color : '#0082b4',
+        // color : '#027ebb',
         // right : 40,
         // height : 70
     // });
@@ -897,7 +904,7 @@ exports.Proposal = function() {
 	var goButton = Ti.UI.createButton({
 		title : 'Create PDF',
 		top : '4%',
-		color : '#0082b4',
+		color : '#027ebb',
 		right : 40,
 		height : 70
 	});
@@ -912,19 +919,23 @@ exports.Proposal = function() {
 		self.remove(labPreparedBy);
 			
 		//CHANGE SIZE AND COLOR
-		self.height=1300;
+		self.height=1250;
 		var children = self.getChildren();//labProposdPricing.color='#000';
 		for (var i=0;i<children.length;i++){
 			Ti.API.info(children[i].apiName);
+			//Ti.API.info(children[i]);
 			if(children[i].apiName=='Ti.UI.Label')
 			{
-				children[i].color="#000";
+				//children[i].color="#027ebb";//"#4d4d4f";
+				children[i].font.fontFamily = "Avenir Next";
 			}
 		}
 		
+		
+		
 		//ADD CORPORATE TEXT
-		var footerLogo = Ti.UI.createImageView({
-			image: "/images/imageOnly.png",
+		var footerLogo = Ti.UI.createImageView({	
+			image: "/images/center-01.png",
 			top: 590,
 			width: 900,
 			height: 300
@@ -932,18 +943,21 @@ exports.Proposal = function() {
 		self.add(footerLogo);
 		
 		var footerText1 = Ti.UI.createLabel({
-			left: 5,
-			top: 940,
+			left: 40,
+			top: 970,
+			color: "#4d4d4f",
 			font : {
-				fontSize : '22dp',
-				fontweight : 'bold'
+				fontSize : '18dp', //was 22
+				//fontweight : 'bold'
+				fontFamily: "Avenir Next"
 			},
-			text : /*'Prepared By: \n\n' + */globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName+'\n\n'+ 
+			text : 'Contact: \n\n' + globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName+'\n'+ 
 		       globalVariables.GV.companyName+'\n'+
 		       globalVariables.GV.addressLine1+'\n'+
 		       globalVariables.GV.addressLine2+'\n'+
 		       globalVariables.GV.phone+'\n'+
-		       globalVariables.GV.email
+		       globalVariables.GV.email+'\n'+
+		       globalVariables.GV.website,
 			// text : 'Prepared By: \n' + globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName+
 					// '\n\nPriority Payment System South'+
 					// '\n(866) 648-6449 option 2'+
@@ -952,37 +966,56 @@ exports.Proposal = function() {
 		});
 		self.add(footerText1);
 		
-		var footerText2 = Ti.UI.createLabel({
+		var footerSecondImage = Ti.UI.createImageView({
+			image: "/images/funding-01.png",
 			right: 5,
 			left: '45%',
-			top: 940,
-			font : {
-				fontSize : '22dp',
-				fontweight : 'bold'
-			},
-			text: 'The Value of Partnering with Priority begins with:\n\n'+
-				  '     * Fair and Transparent Pricing.\n'+
-     			  ' 	* Easy to read Monthly Statements.\n'+
-     			  ' 	* One statement for all cards Visa, Mastercard,\n       American Express, Discover and Debit.\n'+
-     			  ' 	* Next Day Funding for all card types.'
+			top: 940
 		});
+		self.add(footerSecondImage);
 		
-		self.add(footerText2);
+		// var footerText2 = Ti.UI.createLabel({
+			// right: 5,
+			// left: '45%',
+			// top: 940,
+			// font : {
+				// fontSize : '22dp',
+				// fontweight : 'bold'
+			// },
+			// text: 'The Value of Partnering with Priority begins with:\n\n'+
+				  // '     * Fair and Transparent Pricing.\n'+
+     			  // ' 	* Easy to read Monthly Statements.\n'+
+     			  // ' 	* One statement for all cards Visa, Mastercard,\n       American Express, Discover and Debit.\n'+
+     			  // ' 	* Next Day Funding for all card types.'
+		// });
 		
-		var footerText3 = Ti.UI.createLabel({
-			left: 5,
-			top: 1200,
-			font:{
-				fontSize: 16
-			},
-			text: 'This quote is based on the merchant statement/information provided by the merchant. This offer is valid for 30 days. After 30 '+ 
-				  'days we may need to complete another comparison because interchange can fluctuate month to month. Our overall effective '+
-				  'rate is also based on the interchange categories for the bankcards you process each month.'
-		});
 		
-		self.add(footerText3);
+		
+		//self.add(footerText2);
+		
+		// var footerBottomImage = Ti.UI.createImageView({
+			// image: "/images/bottom-02.png",
+			// left: 5,
+			// right: 5,
+			// //left: '45%',
+			// top: 1215
+		// });
+		//self.add(footerBottomImage);
+		
+		// var footerText3 = Ti.UI.createLabel({
+			// left: 5,
+			// top: 1200,
+			// font:{
+				// fontSize: 16
+			// },
+			// text: 'This quote is based on the merchant statement/information provided by the merchant. This offer is valid for 30 days. After 30 '+ 
+				  // 'days we may need to complete another comparison because interchange can fluctuate month to month. Our overall effective '+
+				  // 'rate is also based on the interchange categories for the bankcards you process each month.'
+		// });
+		
 		var pdfBlob = converters.convertImageToPDF(self.toImage(),100);
-		var pdfFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, globalVariables.GV.BusinessName + '.pdf');
+		var pdfName = globalVariables.GV.BusinessName.replace(/\//g,"-");
+		var pdfFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, pdfName + '.pdf');
 		pdfFile.write(pdfBlob);
 		Ti.API.info(pdfFile.nativePath);
 		var docViewer = Ti.UI.iOS.createDocumentViewer({
@@ -996,20 +1029,22 @@ exports.Proposal = function() {
 			self.height=Ti.UI.FILL;
 			self.add(goButton);
 			self.add(imgCal);
+			//self.remove(headerImg);
 			self.remove(footerLogo);
 			footerLogo=null;
 			self.remove(footerText1);
-			self.add(labPreparedBy);
 			footerText1=null;
-			self.remove(footerText3);
-			footerText3=null;
-			self.remove(footerText2);
-			footerText2=null;
+			//self.remove(footerBottomImage);
+			//footerText3=null;
+			self.remove(footerSecondImage);
+			self.add(labPreparedBy);
+			//footerText2=null;
 			for (var i=0;i<children.length;i++){
 				Ti.API.info(children[i].apiName);
 				if(children[i].apiName=='Ti.UI.Label')
 				{
-					children[i].color="#0082b4";
+					children[i].color="#027ebb";
+					children[i].font.fontFamily = "Default";
 				}
 			}
 			//self.add(calcBtn);
@@ -1047,12 +1082,13 @@ exports.Proposal = function() {
             labProposedEffectiveRate2.setText(propEffRate+' %');
     			
     		labProposal.setText('Proposal For ' + globalVariables.GV.BusinessName);
-    		labPreparedBy.setText(globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName+'\n\n'+ 
-		       globalVariables.GV.companyName+'\n'+
-		       globalVariables.GV.addressLine1+'\n'+
-		       globalVariables.GV.addressLine2+'\n'+
-		       globalVariables.GV.phone+'\n'+
-		       globalVariables.GV.email);
+    		labPreparedBy.setText('Prepared By: \n\n' + globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName); 
+		       // globalVariables.GV.companyName+'\n'+
+		       // globalVariables.GV.addressLine1+'\n'+
+		       // globalVariables.GV.addressLine2+'\n'+
+		       // globalVariables.GV.phone+'\n'+
+		       // globalVariables.GV.email+'/n'+
+		       // globalVariables.GV.website);
 		    //'Prepared By:\n' + globalVariables.GV.firstName + '  ' + globalVariables.GV.lastName);//globalVariables.GV.repName);
     		if(globalVariables.GV.requestedUpdate && e.alert){
     			

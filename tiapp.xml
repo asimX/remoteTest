@@ -7,12 +7,19 @@
     <property name="acs-oauth-secret-development" type="string">rib4jo2J260Wa9N5U3BpqcdlBy6d0biy</property>
     <property name="acs-oauth-key-development" type="string">lgeVGP8VTR7MtHfBYXw1zrN2KhJyUTyF</property>
     <property name="acs-api-key-development" type="string">ZjxblkhEN42zd6WdS2XML4cwLJi8xCn0</property>
-    <!--<property name="acs-oauth-secret-development" type="string">GHmMeONQdJ4CYXR5LmLmEFczYveQM7SZ</property><property 
+    <!--<property name="acs-oauth-secret-development" type="string">rib4jo2J260Wa9N5U3BpqcdlBy6d0biy</property>
+    <property name="acs-oauth-key-development" type="string">lgeVGP8VTR7MtHfBYXw1zrN2KhJyUTyF</property>
+    <property name="acs-api-key-development" type="string">ZjxblkhEN42zd6WdS2XML4cwLJi8xCn0</property>
+    <property name="acs-oauth-secret-development" type="string">ZEZDG6bJyNCJJ2m65lXDf50HTIPwQQBz</property>
+    <property name="acs-oauth-key-development" type="string">Sq3RS4Ao4nJqnyGyjEpSV3hJCQvHiGDR</property>
+    <property name="acs-api-key-development" type="string">yU9BxGF6W8Exu9Ut5IIJ6Hy5q1CEIMMy</property>
+    	
+    <property name="acs-oauth-secret-development" type="string">GHmMeONQdJ4CYXR5LmLmEFczYveQM7SZ</property><property 
     name="acs-oauth-key-development" type="string">P354oP7fi2Q5rPAR6D4yJoEJBcSTQlD2</property><property 
     name="acs-api-key-development" type="string">Q8j2efLgKn7QYqPyUuRCyQ9GX852axKp</property>!-->
     <id>com.bwa.interchangeGenius</id>
-    <name>pps</name>
-    <version>1.3.7</version>
+    <name>InterchangeGenius</name>
+    <version>1.4.4</version>
     <publisher>BWA</publisher>
     <url>http://</url>
     <description>undefined</description>
@@ -57,7 +64,7 @@
         <target device="mobileweb">false</target>
         <target device="tizen">false</target>
     </deployment-targets>
-    <sdk-version>5.0.2.GA</sdk-version>
+    <sdk-version>5.4.0.GA</sdk-version>
     <property name="appc-app-id" type="string">55622a03f3defdde2b5a1d18</property>
     <property name="acs-authbase-url-development" type="string">https://secure-identity.cloud.appcelerator.com</property>
     <property name="acs-base-url-development" type="string">https://api.cloud.appcelerator.com</property>

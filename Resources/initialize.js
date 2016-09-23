@@ -25,7 +25,7 @@ exports.init = function(startApp){
 	globalVariables.GV.website = Ti.App.Properties.getString("website", null);
 	globalVariables.GV.email = Ti.App.Properties.getString("email", null);
 	
-	//globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
+	globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
 	// db.getProposalCount(function(e){
         // if(e.success){
             // if(e.total>0){
@@ -69,7 +69,7 @@ exports.init = function(startApp){
 		globalVariables.GV.tm_id = Ti.App.Properties.getString("tm_id", null);
 		globalVariables.GV.team_id = Ti.App.Properties.getString("team_id", null);
         globalVariables.GV.team_name = Ti.App.Properties.getString("team_name", null);
-		//globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
+		globalVariables.GV.repName = globalVariables.GV.firstName+' '+globalVariables.GV.lastName;
 		globalVariables.GV.companyName = Ti.App.Properties.getString("companyName", null);
 		globalVariables.GV.addressLine1 = Ti.App.Properties.getString("addressLine1", null);
 		globalVariables.GV.addressLine2 = Ti.App.Properties.getString("addressLine2", null);
